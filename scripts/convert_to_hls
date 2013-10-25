@@ -1,0 +1,32 @@
+#!/bin/bash -x
+VIDSOURCE="$1"
+RESOLUTION="854x480"
+BITRATE1="800000"
+BITRATE2="600000"
+BITRATE3="400000"
+#
+AUDIO_OPTS="-c:a libfaac -b:a 16000 -ac 2"
+VIDEO_OPTS1="-s $RESOLUTION -c:v libx264 -b:v $BITRATE1 -vprofile baseline -preset medium -x264opts level=41"
+VIDEO_OPTS2="-s $RESOLUTION -c:v libx264 -b:v $BITRATE2 -vprofile baseline -preset medium -x264opts level=41"
+VIDEO_OPTS3="-s $RESOLUTION -c:v libx264 -b:v $BITRATE3 -vprofile baseline -preset medium -x264opts level=41"
+OUTPUT_HLS="-hls_time 3 -hls_list_size 10 -hls_wrap 30 -start_number 1"
+#
+#ffmpeg -i "$VIDSOURCE" -y -threads 4 \
+#       $AUDIO_OPTS $VIDEO_OPTS1 $OUTPUT_HLS stream_hi.m3u8 \
+#       $AUDIO_OPTS $VIDEO_OPTS2 $OUTPUT_HLS stream_med.m3u8 \
+#       $AUDIO_OPTS $VIDEO_OPTS3 $OUTPUT_HLS stream_low.m3u8
+ffmpeg -i "$VIDSOURCE" -y -threads 2 $AUDIO_OPTS $VIDEO_OPTS3 $OUTPUT_HLS -f hls -
+#
+# ----------->8-------------
+#
+# Add in a m3u8 playlist for the streams created in the script.
+# Something like this should work.
+# ----------->8-------------
+# #EXTM3U
+# #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=500000
+# stream_low.m3u8
+# #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=700000
+# stream_med.m3u8
+# #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=900000
+# stream_hi.m3u8
+# ----------->8-------------

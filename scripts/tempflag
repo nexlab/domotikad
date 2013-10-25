@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ x"$1" = x"" ] ; then
+   echo "Usage: $0 </tmp/flagname> <time in seconds>"
+   exit 0
+fi
+
+echo 1 > $1
+sleep $2
+echo 0 > $1
+

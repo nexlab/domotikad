@@ -1,0 +1,23 @@
+Metadata-Version: 1.0
+Name: SchemaSync
+Version: 0.9.2
+Summary: A MySQL Schema Synchronization Utility
+Home-page: UNKNOWN
+Author: Mitch Matuson
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: Schema Sync will generate the SQL necessary to migrate the schema of a source database to a target database (patch script), as well as a the SQL necessary to undo the changes after you apply them (revert script).
+        
+Keywords: MySQL,database,schema,migration,SQL
+Platform: UNKNOWN
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python
+Classifier: Topic :: Database
+Classifier: Topic :: Database :: Front-Ends
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Topic :: Software Development :: Code Generators
+Classifier: Topic :: Utilities

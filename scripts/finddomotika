@@ -1,0 +1,4 @@
+#!/bin/bash
+net=`ip addr list | grep inet | grep eth0 | head -n 1 | awk '{print $2}'`
+nmap -sP $net  | grep -B 2 -i "Ieee" | grep -v "is up" | sed -e 's/Nmap scan repord for//g' | sed -e 's/Ieee Registration Authority/Unixmedia Domotika device/g'
+

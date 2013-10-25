@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Image Example</title>
+
+	<script src="js/objectdetect.js"></script>
+	<script src="js/objectdetect.frontalface.js"></script>
+	<script src="js/objectdetect.eye.js"></script>
+	
+	<script src="js/jquery.js"></script>
+	<script src="js/jquery.objectdetect.js"></script>
+	
+	<script>
+	$.fn.highlight = function(rect, color) {
+		$("<div />", {
+			"css": {
+				"border":   "2px solid " + color,
+				"position":	"absolute",
+				"left":		($(this).offset().left + rect[0]) + "px",
+				"top":		($(this).offset().top  + rect[1]) + "px",
+				"width": 	rect[2] + "px",
+				"height": 	rect[3] + "px"
+			}
+		}).appendTo("body");
+	}
+		
+	$(window).load(function() {
+		$("#face").objectdetect("all", {classifier: objectdetect.frontalface}, function(faces) {
+			for (var i = 0; i < faces.length; ++i) {
+				$(this).highlight(faces[i], "red");
+			
+			}
+		});
+	});
+	
+    </script>
+</head>
+
+<body>
+	<h1>Detect Faces</h1>
+	<img id="face" src="img/faces.jpg">
+</body>
+</html>

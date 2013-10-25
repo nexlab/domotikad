@@ -1,0 +1,15 @@
+home = home
+blind = blinds
+cancello = gates
+clima = clima
+door = doors
+led = leds
+light = lights
+scenari = scenaries
+socket = sockets
+valvle = valvles
+sensor = sensors
+camera = ipcams
+window = windows
+user = user
+none = No section

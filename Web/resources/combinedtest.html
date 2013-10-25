@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script src="/resources/js/sockjs-0.3.min.js" ></script>
+      <script src="/resources/js/ajaxsocket.js" ></script>
+      <script src="/resources/js/jquery-1.7.1.min.js" ></script>
+      <script type="text/javascript">
+         //$(document).ready(function(){initSockets();});
+         //window.onload = initSockets;
+      </script>
+   </head>
+   <body>
+      <h1>Combined (sockjs + autobahn) Echo Test</h1>
+      <noscript>You must enable JavaScript</noscript>
+      <form>
+         <p>Message: <input id="message" type="text" size="50" maxlength="50" value="Hello, world!"></p>
+      </form>
+      <button onclick='send();'>Send Message</button>
+      <pre id="log" style="height: 20em; overflow-y: scroll; background-color: #faa;"></pre>
+   </body>
+   <script type="text/javascript">
+      initSockets();
+   </script>
+</html>

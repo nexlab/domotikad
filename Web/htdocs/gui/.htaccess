@@ -1,0 +1,10 @@
+FallbackResource /domotika/gui/index.php
+<Files *.php>
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+<Files index.php>
+    Order Allow,Deny
+    Allow from all
+</Files>

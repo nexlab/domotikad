@@ -1,0 +1,33 @@
+body { padding-top: 70px; }
+
+.home-panel {
+   height: 200px;
+   overflow: auto;
+}
+
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1370px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1570px;
+  }
+}
+
+@media (min-width: 1800px) {
+  .container {
+    max-width: 1770px;
+  }
+}
+
+@media (min-width: 2000px) {
+  .container {
+    max-width: 1970px;
+  }
+}
+
+

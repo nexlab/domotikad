@@ -1,0 +1,144 @@
+/*
+LCARS Framework jQuery Plugin v2.0
+Requires Jquery 1.4.*
+@author: Josh Messer
+@date: 1.26.2011
+
++--------------------------+
+| LCARS COLOR TABLE        |
++--------------------------+
+orange = #ff9900
+purple = #cc99cc
+blue = #9999ff
+lightBlue = #9999cc
+red = #cc0000
+lightRed = #cc6666
+tan = #ff9966
+lightTan = #ffcc99
+pink = #cc6699
+white = #ccccff
++--------------------------+
+*/
+
+@font-face {
+	/* This declaration targets Internet Explorer */
+	font-family: 'lcars_font';
+	src: url('lcars-webfont.eot');
+}
+@font-face {
+	/* This declaration targets everything else */
+	font-family: 'lcars_font';
+	src: url(//:) format('no404'), url('lcars-webfont.woff') format('woff'), url('lcars-webfont.ttf') format('truetype'), url('lcars-webfont.svg#webfontMzhP0WIg') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+html, body{
+	background-color:#000;
+	color:#fff;
+	margin:0;
+	padding:0;
+	font-size:1.4em;
+/* Prevents double scroll bars */
+	overflow:hidden;
+	height:100%;
+}
+
+button, html, body{
+	font-family:lcars_font;
+	/* This helps to make the text easy to read. */
+	letter-spacing: 0.02em;  
+
+}
+
+div.lcars-content-frame {
+    background-color:#000;
+    padding: 1em;
+    margin-left:0.2em;
+    border-radius: .5em 0 0 .5em;
+    -moz-border-radius: .5em 0 0 .5em;
+    -webkit-border-top-right-radius: 0;
+    -webkit-border-bottom-right-radius: 0;
+}
+
+div.lcars-border-frame {
+    background-color:#f90;
+    margin:5px;
+    padding:0.5em 0 0.5em 1.5em;
+    border-radius: 1em 0 0 1em;
+    -moz-border-radius: 1em 0 0 1em;
+    -webkit-border-top-right-radius: 0;
+    -webkit-border-bottom-right-radius: 0;
+}
+
+div.lcars-side-panel{
+    float:left;
+}
+
+canvas.lcars-swirly{
+    width:100%;
+}
+
+.lcars-tframe { background:black; padding-left:0.5em;}
+
+.lcars-tframe div.lcars-upper,.lcars-tframe div.lcars-lower {
+    background:black;
+    padding-left:1em;
+}
+
+.lcars-tframe .lcars-upper .lcars-heading {
+    margin:0;
+    text-align:right;
+    padding-right:1em;
+    text-transform:uppercase
+}
+
+.lcars-tframe .lcars-nav {
+    margin:0;
+    padding:0;
+    color:black;
+    text-align:right;
+    font-size:0.75em;
+    float:left;
+}
+.lcars-tframe .lcars-nav li {
+    border-bottom:black solid 2px;
+    padding-top:1.5em;
+    padding-right:0.5em;
+    list-style-type:none;
+}
+
+.lcars-clickable,.lcars-button {
+    cursor:pointer;
+}
+
+.lcars-tframe .lcars-upper-panel .lcars-nav :last-child {border:none;}
+
+.lcars-tframe .lcars-nav-wrapper{
+    float:left;
+}
+
+.lcars-button {
+    text-decoration:none;
+    color:black;
+    padding:0 .5em 0 .5em;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border:0;
+}
+
+button.lcars-button {
+    font-size: 1em;
+}
+
+.lcars-tan { background-color:#f96; }
+.lcars-lightRed{ background-color:#c66; }
+.lcars-orange { background-color: #ff9900; }
+.lcars-purple { background-color: #cc99cc; }
+.lcars-blue { background-color: #9999ff; }
+.lcars-lightBlue { background-color: #9999cc; }
+.lcars-red { background-color: #cc0000; }
+.lcars-lightTan { background-color: #ffcc99; }
+.lcars-pink { background-color: #cc6699; }
+.lcars-white { background-color: #ccccff; }

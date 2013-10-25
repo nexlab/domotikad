@@ -1,0 +1,203 @@
+<html>
+<head>
+<title>Domotika By Unixmedia</title>
+<style>
+body {
+    background: none repeat scroll 0 0 #FBFBFB;
+    font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
+    font-size: 12px;
+    height: 100%;
+    line-height: 1.4em;
+    margin: 0;
+    min-width: 0;
+    padding: 0;
+}
+
+.login * {
+    margin: 0;
+    padding: 0;
+}
+
+.login form {
+   margin-left: 8px;
+   padding: 26px 24px 46px;
+   font-weight: normal;
+   background: #fff;
+   border: 1px solid #e5e5e5;
+   -webkit-box-shadow: rgba(200, 200, 200, 0.7) 0px 4px 10px -1px;
+   box-shadow: rgba(200, 200, 200, 0.7) 0px 4px 10px -1px;
+}
+
+.login .button-primary {
+   float: right;
+}
+
+.login form .forgetmenot {
+    float: left;
+    font-weight: normal;
+    margin-bottom: 0;
+}
+.login .button-primary {
+    float: right;
+}
+#login form p {
+    margin-bottom: 0;
+}
+#login form p.submit {
+    padding: 0;
+}
+.login label {
+    color: #777777;
+    font-size: 14px;
+}
+
+.login form .forgetmenot label {
+    font-size: 12px;
+    line-height: 19px;
+}
+.login h1 {
+    background-position: center top;
+    background-repeat: no-repeat;
+    display: block;
+    outline: 0 none;
+    overflow: hidden;
+    padding-bottom: 15px;
+}
+#login {
+    margin: auto;
+    padding: 114px 0 0;
+    width: 320px;
+}
+#login_error, .login .message {
+    margin: 0 0 16px 8px;
+    padding: 12px;
+}
+.login #nav, .login #backtoblog {
+    margin: 0 0 0 16px;
+    padding: 16px 16px 0;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+#backtoblog {
+    padding: 12px 16px 0;
+}
+.login, .login form .input, .login input[type="text"], .login input[type="password"] {
+    background: none repeat scroll 0 0 #FBFBFB;
+    border: 1px solid #E5E5E5;
+    box-shadow: 1px 1px 2px rgba(200, 200, 200, 0.2) inset;
+    color: #555555;
+    font-size: 24px;
+    font-weight: 200;
+    line-height: 1;
+    margin-bottom: 16px;
+    margin-right: 6px;
+    margin-top: 2px;
+    outline: 0 none;
+    padding: 3px;
+    width: 100%;
+   -webkit-border-radius: 3px;
+   border-radius: 3px;
+   border-width: 1px;
+   border-style: solid;
+
+}
+#login form {
+   padding: 40px;
+   background: #fff;
+}
+.login #pass-strength-result {
+    border-style: solid;
+    border-width: 1px;
+    font-weight: bold;
+    margin: 12px 0 6px;
+    padding: 6px 5px;
+    text-align: center;
+    width: 250px;
+}
+.mobile #login {
+    padding: 20px 0;
+}
+.mobile #login form, .mobile #login .message, .mobile #login_error {
+    margin-left: 0;
+}
+.mobile #login #nav, .mobile #login #backtoblog {
+    margin-left: 8px;
+}
+.mobile #login h1 a {
+    width: auto;
+}
+
+label {
+   text-align:left;
+}
+p {
+   text-align:left;
+}
+
+h4 {
+   text-align:center;
+   padding-bottom: 20px !important;
+}
+
+img {
+   padding-left: 40px;
+}
+
+/** LOgin button */
+.loginbutton {
+   float:right;
+   -moz-box-shadow:inset 0px 1px 0px 0px #c1ed9c;
+   -webkit-box-shadow:inset 0px 1px 0px 0px #c1ed9c;
+   box-shadow:inset 0px 1px 0px 0px #c1ed9c;
+   background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #9dce2c), color-stop(1, #8cb82b) );
+   background:-moz-linear-gradient( center top, #9dce2c 5%, #8cb82b 100% );
+   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#9dce2c', endColorstr='#8cb82b');
+   background-color:#9dce2c;
+   -moz-border-radius:6px;
+   -webkit-border-radius:6px;
+   border-radius:6px;
+   border:1px solid #83c41a;
+   display:inline-block;
+   color:#ffffff;
+   font-family:arial;
+   font-size:15px;
+   font-weight:bold;
+   padding:6px 24px;
+   text-decoration:none;
+   text-shadow:1px 1px 0px #689324;
+}.loginbutton:hover {
+   background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #8cb82b), color-stop(1, #9dce2c) );
+   background:-moz-linear-gradient( center top, #8cb82b 5%, #9dce2c 100% );
+   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#8cb82b', endColorstr='#9dce2c');
+   background-color:#8cb82b;
+}.loginbutton:active {
+   position:relative;
+   top:1px;
+}
+/* END LOGIN BUTTON */
+
+</style>
+@SCRIPT@
+</head>
+
+
+<div id="login">
+<img src="/img/logo_unixmedia_white.png">
+<form name="loginform" id="login" class="login" action="@PATH@" method="post">
+   <h4>Domotika Login</h4>
+   <p>
+      <label for="user_login">Username<br />
+      <input type="text" name="username" id="user_login" class="input" value="@USERNAME@" size="20" /></label>
+   </p>
+   <p>
+      <label for="user_pass">Password<br />
+      <input type="password" name="password" id="user_pass" class="input" value="@PASSWORD@" size="20" /></label>
+   </p>
+   <p class="forgetmenot"><label for="rememberme"><input name="rememberMe" type="checkbox" id="rememberme" value="Yes"  @CHECKED@ /> Remember Me</label></p>
+   <p class="submit">
+      <input type="submit" name="wp-submit" id="wp-submit" class="loginbutton" value="Login" />
+   </p>
+</form>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,10 @@
+websection.blind = /domotika/mobile/images/tapparelle.jpg
+websection.cancello = /domotika/mobile/images/cancelli.jpg
+websection.clima = /domotika/mobile/images/clima.jpg
+websection.door = /domotika/mobile/images/porte.jpg
+websection.led = /domotika/mobile/images/led.jpg
+websection.light = /domotika/mobile/images/luci.jpg
+websection.scenari = /domotika/mobile/images/scenari.jpg
+websection.socket = /domotika/mobile/images/prese.jpg
+websection.valvle = /domotika/mobile/images/valvole.jpg
+

@@ -1,0 +1,15 @@
+CHANGES
+MANIFEST.in
+README
+ez_setup.py
+setup.py
+SchemaSync.egg-info/PKG-INFO
+SchemaSync.egg-info/SOURCES.txt
+SchemaSync.egg-info/dependency_links.txt
+SchemaSync.egg-info/entry_points.txt
+SchemaSync.egg-info/requires.txt
+SchemaSync.egg-info/top_level.txt
+schemasync/__init__.py
+schemasync/schemasync.py
+schemasync/syncdb.py
+schemasync/utils.py

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Pick Your Glasses</title>
+	
+	<script src="js/compatibility.js"></script>
+	<script src="js/smoother.js"></script>
+	
+	<script src="js/objectdetect.js"></script>
+	<script src="js/objectdetect.frontalface.js"></script>
+	<script src="js/objectdetect.handopen.js"></script>
+   <script src="js/objectdetect.handfist.js"></script>
+   <script src="js/objectdetect.mouth.js"></script>
+   <script src="js/objectdetect.eye.js"></script>
+	<script src="https://code.jquery.com/jquery-1.8.0.min.js"></script>
+	<script src="js/jquery.objectdetect.js"></script>
+	
+	<script>
+	var smoother = new Smoother(0.85, [0, 0, 0, 0, 0]);
+	
+   $.fn.highlight = function(rect, color) {
+      $("<div />", {
+         "css": {
+            "border":   "2px solid " + color,
+            "position": "absolute",
+            "left":     ($(this).offset().left + rect[0]) + "px",
+            "top":      ($(this).offset().top  + rect[1]) + "px",
+            "width":    rect[2] + "px",
+            "height":   rect[3] + "px"
+         }
+      }).appendTo("body");
+   }
+
+	
+	$(window).load(function() {
+	
+		var video = $("#video").get(0);
+		try {
+			compatibility.getUserMedia({video: true}, function(stream) {
+				try {
+					video.src = compatibility.URL.createObjectURL(stream);
+				} catch (error) {
+					video.src = stream;
+				}
+				video.play();
+				compatibility.requestAnimationFrame(tick);
+			}, function (error) {
+				alert("WebRTC not available");
+			});
+		} catch (error) {
+			alert(error);
+		}
+		
+		function tick() {
+			compatibility.requestAnimationFrame(tick);
+			var classifier=objectdetect.frontalface;
+			if (video.readyState === video.HAVE_ENOUGH_DATA) {
+				$(video).objectdetect("all", {scaleMin: 3, scaleFactor: 1.1, classifier: classifier}, function(coords) {
+               $("DIV").remove();
+					//if (coords[0]) 
+					//	coords = smoother.smooth(coords[0]);
+               for (var i = 0; i < coords.length; ++i) {
+                  $(this).highlight(coords[i], "red");
+               }
+				});
+			}
+		}
+		
+	});
+	
+    </script>
+</head>
+
+<body>
+	<h1>Pick Your Glasses</h1>
+	<video id="video" style="float:left; margin-right:1em;"></video>
+	Images are licensed under <img src="img/cc_by_sa_3.png"> by vectorarts.net
+</body>
+</html>

@@ -1,0 +1,18 @@
+home = home
+blind = tapparelle
+cancello = cancelli
+clima = clima
+door = porte
+led = led
+light = luci
+scenari = scenari
+socket = prese
+valvle = valvole
+sensor = sensori
+camera = telecamere
+window = finestre
+user = user
+none = Nessuna Sezione
+phone = telefono
+index = Home
+

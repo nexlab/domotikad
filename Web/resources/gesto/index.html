@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="bootstrap.css">
+		<style>
+			
+
+			.imageContainer {
+				
+				position: relative;
+			}
+
+			
+			img.currentImage {
+				display: inline;
+      			position: absolute;
+			}
+
+			img.oldImage {
+				display: none;		
+      			
+			}
+
+			.prev, .next {
+				position: absolute;
+			}
+			
+			.prev {
+				top: 300px;
+				left: 0px;
+			}
+
+			.next {
+				top: 300px;
+				right: 0px;
+			}
+
+			
+		</style>
+	</head>
+	<body>
+
+		<div class="container">
+			<div class="row">
+				
+				<div class="span12 imageContainer">
+					<img src="images/image1.jpg" class="currentImage" >
+					<img src="images/image2.jpg" class="oldImage">
+					<img src="images/image3.jpg" class="oldImage">
+					<img src="images/image4.jpg" class="oldImage">
+		            <img src="images/image5.jpg" class="oldImage">
+		            
+				</div>
+				
+			</div>			
+		</div>
+		<img class="prev" src="./images/prev.png">
+					
+		<img class="next" src="./images/next.png">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+  		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+  
+		<script src="gesto.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$('.next').bind('click', function(){
+					var currentImage = $('.currentImage');
+					var nextImage = $('.currentImage').next();
+					
+					if(nextImage.length) {
+						currentImage.hide("slide",{direction: "left"}, 1000).removeClass("currentImage").addClass("oldImage");
+						nextImage.removeClass("oldImage").show("slide", {direction: "right"}, 1000).addClass("currentImage");
+					}		
+				});
+
+				$('.prev').bind('click', function() {
+					var currentImage = $('.currentImage');
+					var previousImage = $('.currentImage').prev();
+
+					if(previousImage.length) {
+						currentImage.hide("slide",{direction: "right"}, 1000).removeClass("currentImage").addClass("oldImage");
+						previousImage.removeClass("oldImage").show("slide", {direction: "left"}, 1000).addClass("currentImage");
+					}
+
+				});
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,2 @@
+./boardcmd.py $1 RESETCONF 0.0.0.0 eth0
+

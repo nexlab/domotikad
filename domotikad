@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+###########################################################################
+# Copyright (c) 2011-2013 Unixmedia S.r.l. <info@unixmedia.it>
+# Copyright (c) 2011-2013 Franco (nextime) Lanza <franco@unixmedia.it>
+#
+# Domotika System Controller Daemon "domotikad"  [http://trac.unixmedia.it]
+#
+# This file is part of domotikad.
+#
+# domotikad is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
+
+from twisted.internet import epollreactor
+epollreactor.install()
+
+
+from twisted.internet import reactor, ssl
+from twisted.application import service, internet, app, reactors
+from twisted.web import server #, soap
+import logging, time, sys, os
+from dmlib.daemonizer import Daemonizer
+from domotika import domotika
+from dmlib.utils.genutils import configFile
+from logging import handlers as loghandlers
+from twisted.manhole.telnet import ShellFactory
+
+try:
+   import setproctitle
+   setproctitle.setproctitle('domotikad')
+   print 'Setting process title to', sys.argv[0]
+except:
+   pass
+
+loglevels = {
+   'info': logging.INFO,
+   'warning': logging.WARNING,
+   'error': logging.ERROR,
+   'critical': logging.CRITICAL,
+   'debug': logging.DEBUG
+}
+
+#LOGLEN=104857600 # 100 mega
+#LOGLEN=10485760 # 10 mega
+LOGLEN=26214400 # 25 mega
+
+class domotikaDaemon(Daemonizer):
+
+  def __init__(self):
+    self.curdir = os.path.abspath(os.path.dirname(sys.argv[0]))
+    log.debug("Reading daemon Config file")
+    self.daemoncfg = configFile(self.curdir+'/conf/domotikad.conf')
+    self.daemoncfg.readConfig()
+    log.debug("Daemonizing process")
+    Daemonizer.__init__(self, self.curdir+'/run/domotika.pid')
+
+  def main_loop(self):
+    log.debug("Main loop called")
+    application = service.Application("domotikad")
+    DOMOTIKAServerService = domotika.domotikaService('domotikad', curdir=self.curdir, config=self.daemoncfg)
+    serviceCollection = service.IServiceCollection(application)
+    DOMOTIKAServerService.setServiceParent(serviceCollection)
+
+    DomIkaSMTP = DOMOTIKAServerService.getSmtp()
+    if str(self.daemoncfg.get('smtp', 'enable')).lower() in ['yes', '1', 'y','true']:
+      reactor.listenTCP(int(self.daemoncfg.get('smtp', 'port')), DomIkaSMTP,
+         interface=str(self.daemoncfg.get('smtp', 'interface')))
+
+    if str(self.daemoncfg.get('manhole', 'enable')).lower() in ['yes', '1', 'y','true']:
+      shell_factory = ShellFactory()
+      shell_factory.username = self.daemoncfg.get('manhole', 'user')
+      shell_factory.password = self.daemoncfg.get('manhole', 'pass')
+      shell_factory.namespace['domotika'] = DOMOTIKAServerService
+      reactor.listenTCP(int(self.daemoncfg.get('manhole','port')), shell_factory, interface=self.daemoncfg.get('manhole','interface'))
+
+    DomIkaProxy = DOMOTIKAServerService.getProxy()
+    DomIkaServerUDP = DOMOTIKAServerService.getDomIkaUDP()
+    DomIkaServerTCP = DOMOTIKAServerService.getDomIkaTCP()
+    FastAGIServer = DOMOTIKAServerService.getFastAGI()
+    WebAuthServer =  DOMOTIKAServerService.getAuthWebServer()
+    privkey = self.daemoncfg.get('web', 'privkey')
+    cacert = self.daemoncfg.get('web', 'cacert')
+    if not privkey.startswith('/'): privkey="/".join([self.curdir, privkey])
+    if not cacert.startswith('/'): cacert="/".join([self.curdir, cacert])
+    sslContext = ssl.DefaultOpenSSLContextFactory(privkey, cacert)
+    if str(self.daemoncfg.get('web', 'enable')).lower() in ['yes', '1', 'y','true']:
+
+      reactor.listenSSL(int(self.daemoncfg.get('web', 'sslport')), WebAuthServer,
+            contextFactory=sslContext,
+            interface=str(self.daemoncfg.get('web', 'interface')))
+
+      reactor.listenTCP(int(self.daemoncfg.get('web', 'port')), WebAuthServer,
+            interface=str(self.daemoncfg.get('web', 'interface')))
+
+    if str(self.daemoncfg.get('ikapserver', 'enable')).lower() in ['yes', '1', 'y','true']:
+      reactor.listenUDP(int(self.daemoncfg.get('ikapserver', 'port')), DomIkaServerUDP, 
+            interface=str(self.daemoncfg.get('ikapserver', 'interface')))
+      if self.daemoncfg.get('ikapserver', 'port') != self.daemoncfg.get('ikapserver', 'notifyport'):
+         reactor.listenUDP(int(self.daemoncfg.get('ikapserver', 'notifyport')), DomIkaServerUDP,
+            interface=str(self.daemoncfg.get('ikapserver', 'interface')))
+    if str(self.daemoncfg.get('ikapserver', 'tcpenable')).lower() in ['yes', '1', 'y','true']:
+      reactor.listenTCP(int(self.daemoncfg.get('ikapserver', 'tcpport')), DomIkaServerTCP,
+            interface=str(self.daemoncfg.get('ikapserver', 'tcpinterface')))
+
+
+    if str(self.daemoncfg.get('asterisk', 'fagi_enable')).lower() in ['yes', '1', 'y','true']:
+      reactor.listenTCP(int(self.daemoncfg.get('asterisk', 'fagi_port')), FastAGIServer,
+         int(self.daemoncfg.get('asterisk', 'fagi_timeout')), 
+         interface=str(self.daemoncfg.get('asterisk', 'fagi_iface')))
+
+    #reactor.listenTCP(8080, DomIkaProxy)
+    log.debug("Running reactor")
+    reactor.callWhenRunning(DOMOTIKAServerService.isStarted)
+    reactor.run()
+
+if __name__ == "__main__":
+   # Starting all loggers
+   # file di log da 100 mega, per 5 rotazioni 
+   formatter = logging.Formatter('%(asctime)s => %(name)-12s: %(levelname)-8s %(message)s')
+
+   logdict={"corelog":
+            {"file":"domotika.log","name":[("Core","general")]},
+           "protocollog":
+            {"file":"ikaprotocol.log","name":
+               [("IKAProtocol","protocol"),("IKAPServer","ikapserver"),("DMDomain","protocol")]},
+           "weblog":
+            {"file":"web.log","name":[("Proxy","proxy"),("Webgui","web")]},
+           "medialog":
+            {"file":"media.log","name":[("Media","media")]},
+           "upnplog":
+            {"file":"upnp.log","name":[("UPNP","upnp")]},
+           "dblog":
+            {"file":"db.log","name":[("DMDB","database")]},
+           "maillog":
+            {"file":"mail.log","name":[("Mail","smtp")]},
+           "astlog":
+            {"file":"ami.log","name":[("AMI","asterisk")]},
+           "fagilog":
+            {"file":"fagi.log","name":[("FastAGI","asterisk")]},
+           "voicelog":
+            {"file":"speech.log","name":[("Speech","voiceui")]},
+           } 
+
+   for l in logdict.keys():
+      logdict[l]["handler"] = loghandlers.RotatingFileHandler(
+         os.path.abspath(os.path.dirname(sys.argv[0]))+'/logs/'+logdict[l]["file"], 'a', LOGLEN, 5)
+      logdict[l]["handler"].setLevel(logging.DEBUG)
+      logdict[l]["handler"].setFormatter(formatter)
+
+   logging.basicConfig()
+
+   log = logging.getLogger( 'DaemonStarter' )
+   log.addHandler(logdict["corelog"]["handler"])
+   log.setLevel( logging.INFO )
+
+   curdir = os.path.abspath(os.path.dirname(sys.argv[0]))
+
+   daemoncfg = configFile(curdir+'/conf/domotikad.conf')
+   daemoncfg.readConfig()
+   
+   for l in logdict.keys():
+      for n in logdict[l]["name"]:
+         lh = logging.getLogger(n[0])
+         lh.setLevel( loglevels[daemoncfg.get(n[1], 'loglevel')] )
+         lh.addHandler( logdict[l]["handler"] )
+
+   logging.basicConfig()
+
+   # staring the application
+   if len(sys.argv) > 1:
+      log.debug("Starting daemon with option "+sys.argv[1]) 
+      domotikaDaemon().process_command_line(sys.argv)
+   else:
+      print 'Please specify start, stop or debug option'

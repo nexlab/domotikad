@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <script src="/resources/js/sockjs-0.3.min.js" ></script>
+      <script type="text/javascript">
+         var sock = null;
+         var ellog = null;
+         window.onload = function() {
+            ellog = document.getElementById('log');
+            if(window.location.port!="")
+               wsuri = window.location.protocol+'//'+window.location.hostname+':'+window.location.port+'/sockjs';
+            else
+               wsuri = window.location.protocol+'//'+window.location.hostname+'/sockjs';
+            sock = new SockJS(wsuri, null,{debug:true,devel:true});
+
+            if (sock) {
+               sock.onopen = function(e) {
+                  log("Connected to " + wsuri );
+               };
+
+               sock.onclose = function(e) {
+                  log("Connection closed (wasClean = " + e.wasClean + ", code = " + e.code + ", reason = '" + e.reason + "')");
+                  sock = null;
+               };
+
+               sock.onmessage = function(e) {
+                  log("Received: " + e.data);
+               };
+            }
+         };
+
+         function send() {
+            var msg = document.getElementById('message').value;
+            if (sock) {
+               sock.send(msg+" message\r\n");
+               log("Sent: " + msg);
+            } else {
+               log("Not connected.");
+            }
+         };
+
+         function log(m) {
+            ellog.innerHTML += m + '\n';
+            ellog.scrollTop = ellog.scrollHeight;
+         };
+      </script>
+   </head>
+   <body>
+      <h1>SockJS Echo Test</h1>
+      <noscript>You must enable JavaScript</noscript>
+      <form>
+         <p>Message: <input id="message" type="text" size="50" maxlength="50" value="Hello, world!"></p>
+      </form>
+      <button onclick='send();'>Send Message</button>
+      <pre id="log" style="height: 20em; overflow-y: scroll; background-color: #faa;"></pre>
+   </body>
+</html>
