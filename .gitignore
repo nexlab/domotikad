@@ -7,3 +7,11 @@
 pip-log.txt
 
 *.log
+
+conf/*.conf
+asterisk/*.conf
+asterisk/*.dialplan
+ssl/*.key
+Databases/*.sql
+logs/*
+run/*
