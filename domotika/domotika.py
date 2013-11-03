@@ -76,6 +76,12 @@ ACTION_STATUS={}
 log = logging.getLogger( 'Core' )
 
 
+def converWday(wday):
+   wday=wday+1
+   if wday==7:
+      wday=0
+   return wday
+
 class ConvenienceCaller(object):
    """
       This metaclass build and abstraction of an object instance so
@@ -1358,7 +1364,7 @@ class domotikaService(service.Service):
          loctime=time.localtime()
          if(loctime.tm_mon in timedict["months"]
             and loctime.tm_mday in timedict["doms"]
-            and loctime.tm_wday in timedict["dows"]
+            and converWday(loctime.tm_wday) in timedict["dows"]
             and loctime.tm_hour in timedict["hours"]
             and loctime.tm_min in timedict["minutes"]):
 
@@ -1449,7 +1455,7 @@ class domotikaService(service.Service):
                loctime=time.localtime()
                if(loctime.tm_mon in timedict["months"]
                   and loctime.tm_mday in timedict["doms"]
-                  and loctime.tm_wday in timedict["dows"]
+                  and converWday(loctime.tm_wday) in timedict["dows"]
                   and loctime.tm_hour in timedict["hours"]
                   and loctime.tm_min in timedict["minutes"]):
                   exstep=True
@@ -1627,7 +1633,7 @@ class domotikaService(service.Service):
                loctime=time.localtime()
                if(loctime.tm_mon in timedict["months"]
                   and loctime.tm_mday in timedict["doms"]
-                  and loctime.tm_wday in timedict["dows"]
+                  and converWday(loctime.tm_wday)  in timedict["dows"]
                   and loctime.tm_hour in timedict["hours"]
                   and loctime.tm_min in timedict["minutes"]):
                   
@@ -1731,7 +1737,7 @@ class domotikaService(service.Service):
             loctime=time.localtime()
             if(loctime.tm_mon in timedict["months"]
                and loctime.tm_mday in timedict["doms"]
-               and loctime.tm_wday in timedict["dows"]
+               and converWday(loctime.tm_wday)  in timedict["dows"]
                and loctime.tm_hour in timedict["hours"]
                and loctime.tm_min in timedict["minutes"]):
 
@@ -1774,7 +1780,7 @@ class domotikaService(service.Service):
                loctime=time.localtime()
                if(loctime.tm_mon in timedict["months"]
                   and loctime.tm_mday in timedict["doms"]
-                  and loctime.tm_wday in timedict["dows"]
+                  and converWday(loctime.tm_wday)  in timedict["dows"]
                   and loctime.tm_hour in timedict["hours"]
                   and loctime.tm_min in timedict["minutes"]):
 
@@ -1812,7 +1818,7 @@ class domotikaService(service.Service):
                loctime=time.localtime()
                if(loctime.tm_mon in timedict["months"]
                   and loctime.tm_mday in timedict["doms"]
-                  and loctime.tm_wday in timedict["dows"]
+                  and converWday(loctime.tm_wday) in timedict["dows"]
                   and loctime.tm_hour in timedict["hours"]
                   and loctime.tm_min in timedict["minutes"]):
 
