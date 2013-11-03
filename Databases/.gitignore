@@ -1,0 +1,3 @@
+# Ignore database backups!
+domotika.sql
+domotika*.sql
