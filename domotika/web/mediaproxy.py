@@ -452,18 +452,21 @@ class FFMpegProducerFactory(ProxyClientFactory):
       self.uri = uri
       self.core = core
 
-   def buildProtocol(self, req, vcodec, direct=False, ficodec=False):
+   def buildProtocol(self, req, vcodec, direct=False, ficodec=False, audiouri=False):
       self.client = req
       self.vcodec = vcodec
       self.direct = direct
       addinput=""
+      addaudio=""
       if ficodec:
          addinput="-f "+str(ficodec)
+      if audiouri:
+         addaudio=" -i "+str(audiouri)+" -map 0:v:0 -map 1:a:0 "
       if vcodec in FFMPEGCMD.keys():
          fline=FFMPEGCMD[vcodec]
       else:
          fline=FFMPEG_MPEGTS
-      cmd='ffmpeg '+addinput+' -i '+self.uri+fline+" -"
+      cmd='ffmpeg '+addinput+' -i '+self.uri+addaudio+fline+" -"
       #if self.uri.startswith("http://") or self.uri.startswith("https://"):
       if vcodec!="mpegts" and not self.direct:
          cmd='ffmpeg '+addinput+' -i http://127.0.0.1:'+str(self.core.configGet('web','port'))+'/mediaproxy/raw/?uri='+urllib.quote(self.uri)+fline+" -"
@@ -521,12 +524,23 @@ class FFMpegProxyResource(VideoProxyResource):
 
    proxyClientFactoryClass=FFMpegProducerFactory
 
-   def __init__(self, uri, vcodec, core, direct=False, ficodec=False):
+   def __init__(self, uri, vcodec, core, reqargs):
       self.uri = uri
       self.vcodec = vcodec
       self.core = core
+      force_input_codec=False
+      if 'icodec' in reqargs:
+         force_input_codec=urllib.unquote(reqargs['icodec'][0])
+      direct = False     
+      if 'direct' in reqargs:
+         urllib.unquote(reqargs['direct'][0]).lower() in ['1','true','yes','y','si']:
+            direct=True
+
+      self.audiouri = False
+      if 'audiouri' in reqargs:
+          self.audiouri = urllib.unquote(reqargs['audiouri'][0])     
       self.direct = direct
-      self.ficodec = ficodec
+      self.ficodec = force_input_codec
 
    def render(self, request):
       request.received_headers['uri']=self.uri
@@ -541,11 +555,11 @@ class FFMpegProxyResource(VideoProxyResource):
       #prods=producers.MediaFFProducers()
       #prod = prods.get(streamname)
       #if not prod:
-      log.info("FFMPEG Create new producer for uri "+str(self.uri)+" codec "+str(self.vcodec))
+      log.info("FFMPEG Create new producer for uri: "+str(self.uri)+" codec: "+str(self.vcodec)+" separate audio: "+str(self.audiouri))
       prod = self.proxyClientFactoryClass(self.uri, self.core)
       #prods.add(streamname, prod)
    
-      prod.buildProtocol(request, self.vcodec, self.direct, self.ficodec)
+      prod.buildProtocol(request, self.vcodec, self.direct, self.ficodec, self.audiouri)
       request.notifyFinish().addErrback(self._responseFailed, request, prod)
       return NOT_DONE_YET
 
@@ -554,16 +568,9 @@ class FFMpegProxy(VideoProxy):
    def child_(self, ctx):
       if int(self.core.configGet('media', 'localtranscode')) > 0:
          request = inevow.IRequest(ctx)
-         force_input_codec=False
-         if 'icodec' in request.args:
-            force_input_codec=urllib.unquote(request.args['icodec'][0])
          if 'uri' in request.args:
             uri = urllib.unquote(request.args['uri'][0])
-            direct=False
-            if 'direct' in request.args:
-               if urllib.unquote(request.args['direct'][0]).lower() in ['1','true','yes','y','si']:
-                  direct=True
-            return FFMpegProxyResource(uri, self.vtype, self.core, direct, ficodec=force_input_codec)
+            return FFMpegProxyResource(uri, self.vtype, self.core, request.args)
       return permissionDenied()
 
 
@@ -654,10 +661,14 @@ class VLCProxyResource(VideoProxyResource):
 
    proxyClientFactoryClass=VLCProducerFactory
 
-   def __init__(self, uri, vcodec, core, direct=False):
+   def __init__(self, uri, vcodec, core, reqargs):
       self.uri = uri
       self.vcodec = vcodec
       self.core = core
+      direct=False
+      if 'direct' in reqargs:
+         if urllib.unquote(reqargs['direct'][0]).lower() in ['1','true','yes','y','si']:
+            direct=True
       self.direct = direct
 
    def render(self, request):
@@ -700,11 +711,7 @@ class VLCProxy(VideoProxy):
          request = inevow.IRequest(ctx)
          if 'uri' in request.args:
             uri = urllib.unquote(request.args['uri'][0])
-            direct=False
-            if 'direct' in request.args:
-               if urllib.unquote(request.args['direct'][0]).lower() in ['1','true','yes','y','si']:
-                  direct=True
-            return VLCProxyResource(uri, self.vtype, self.core, direct)
+            return VLCProxyResource(uri, self.vtype, self.core, reqargs)
       return permissionDenied()
 
 
