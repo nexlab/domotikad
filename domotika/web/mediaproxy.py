@@ -533,7 +533,7 @@ class FFMpegProxyResource(VideoProxyResource):
          force_input_codec=urllib.unquote(reqargs['icodec'][0])
       direct = False     
       if 'direct' in reqargs:
-         urllib.unquote(reqargs['direct'][0]).lower() in ['1','true','yes','y','si']:
+         if urllib.unquote(reqargs['direct'][0]).lower() in ['1','true','yes','y','si']:
             direct=True
 
       self.audiouri = False
