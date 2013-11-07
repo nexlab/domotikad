@@ -140,10 +140,19 @@ class domotikaService(service.Service):
       if self.parent:
          self.parent.__new__(self.parent, self, *args)
       self.lastupdatestatus=0
+      self.clients = clients.ClientRegistry()
+      #self.boardsyspwd = genutils.board_syspwd(self.config.get("general", "boards_syspwd"))
+      #self.devadminpwd  = genutils.devs_adminpwd(self.config.get("general", "devices_admpwd"))
+      dmdb.initialize(self.config)
+
+   def isStarted(self):
+      
+      self.isConfigured()
+
+   def isConfigured(self):
       self.timer = task.LoopingCall(self.getRelayStatus)
       self.actiontimer = task.LoopingCall(self.actionStatus)
       self.cleanStatusTimer = task.LoopingCall(self.cleanOldStatus)
-      self.clients = clients.ClientRegistry()
       self.boardsyspwd = genutils.board_syspwd(self.config.get("general", "boards_syspwd"))
       self.devadminpwd  = genutils.devs_adminpwd(self.config.get("general", "devices_admpwd"))
       self.sun = sky.DMSun(self.config.get("geo", "latitude"), self.config.get("geo", "longitude"), self.config.get("geo", "elevation"))
@@ -153,9 +162,7 @@ class domotikaService(service.Service):
       self.notifytimer.start(60)
       self.clienttimer = task.LoopingCall(self.expireClients)
       self.clienttimer.start(60)
-      dmdb.initialize(self.config)
 
-   def isStarted(self):
       self.actiontimer.start(int(self.config.get("general", "action_status_timer")))
       self.timer.start(int(self.config.get("ikapserver", "timeupdates"))) 
       if self.config.get("general", "timeserver").lower() in ['yes','y','1','true', 'on']:
