@@ -115,6 +115,7 @@ class domotikaService(service.Service):
    alarm=False
    initialized=False
    confstatus=False
+   lastconfigChange = 0
    lateststatuschange = 0
    autocron=False
    autostatuses=False
