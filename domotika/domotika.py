@@ -940,6 +940,11 @@ class domotikaService(service.Service):
             f = open(trigger[5:].split()[0], "r")
             ret=defer.succeed(parseReturn(f.read(), reverse))
             f.close()
+      if trigger.startswith("FILEEXISTS ") or trigger.startswith("FILEEXISTS:"):
+         if os.path.isfile(trigger[11:].split()[0]):
+            ret=defer.succeed(parseReturn('1', reverse))
+         else:
+            ret=defer.succeed(parseReturn('0', reverse))
       elif trigger.startswith("SYSTEM ") or trigger.startswith("SYSTEM:"):
          cmdline=trigger[7:]
          ret=subprocess.Popen(cmdline.replace("\r\n", " "),

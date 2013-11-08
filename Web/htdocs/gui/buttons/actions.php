@@ -18,7 +18,7 @@ if(intval($button['status2'])>0) {
          <div class="badge devlist-topdata <?=$badgecolor?>" data-domotika-act2col="<?=$button['id']?>"
             data-dmcolor-off="badge-<?=$dmcolors[$button['color2_off']]?>" data-dmcolor-on="badge-<?=$dmcolors[$button['color2_on']]?>">
             <div style="width:100%;min-width:-moz-fit-content;"><span data-domotika-act2textid="<?=$button['id']?>"
-               data-dmtext-on=<?=$button['text2_on']?>"" data-dmtext-off="<?=$button['text2_off']?>"><?=$badgetext;?></span></div>
+               data-dmtext-on="<?=$button['text2_on']?>" data-dmtext-off="<?=$button['text2_off']?>"><?=$badgetext;?></span></div>
          
 <?
 if(is_array($button_switchar) && in_array($button['ctx'], $button_switchar)) {
