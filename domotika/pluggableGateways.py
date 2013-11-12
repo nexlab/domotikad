@@ -1,5 +1,5 @@
 import logging
-from gateways import igateways, modules
+from gateways import igateways, modules, io
 
 log = logging.getLogger('Core')
 
@@ -16,6 +16,7 @@ def getGatewayPlugin(name):
       qual = "%s.%s" % (p.__module__, p.__class__.__name__)
       log.info("Calling Gateway Module "+qual)
       if p.__module__.split('.')[-1]==name:
+         p.io = gateways.io
          return p
    return None
 

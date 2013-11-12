@@ -36,6 +36,15 @@ class DMSun(object):
       sunrise_ts = calendar.timegm(sunrise.datetime().utctimetuple())
       sunset = self.obs.next_setting(ephem.Sun()) #Sunset
       sunset_ts = calendar.timegm(sunset.datetime().utctimetuple())
+
+      beg=self.obs.next_rising(ephem.Sun(), use_center=True)
+      beg_ts = calendar.timegm(beg.datetime().utctimetuple())
+
+      if beg_ts < sunset_ts:
+         sunrise_ts = beg_ts
+         sunrise = beg
+
+
       dayreal = 0
       if now > sunrise_ts and now < sunset_ts:
          dayreal = 1
@@ -48,7 +57,17 @@ class DMSun(object):
       self.obs.horizon = '-0:34'
       sunrise=self.obs.previous_rising(ephem.Sun()) #Sunrise
       sunrise_ts = calendar.timegm(sunrise.datetime().utctimetuple())
-      noon   =self.obs.next_transit(ephem.Sun(), start=sunrise) #Solar noon
+      sunset=self.obs.next_setting(ephem.Sun(), use_center=True)
+      sunset_ts=calendar.timegm(sunset.datetime().utctimetuple())
+
+      beg=self.obs.next_rising(ephem.Sun(), use_center=True)
+      beg_ts = calendar.timegm(beg.datetime().utctimetuple())
+      
+      if beg_ts < sunset_ts:
+         sunrise = beg
+         sunrise_ts = beg_ts
+
+      noon=self.obs.next_transit(ephem.Sun(), start=sunrise) #Solar noon
       daymax_ts = calendar.timegm(noon.datetime().utctimetuple())
       daymax = 0
       if now > daymax_ts-1800 and now < daymax_ts+1800:
@@ -61,10 +80,20 @@ class DMSun(object):
          self.setObsDate()
       now = time.time()
       self.obs.horizon = '-6'
+   
+
       beg_civil_twilight=self.obs.previous_rising(ephem.Sun(), use_center=True) #Begin civil twilight
       beg_civil_twilight_ts = calendar.timegm(beg_civil_twilight.datetime().utctimetuple())
       end_civil_twilight=self.obs.next_setting(ephem.Sun(), use_center=True) #End civil twilight
       end_civil_twilight_ts = calendar.timegm(end_civil_twilight.datetime().utctimetuple())
+      
+      beg=self.obs.next_rising(ephem.Sun(), use_center=True)
+      beg_ts = calendar.timegm(beg.datetime().utctimetuple())
+
+      if beg_ts < end_civil_twilight_ts:
+         beg_civil_twilight_ts = beg_ts
+         beg_civil_twilight = beg
+
       daycivil = 0
       if now > beg_civil_twilight_ts and now < end_civil_twilight_ts:
          daycivil = 1
@@ -81,6 +110,14 @@ class DMSun(object):
       beg_astro_twilight_ts=calendar.timegm(beg_astro_twilight.datetime().utctimetuple())
       end_astro_twilight=self.obs.next_setting(ephem.Sun(), use_center=True) #End civil twilight
       end_astro_twilight_ts=calendar.timegm(end_astro_twilight.datetime().utctimetuple())
+
+      beg=self.obs.next_rising(ephem.Sun(), use_center=True)
+      beg_ts = calendar.timegm(beg.datetime().utctimetuple())
+
+      if beg_ts < end_astro_twilight_ts:
+         beg_astro_twilight_ts = beg_ts
+         beg_astro_twilight = beg
+
       dayastro = 0
       if now > beg_astro_twilight_ts and now < end_astro_twilight_ts:
          dayastro = 1
