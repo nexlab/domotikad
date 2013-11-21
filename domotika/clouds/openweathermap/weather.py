@@ -119,7 +119,7 @@ class OWMWeather(object):
       self.updateDatabase()
 
    def onError(self, res):
-      log.warning("OpenWeatherMap Weather call failed!")
+      log.warning("OpenWeatherMap Weather call failed! "+str(res))
       self.data['clouds'] = 'unknown'
       self.data['mmrain'] = 'unknown'
       self.data['pressure'] = 'unknown'
