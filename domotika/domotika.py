@@ -54,7 +54,7 @@ from asterisk import fastagi as fagi
 from voiceui import voiceui as voice
 from boards import pluggable as pluggableBoards
 from boards.iotype import context2section
-from video import pluggable as pluggableVideodevs
+from mediasources import pluggable as pluggableMediasouces
 import sky
 from clouds.openweathermap import weather 
 
@@ -2449,7 +2449,7 @@ class domotikaService(service.Service):
       if not device['host'] in self.upnp_detected_ips:
          self.upnp_detected_ips.append(device['host'])
          log.debug("UPNP DETECTED DEVICE FROM UPNP: "+str(device))
-         p=pluggableVideodevs.getVideodevPlugin(device['modelNumber'], device['manufacturer'])
+         p=pluggableMediasouces.getVideodevPlugin(device['modelNumber'], device['manufacturer'])
          if p:
             videodev = p.getVideoDev(device['host'], self.devadminpwd)
             videodev.setUPNPLocation(device['location'])

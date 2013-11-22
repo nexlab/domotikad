@@ -28,7 +28,7 @@ try:
 except ImportError:
     # Twisted 2.5 doesn't include pluginPackagePaths
     import sys, os
-    __path__.extend([os.path.abspath(os.path.join(x, 'video', 'modules', 'generic'))
+    __path__.extend([os.path.abspath(os.path.join(x, 'mediasources', 'modules', 'generic'))
                      for x in sys.path])
 __all__ = []
 

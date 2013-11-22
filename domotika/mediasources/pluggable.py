@@ -10,17 +10,17 @@ try:
 except ImportError:
    pass
 else:
-   for i in os.listdir('domotika/video/modules'):
-      if os.path.isdir('domotika/video/modules/'+i):
-         list(getPlugins(ivideodev.IVideoDev, importlib.import_module('domotika.video.modules.'+i))) # To refresh cache
+   for i in os.listdir('domotika/mediasources/modules'):
+      if os.path.isdir('domotika/mediasources/modules/'+i):
+         list(getPlugins(ivideodev.IVideoDev, importlib.import_module('domotika.mediasources.modules.'+i))) # To refresh cache
 
 
 def getVideodevPlugin(name, manufacturer='generic'):
    try:
-      if os.path.isdir('domotika/video/modules/'+str(manufacturer)):
-         mod = importlib.import_module('domotika.video.modules.'+str(manufacturer))
+      if os.path.isdir('domotika/mediasources/modules/'+str(manufacturer)):
+         mod = importlib.import_module('domotika.mediasources.modules.'+str(manufacturer))
       else:
-         mod = importlib.import_module('domotika.video.modules.generic')
+         mod = importlib.import_module('domotika.mediasources.modules.generic')
    except:
       return None
    for p in getPlugins(ivideodev.IVideoDev, mod ):
