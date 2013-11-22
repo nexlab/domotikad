@@ -1,5 +1,5 @@
 import logging
-from video import ivideodev
+import ivideodev
 import importlib
 import os
 

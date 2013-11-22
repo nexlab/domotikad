@@ -1,5 +1,5 @@
 import logging
-from gateways import igateways, modules, io
+import iboards, modules
 
 log = logging.getLogger('Core')
 
@@ -8,15 +8,14 @@ try:
 except ImportError:
    pass
 else:
-   list(getPlugins(igateways.IDMGateways, modules)) # To refresh cache
+   list(getPlugins(iboards.IDMBoards, modules)) # To refresh cache
 
 
-def getGatewayPlugin(name):
-   for p in getPlugins(igateways.IDMGateways, modules):
+def getBoardPlugin(name):
+   for p in getPlugins(iboards.IDMBoards, modules):
       qual = "%s.%s" % (p.__module__, p.__class__.__name__)
-      log.info("Calling Gateway Module "+qual)
+      log.info("Calling Board Module "+qual)
       if p.__module__.split('.')[-1]==name:
-         p.io = gateways.io
          return p
    return None
 

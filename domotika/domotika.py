@@ -52,9 +52,9 @@ from mail import dmsmtp
 from asterisk import manager as ami
 from asterisk import fastagi as fagi
 from voiceui import voiceui as voice
-from boards import iboards
+from boards import pluggable as pluggableBoards
 from boards.iotype import context2section
-import pluggableBoards, pluggableVideodevs
+from video import pluggable as pluggableVideodevs
 import sky
 from clouds.openweathermap import weather 
 
