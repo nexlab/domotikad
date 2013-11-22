@@ -21,8 +21,8 @@
 #
 ##############################################################################
 
-from domotika.video import ivideodev
-from domotika.video.ivideodev import context2section, BaseVideoDev
+from domotika.mediasources import ivideodev
+from domotika.mediasources.ivideodev import context2section, BaseVideoDev
 from domotika.db import dmdb
 from domotika.lang import lang
 from zope.interface import implements
