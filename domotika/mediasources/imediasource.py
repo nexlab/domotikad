@@ -30,17 +30,17 @@ from dmlib import constants as C
 
 log = logging.getLogger( 'Core' )
 
-class IVideoDev(Interface):
+class IMediaSource(Interface):
    """ Base plugin Interface """
    
-   def getVideoDev(self, host, adminpwd):
+   def getMediaSource(self, host, adminpwd):
       """
          Return a DMBoard object
       """
 
 
-class IVideoDevPlugin(Interface):
-   """ Implement a VideoDevice """
+class IMediaSourcePlugin(Interface):
+   """ Implement a MediaSourceice """
   
 
 def context2section(ctx):
@@ -51,8 +51,8 @@ def context2section(ctx):
 
    return section
 
-class BaseVideoDev(object):
-   implements(IVideoDevPlugin)
+class BaseMediaSource(object):
+   implements(IMediaSourcePlugin)
 
    upnp_location=False
    adminpwd='domotika'

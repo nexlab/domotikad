@@ -75,7 +75,7 @@ class DomotikaUPNP(object):
       log.info('DEVICE DATA: '+str(descr))
       if 'Network Camera' in descr['deviceType']:
          log.debug("FOUND A CAMERA TO ADD")
-         self.core.addVideoDevice(descr)
+         self.core.addMediaSource(descr)
             
 
       

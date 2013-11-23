@@ -3,7 +3,7 @@
       <div id="websectionlist" class="panel drawer-container scrollable">
          <a href="<?=$BASEGUIPATH."/cameras"?>" class="btn btn-block btn-default">Telecamere Home</a>
 <?
-   $v=DB::query("SELECT id,button_name,position FROM video WHERE websection='camera' AND active=1 ORDER BY position,id");
+   $v=DB::query("SELECT id,button_name,position FROM mediasources WHERE websection='camera' AND active=1 ORDER BY position,id");
    $links=array();
    foreach($v as $cam)
    {

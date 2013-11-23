@@ -11,7 +11,7 @@ $panels=FALSE;
 if($GUISUBSECTION!="" && is_numeric($GUISUBSECTION))
 {
    $pos=1;
-   $v=DB::query("SELECT id,button_name,position,videostream,force_input_codec FROM video WHERE websection='camera' AND active=1 AND id='".$GUISUBSECTION."'");
+   $v=DB::query("SELECT id,button_name,position,videostream,force_input_codec FROM mediasources WHERE websection='camera' AND active=1 AND id='".$GUISUBSECTION."'");
    if(is_array($v) && count($v)>0) {
       $panels=array();
       foreach($v as $cam) {
@@ -31,7 +31,7 @@ if(!$panels)
 
 
 if(!is_array($panels) or count($panels)<1) {
-   $v=DB::query("SELECT id,button_name,position,videostream,force_input_codec FROM video WHERE websection='camera' AND  active=1 ORDER BY position,id LIMIT 3");
+   $v=DB::query("SELECT id,button_name,position,videostream,force_input_codec FROM mediasources WHERE websection='camera' AND  active=1 ORDER BY position,id LIMIT 3");
    if(is_array($v) && count($v)>0) {
       $pos=1;
       foreach($v as $cam) {

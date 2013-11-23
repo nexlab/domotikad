@@ -488,9 +488,9 @@ class domotikaService(service.Service):
    def resetActionList(self, *a, **kw):
       return dmdb.resetDynActions()
 
-   def resetVideoList(self, *a, **kw):
+   def resetMediaSourcesList(self, *a, **kw):
       self.upnp_detected_ips=[]
-      return dmdb.resetDynVideos()
+      return dmdb.resetDynMediaSources()
 
    def autoDetectBoards(self, *a, **kw):
       log.info("Start building boardlist")
@@ -2227,7 +2227,7 @@ class domotikaService(service.Service):
       return [{'data': ACTION_STATUS.values(), 'command': 'updateactions'}]
 
    def web_on_getIpCamList(self):
-      return dmdb.Videos.find(where=['type=? AND active=1','ipcam'],
+      return dmdb.MediaSources.find(where=['type=? AND active=1','ipcam'],
          orderby="position,button_name,ip ASC")
 
    def web_on_getRelayList(self):
@@ -2291,7 +2291,7 @@ class domotikaService(service.Service):
          self.resetBoards()
          self.resetRelayist()
          self.resetAnalogList()
-         #self.resetVideoList()
+         #self.resetMediaSourcesList()
          self.resetActionList()
          self.resetPwmList()
          self.resetOutputList()
@@ -2445,13 +2445,13 @@ class domotikaService(service.Service):
    def upnp_on_configGet(self, section, var):
       return self.config.get(section, var)
 
-   def upnp_on_addVideoDevice(self, device):
+   def upnp_on_addMediaSource(self, device):
       if not device['host'] in self.upnp_detected_ips:
          self.upnp_detected_ips.append(device['host'])
          log.debug("UPNP DETECTED DEVICE FROM UPNP: "+str(device))
-         p=pluggableMediasouces.getVideodevPlugin(device['modelNumber'], device['manufacturer'])
+         p=pluggableMediasouces.getMediaSourcePlugin(device['modelNumber'], device['manufacturer'])
          if p:
-            videodev = p.getVideoDev(device['host'], self.devadminpwd)
+            videodev = p.getMediaSource(device['host'], self.devadminpwd)
             videodev.setUPNPLocation(device['location'])
             videodev.addDevice()
       else:

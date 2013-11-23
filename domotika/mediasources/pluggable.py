@@ -1,5 +1,5 @@
 import logging
-import ivideodev
+import imediasource
 import importlib
 import os
 
@@ -12,10 +12,10 @@ except ImportError:
 else:
    for i in os.listdir('domotika/mediasources/modules'):
       if os.path.isdir('domotika/mediasources/modules/'+i):
-         list(getPlugins(ivideodev.IVideoDev, importlib.import_module('domotika.mediasources.modules.'+i))) # To refresh cache
+         list(getPlugins(imediasource.IMediaSource, importlib.import_module('domotika.mediasources.modules.'+i))) # To refresh cache
 
 
-def getVideodevPlugin(name, manufacturer='generic'):
+def getMediaSourcePlugin(name, manufacturer='generic'):
    try:
       if os.path.isdir('domotika/mediasources/modules/'+str(manufacturer)):
          mod = importlib.import_module('domotika.mediasources.modules.'+str(manufacturer))
@@ -23,7 +23,7 @@ def getVideodevPlugin(name, manufacturer='generic'):
          mod = importlib.import_module('domotika.mediasources.modules.generic')
    except:
       return None
-   for p in getPlugins(ivideodev.IVideoDev, mod ):
+   for p in getPlugins(imediasource.IMediaSource, mod ):
       qual = "%s.%s" % (p.__module__, p.__class__.__name__)
       log.debug("Calling Board Module "+qual)
       if p.__module__.split('.')[-1]==name:

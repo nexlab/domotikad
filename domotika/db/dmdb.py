@@ -136,8 +136,8 @@ class SequenceData(DBObject):
 class Timers(DBObject):
    TABLENAME="timers"
 
-class Videos(DBObject):
-   TABLENAME="video"
+class MediaSources(DBObject):
+   TABLENAME="mediasources"
 
 class QServers(DBObject):
    TABLENAME="qservers"
@@ -529,7 +529,7 @@ def resetDynActions():
 def resetBoards():
    return Registry.getConfig().delete("dmboards")
 
-def resetDynVideos():
+def resetDynMediaSources():
    return Registry.getConfig().delete('video', where=["dynamic=1"])
 
 def getVideoProxyList():

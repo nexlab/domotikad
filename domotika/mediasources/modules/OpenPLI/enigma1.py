@@ -21,8 +21,8 @@
 #
 ##############################################################################
 
-from domotika.mediasources import ivideodev
-from domotika.mediasources.ivideodev import context2section, BaseVideoDev
+from domotika.mediasources import imediasource
+from domotika.mediasources.imediasource import context2section, BaseMediaSource
 from domotika.db import dmdb
 from domotika.lang import lang
 from zope.interface import implements
@@ -33,7 +33,7 @@ from dmlib import constants as C
 import logging
 
 try:
-   log = logging.getLogger('Core').getChild('Video.Sitecom.LN406')
+   log = logging.getLogger('Core').getChild('MediaSource.Sitecom.LN406')
 except:
    log = logging.getLogger('Core')
 
@@ -48,14 +48,14 @@ except:
    import sha1
 
 
-class VideoDevPlugin(BaseVideoDev):
+class MediaSourcePlugin(BaseMediaSource):
 
    def __init__(self, host, adminpwd='domotika'):
       self.host = host
       self.adminpwd = adminpwd
 
    def addDevice(self):
-      return dmdb.Videos.find(where=['ip=?', self.host], limit=1).addCallback(self.getSitecomName)
+      return dmdb.MediaSources.find(where=['ip=?', self.host], limit=1).addCallback(self.getSitecomName)
       
    def getSitecomName(self, res):
       wu.getPage("http://"+self.host+'/util/query.cgi',
@@ -69,7 +69,7 @@ class VideoDevPlugin(BaseVideoDev):
          except:
             hname=self.host
 
-         c=dmdb.Videos()
+         c=dmdb.MediaSources()
          c.ip=self.host
          #c.videostream='rtsp://admin:'+self.adminpwd+'@'+host+'/img/media.sav'
          c.controlapi='http://admin:'+self.adminpwd+'@'+self.host+'/'
@@ -88,13 +88,13 @@ class VideoDevPlugin(BaseVideoDev):
          c.save().addCallback(log.info)
          log.info("SITECOM LN406 "+self.host+" CAMERA ADDED")
 
-class VideoDev(object):
+class MediaSource(object):
 
-   implements(IPlugin, ivideodev.IVideoDev)
+   implements(IPlugin, imediasource.IMediaSource)
 
-   def getVideoDev(self, host, adminpwd):
+   def getMediaSource(self, host, adminpwd):
       log.info("Found plugin for host "+str(host))
-      return VideoDevPlugin(host, adminpwd)
+      return MediaSourcePlugin(host, adminpwd)
 
-videodev=VideoDev()
+mediasource=MediaSource()
 
