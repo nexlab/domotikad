@@ -121,7 +121,7 @@ class DMBoard(BaseBoard):
          if not self.rellist: self.rellist={}
          ret = {}
          rel = {}
-         for i in xrange(1, 13):
+         for i in xrange(1, 9):
             out=BoardOutput()
             out.hasRelays=True
             out.hasPwms=False
