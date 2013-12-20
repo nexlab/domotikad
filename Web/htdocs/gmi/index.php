@@ -1,6 +1,7 @@
 <html>
 <head>
-<title>GMI V2.0 Demo</title>
+<title>Domotika GMI Interface</title>
+<link href='style.css' type='text/css' rel='stylesheet'>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script language="javascript" src="simpleGMI.js"></script>
 <style>
@@ -9,8 +10,15 @@
       left: 50px;
    }
 </style>
+<script type="text/javascript">
+simpleGMI.fullScreen();
+</script>
 </head>
 <body>
-<div id="antani" onClick="alert('aaa'); alert(GMIEngine.getNetWorkInfo());simpleGMI.gotoURL('http://www.unixmedia.it');alert('ccc');">AIUTO!</div>
+<div>spazio</div>
+<div>spazio</div>
+<div>spazio</div>
+<div onclick="simpleGMI.refresh()">AAAAAAAAAAAAAAAAAAAAAAAAAAAA</div>
+
 </body>
 </html>
