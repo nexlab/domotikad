@@ -11,9 +11,11 @@
    ksort($links, SORT_NATURAL | SORT_FLAG_CASE);
    foreach($links as $k => $v)
    {
+      if(!startsWith($v, '_')) {
       ?>
          <a href="<?=$BASEGUIPATH."/actuations/".$v?>" class="btn btn-block btn-default"><?=$k?></a>
       <?
+      }
    }
 ?>
       </div>
