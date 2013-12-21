@@ -104,14 +104,14 @@ function SimpleGMI(){
         pagedoc.title = "simpleGMI::stopPlay";
     }
 
-    this.dial = function( account, isVideo, isDialPlan, number, headers )
+    this.dial = function( account, isVideo, isDialPlan, number, headers, hidePhone )
     {
         pagedoc.title = "null";
 
         if ( headers != undefined )
         {
             pagedoc.title = "simpleGMI::dial::" + account + "::" + isVideo
-                + "::" + isDialPlan + "::" + number + "::" + headers;
+                + "::" + isDialPlan + "::" + number + "::" + headers + "::" + hidePhone;
         }
         else
         {
