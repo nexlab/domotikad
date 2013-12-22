@@ -21,18 +21,6 @@ if(file_exists("$FSPATH/left/$GUISECTION.php"))
 if(file_exists("$FSPATH/right/$GUISECTION.php"))
    $right=TRUE;
 
-$PANELDEFAULTS=array(
-                  'panel_title'=>'',
-                  'panel_cols'=>'4',
-                  'panel_height'=>300,
-                  'panel_type'=>'standard',
-                  'panel_sections'=>'*',
-                  'panel_websections'=>'*',
-                  'panel_selector'=>'dmdomain',
-                  'panel_content'=>'',
-                  'panel_visible'=>'all'
-               );
-
 $dmcolors=array(
    'green' => 'success',
    'orange' => 'warning',

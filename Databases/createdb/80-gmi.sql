@@ -1,0 +1,2 @@
+ALTER TABLE  `user_gui_panels` CHANGE  `page`  `page` ENUM(  'actuations',  'video',  'cameras',  'gmi' ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT  'actuations';
+ALTER TABLE  `user_gui_panels` CHANGE  `panel_type`  `panel_type` ENUM(  'standard',  'macrobuttons',  'bookmarks',  'cameras',  'video',  'gxv3175_left',  'gxv3175_center',  'gxv3175_right' ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT  'standard';

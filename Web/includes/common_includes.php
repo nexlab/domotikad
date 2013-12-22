@@ -1,4 +1,17 @@
 <?
+
+$PANELDEFAULTS=array(
+                  'panel_title'=>'',
+                  'panel_cols'=>'4',
+                  'panel_height'=>300,
+                  'panel_type'=>'standard',
+                  'panel_sections'=>'*',
+                  'panel_websections'=>'*',
+                  'panel_selector'=>'dmdomain',
+                  'panel_content'=>'',
+                  'panel_visible'=>'all'
+               );
+
 require_once("session.php");
 require_once("HTTP/Request.php");
 require_once("config.inc.php");

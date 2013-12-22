@@ -1,8 +1,42 @@
 <?
 include_once("common_includes.php");
 
-$buttonar_left=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_left", "dmdomain","true",7);
-$buttonar_right=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_right", "dmdomain","true",7);
+$DEFPANELS = array();
+$DEFPANELS[]=array('panel_title'=>'grandstream_left','panel_websections'=>'_grandstream_left','panel_type'=>'gxv3175_left','panel_content'=>'*')+$PANELDEFAULTS;
+$DEFPANELS[]=array('panel_title'=>'grandstream_center','panel_websections'=>'_grandstream_center','panel_type'=>'gxv3175_center','panel_content'=>'*')+$PANELDEFAULTS;
+$DEFPANELS[]=array('panel_title'=>'grandstream_right','panel_websections'=>'_grandstream_right','panel_type'=>'gxv3175_right','panel_content'=>'*')+$PANELDEFAULTS;
+
+$panels=DB::query("SELECT * FROM user_gui_panels WHERE user='$_DOMOTIKA[username]' AND page='gmi' ORDER by panel_position,id");
+if(!$panels or count($panels)<1) {
+   $panels=$DEFPANELS;
+   foreach($panels as $p) {
+      $q="INSERT INTO user_gui_panels 
+         (user,page,panel_title,panel_type,panel_cols,panel_height,panel_visible,panel_position,panel_sections,panel_websections,panel_selector,panel_content)
+         VALUES
+         ('".$_DOMOTIKA['username']."','gmi','".$p['panel_title']."','".$p['panel_type']."',
+            '".$p['panel_cols']."','".$p['panel_height']."','".$p['panel_visible']."','".$p['panel_position']."',
+            '".$p['panel_sections']."','".$p['panel_websections']."','".$p['panel_selector']."','".$p['panel_content']."')";
+      DB::query($q);
+   }
+
+}
+foreach($panels as $panel) {
+      switch($panel['panel_type'])
+      {
+         case 'gxv3175_left':
+            $buttonar_left=getPanelButtons($_DOMOTIKA['username'], $panel['panel_content'], $panel['panel_sections'], $panel['panel_websections'], $panel['panel_selector'],true,7);
+            break;
+         case 'gxv3175_center':
+            $buttonar_center=getPanelButtons($_DOMOTIKA['username'], $panel['panel_content'], $panel['panel_sections'], $panel['panel_websections'], $panel['panel_selector'],true,7);
+            break;
+         case 'gxv3175_right':
+            $buttonar_right=getPanelButtons($_DOMOTIKA['username'], $panel['panel_content'], $panel['panel_sections'], $panel['panel_websections'], $panel['panel_selector'],true,7);
+            break;
+      }
+}
+
+//$buttonar_left=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_left", "dmdomain","true",7);
+//$buttonar_right=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_right", "dmdomain","true",7);
 ?>
 <html>
 <head>
