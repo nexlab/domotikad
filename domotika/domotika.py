@@ -124,7 +124,7 @@ class domotikaService(service.Service):
    actstatusremain = 0
    actionloops={}
    lastsync=0.0
-   lastSSEsync=0.0
+   lastCLIENTSync=0.0
    boardconfigchanged = False
    upnp_detected_ips=[]
    udp=False
@@ -225,21 +225,21 @@ class domotikaService(service.Service):
 
    def startClientsSync(self):
       self.lastsync=float(time.time())
-      self.lastSSEsync=self.lastsync
+      self.lastCLIENTSync=self.lastsync
       t = task.LoopingCall(self.clientsSync)
       t.start(0.5)
 
    def updateDaemonStatus(self, status='normal'):
       self.daemonstatus=status
-      self.sseSend('daemonstatus', self.daemonstatus)
+      self.clientSend('daemonstatus', self.daemonstatus)
 
    def clientsSync(self):
       def _clientSend(res, ts):
          #log.info(res)
          if res and len(res) > 0:
-            log.debug("Sending SSE Sync "+str({'lastupdate': ts, 'statuses': res}))
-            self.lastSSEsync=ts
-            self.sseSend('sync', {'lastupdate': ts, 'statuses': res})
+            log.debug("Sending CLIENT Sync "+str({'lastupdate': ts, 'statuses': res}))
+            self.lastCLIENTSync=ts
+            self.clientSend('sync', {'lastupdate': ts, 'statuses': res})
       ts=self.lastsync
       self.lastsync=float(time.time())
       #log.info(str(ts)+" "+str(self.lastsync))
@@ -1208,12 +1208,12 @@ class domotikaService(service.Service):
          for c in self.clients.getAll():
             try:
                if c['session'].mind.perms.username==username:
-                  c['session'].sse.sendJSON(event='notify', data={'msg':msg,'nid':res.id,'source':res.source})
+                  self.clientSend('notify',{'msg':msg,'nid':res.id,'source':res.source})
             except:
                pass
       dmdb.insertNotify(nsource, username, msg, expiretime).addCallback(_inserted)
  
-   def sseSend(self, event, data):
+   def clientSend(self, event, data):
       for c in self.clients.getAll():
          try:
             #if not 'ts' in data.keys():

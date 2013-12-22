@@ -4,6 +4,8 @@ body {
    font-color: #FFF;
 }
 
+.blackiconcolor {color:black;}
+
 .footer-bar {
    position: fixed;
    bottom: 0;

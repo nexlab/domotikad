@@ -15,8 +15,6 @@ include_once("include.php");
    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
    <script src="/resources/js/jquery-1.9.0.min.js" type="text/javascript" ></script>
    <script src="/resources/js/jquery-migrate-1.0.0.min.js" type="text/javascript" ></script>
-   <script src="/resources/js/sockjs-0.3.min.js" ></script>
-   <script src="/resources/js/ajaxsocket.js" ></script>
    <style>
    </style>
 </head>
