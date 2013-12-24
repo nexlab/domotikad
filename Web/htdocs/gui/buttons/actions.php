@@ -21,7 +21,7 @@ if(intval($button['status2'])>0) {
                data-dmtext-on="<?=$button['text2_on']?>" data-dmtext-off="<?=$button['text2_off']?>"><?=$badgetext;?></span></div>
          
 <?
-if(is_array($button_switchar) && in_array($button['ctx'], $button_switchar)) {
+if(@is_array($button_switchar) && in_array($button['ctx'], $button_switchar)) {
    if(intval($button['status'])>0) $button_checked="checked";
 ?>
          <div class="make-switch switch-medium devlist-switch" 

@@ -1,4 +1,7 @@
 <?
+include_once("common_includes.php");
+?>
+<?
 function isActive($name)
 {
    if(is_array($name)) {

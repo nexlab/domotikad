@@ -1,6 +1,5 @@
 <?
 include_once("common_includes.php");
-include_once("include.php");
 ?>
 <html>
 <head title="Domotika GUI">

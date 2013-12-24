@@ -17,6 +17,6 @@
     <script src="/resources/bootstrap/js/bootstrap.min.js"></script>
 
     <!-- Optionally enable responsive features in IE8 -->
-    <script src="/resources/js/js/respond.js"></script>
+    <script src="/resources/js/respond.js"></script>
   </body>
 </html>

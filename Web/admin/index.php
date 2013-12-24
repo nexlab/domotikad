@@ -175,7 +175,7 @@
             </thead>
             <tbody>
 <?
-   foreach(DB::query("SELECT * FROM video") as $video)
+   foreach(DB::query("SELECT * FROM mediasources") as $video)
    {
       ?>
          <tr>
