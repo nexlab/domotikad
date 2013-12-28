@@ -6,6 +6,16 @@ $DEFPANELS[]=array('panel_title'=>'grandstream_left','panel_websections'=>'_gran
 $DEFPANELS[]=array('panel_title'=>'grandstream_center','panel_websections'=>'_grandstream_center','panel_type'=>'gxv3175_center','panel_content'=>'*')+$PANELDEFAULTS;
 $DEFPANELS[]=array('panel_title'=>'grandstream_right','panel_websections'=>'_grandstream_right','panel_type'=>'gxv3175_right','panel_content'=>'*')+$PANELDEFAULTS;
 
+
+$colors=array(
+   'gray' => 'pure-button-active',
+   'blue' =>  'pure-button-primary', 
+   'azure' =>  'pure-button-secondary',
+   'green' =>  'pure-button-success',
+   'red' => 'pure-button-error',
+   'orange' => 'pure-button-warning'
+);
+
 $panels=DB::query("SELECT * FROM user_gui_panels WHERE user='$_DOMOTIKA[username]' AND page='gmi' ORDER by panel_position,id");
 if(!$panels or count($panels)<1) {
    $panels=$DEFPANELS;
@@ -37,6 +47,7 @@ foreach($panels as $panel) {
 
 //$buttonar_left=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_left", "dmdomain","true",7);
 //$buttonar_right=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_right", "dmdomain","true",7);
+//print_r($buttonar_left);
 ?>
 <html>
 <head>
@@ -51,15 +62,78 @@ foreach($panels as $panel) {
 -->
 <script src="/resources/js/jquery-1.9.0.min.js"></script>
 <script src="/resources/EventSource/eventsource.js"></script>
-<script language="javascript" src="simpleGMI.js"></script>
+<script language="javascript" src="simpleGMI.js"></script> 
 <script type="text/javascript">
+
 simpleGMI.fullScreen();
-function sarca(data)
+
+/**
+ * jQuery alterClass plugin
+ *
+ * Remove element classes with wildcard matching. Optionally add classes:
+ *   $( '#foo' ).alterClass( 'foo-* bar-*', 'foobar' )
+ *
+ * Copyright (c) 2011 Pete Boere (the-echoplex.net)
+ * Free under terms of the MIT license: http://www.opensource.org/licenses/mit-license.php
+ *
+ */
+
+
+(function ( $ ) {
+  
+$.fn.alterClass = function ( removals, additions ) {
+  
+   var self = this;
+  
+   if ( removals.indexOf( '*' ) === -1 ) {
+      // Use native jQuery methods if there is no wildcard matching
+      self.removeClass( removals );
+      return !additions ? self : self.addClass( additions );
+   }
+
+   var patt = new RegExp( '\\s' +
+         removals.
+            replace( /\*/g, '[A-Za-z0-9-_]+' ).
+            split( ' ' ).
+            join( '\\s|\\s' ) +
+         '\\s', 'g' );
+
+   self.each( function ( i, it ) {
+      var cn = ' ' + it.className + ' ';
+      while ( patt.test( cn ) ) {
+         cn = cn.replace( patt, ' ' );
+      }
+      it.className = $.trim( cn );
+   });
+
+   return !additions ? self : self.addClass( additions );
+};
+})( jQuery );
+
+function postreply(arg)
 {
-   alert(data);
+   alert(arg);
 }
+/*
+var clicksound = new Audio("/domotika/gmi/beep.wav");
+clicksound.preload = 'auto';
+clicksound.load();
+
+function playClick(volume) {
+  var click=clicksound.cloneNode();
+  click.volume=volume;
+  click.play();
+}*/
+
+function butpushed(btype, bid)
+{
+   //playClick(1);
+   simpleGMI.play('/domotika/gmi/beep.wav',0,0,function(data){alert(data)});
+   $.post("/rest/v1.2/"+btype+"/setbyid/"+bid+"/json");
+}
+
 setInterval(function(){
-   simpleGMI.post('http://q.unixmedia.net/domotika/gmi/style.css', 'aaa=sarca', sarca);
+   simpleGMI.post('http://q.unixmedia.net/domotika/gmi/style.css', 'aaa=sarca', postreply);
 }, 5000);
 </script>
 </head>
@@ -68,9 +142,13 @@ setInterval(function(){
    <div class="pure-u-1-3" style="padding-left:1.3333%;">
       <?
          foreach($buttonar_left as $but) {
+            if(intval($but['status'])==1)
+               $bcolor=$colors[$but['color_on']];
+            else
+               $bcolor=$colors[$but['color_off']];
       ?> 
          <div style="padding:5px;">
-            <button class="pure-button pure-button-primary" style="width:100%;height:50px;" onclick="simpleGMI.refresh()"><?=$but['button_name']?></button>
+            <button class="pure-button <?=$bcolor?>" data-dm-type="<?=$but['devtype']?>-<?=$but['id']?>" data-dmcolor-on="<?=$colors[$but['color_on']]?>" data-dmcolor-off="<?=$colors[$but['color_off']]?>" style="width:100%;height:50px;" onclick="butpushed('<?=$but['devtype']?>',<?=$but['id']?>)"><?=$but['button_name']?></button>
          </div>
       <?
          }
@@ -104,9 +182,14 @@ setInterval(function(){
    <div class="pure-u-1-3" >
       <?
          foreach($buttonar_right as $but) {
+            if(intval($but['status'])==1)
+               $bcolor=$colors[$but['color_on']];
+            else
+               $bcolor=$colors[$but['color_off']];
+
       ?>
          <div style="padding:5px;">
-            <button class="pure-button pure-button-primary" style="width:100%;height:50px;" onclick="simpleGMI.refresh()"><?=$but['button_name']?></button>
+            <button class="pure-button <?=$bcolor?>" data-dm-type="<?=$but['devtype']?>-<?=$but['id']?>" data-dmcolor-on="<?=$colors[$but['color_on']]?>" data-dmcolor-off="<?=$colors[$but['color_off']]?>" style="width:100%;height:50px;" onclick="butpushed('<?=$but['devtype']?>',<?=$but['id']?>)"><?=$but['button_name']?></button>
          </div>
       <?
          }
@@ -131,7 +214,16 @@ var es = new EventSource("/sse");
 var syncReceived = function(event) {
    var res=$.parseJSON(event.data);
    $.each(res.data.statuses, function(idx, val){
-      // alert(val[3]);
+      console.debug(val);
+      $("[data-dm-type="+val[3]+"s-"+val[0]+"]").each(
+         function() {
+            if(val[1]==1)
+               var color=$(this).attr('data-dmcolor-on');
+            else
+               var color=$(this).attr('data-dmcolor-off');
+            $(this).alterClass('pure-button-*', color);
+         }
+      )
    });
 }
 es.addEventListener("sync", syncReceived);
