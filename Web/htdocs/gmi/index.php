@@ -6,7 +6,6 @@ $DEFPANELS[]=array('panel_title'=>'grandstream_left','panel_websections'=>'_gran
 $DEFPANELS[]=array('panel_title'=>'grandstream_center','panel_websections'=>'_grandstream_center','panel_type'=>'gxv3175_center','panel_content'=>'*')+$PANELDEFAULTS;
 $DEFPANELS[]=array('panel_title'=>'grandstream_right','panel_websections'=>'_grandstream_right','panel_type'=>'gxv3175_right','panel_content'=>'*')+$PANELDEFAULTS;
 
-
 $colors=array(
    'gray' => 'pure-button-active',
    'blue' =>  'pure-button-primary', 
@@ -28,7 +27,6 @@ if(!$panels or count($panels)<1) {
             '".$p['panel_sections']."','".$p['panel_websections']."','".$p['panel_selector']."','".$p['panel_content']."')";
       DB::query($q);
    }
-
 }
 foreach($panels as $panel) {
       switch($panel['panel_type'])
@@ -77,27 +75,20 @@ simpleGMI.fullScreen();
  * Free under terms of the MIT license: http://www.opensource.org/licenses/mit-license.php
  *
  */
-
-
 (function ( $ ) {
-  
 $.fn.alterClass = function ( removals, additions ) {
-  
    var self = this;
-  
    if ( removals.indexOf( '*' ) === -1 ) {
       // Use native jQuery methods if there is no wildcard matching
       self.removeClass( removals );
       return !additions ? self : self.addClass( additions );
    }
-
    var patt = new RegExp( '\\s' +
          removals.
             replace( /\*/g, '[A-Za-z0-9-_]+' ).
             split( ' ' ).
             join( '\\s|\\s' ) +
          '\\s', 'g' );
-
    self.each( function ( i, it ) {
       var cn = ' ' + it.className + ' ';
       while ( patt.test( cn ) ) {
@@ -105,7 +96,6 @@ $.fn.alterClass = function ( removals, additions ) {
       }
       it.className = $.trim( cn );
    });
-
    return !additions ? self : self.addClass( additions );
 };
 })( jQuery );
@@ -128,7 +118,7 @@ function playClick(volume) {
 function butpushed(btype, bid)
 {
    //playClick(1);
-   simpleGMI.play('/domotika/gmi/beep.wav',0,0,function(data){alert(data)});
+   //simpleGMI.play('/domotika/gmi/beep.wav',0,0,function(data){alert(data)});
    $.post("/rest/v1.2/"+btype+"/setbyid/"+bid+"/json");
 }
 
