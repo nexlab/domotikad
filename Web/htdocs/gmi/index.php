@@ -100,10 +100,11 @@ $.fn.alterClass = function ( removals, additions ) {
 };
 })( jQuery );
 
+/*
 function postreply(arg)
 {
-   alert(arg);
-}
+   console.debug(arg);
+} */
 /*
 var clicksound = new Audio("/domotika/gmi/beep.wav");
 clicksound.preload = 'auto';
@@ -120,11 +121,14 @@ function butpushed(btype, bid)
    //playClick(1);
    //simpleGMI.play('/domotika/gmi/beep.wav',0,0,function(data){alert(data)});
    $.post("/rest/v1.2/"+btype+"/setbyid/"+bid+"/json");
+   //simpleGMI.post("http://q.unixmedia.net/rest/v1.2/"+btype+"/setbyid/"+bid+"/json", 'gmi=true', postreply);
 }
 
 setInterval(function(){
-   simpleGMI.post('http://q.unixmedia.net/domotika/gmi/style.css', 'aaa=sarca', postreply);
-}, 5000);
+   simpleGMI.refresh();
+}, 3600000);
+//   simpleGMI.post('http://q.unixmedia.net/domotika/gmi/style.css', 'aaa=sarca', postreply);
+//}, 5000);
 </script>
 </head>
 <body>
@@ -189,6 +193,7 @@ setInterval(function(){
 </div>
 
 <div class="footer-bar">
+<!--
 <button onClick="simpleGMI.dial(0, 0, 0, 281, '', 1)" class="pure-button pure-button-secondary">
    <i class="fa fa-microphone fa-2x blackiconcolor"></i>
 </button>
@@ -196,7 +201,13 @@ setInterval(function(){
 <button onClick="simpleGMI.refresh()" class="pure-button pure-button-secondary" style="float:right">
    <i class="fa fa-refresh fa-2x fa-spin blackiconcolor"></i>
 </button>
-
+-->
+<button onClick="simpleGMI.dial(0, 0, 0, 281, '', 1)" class="pure-button pure-button-secondary">
+   <i class="fa fa-microphone fa-2x blackiconcolor"></i>
+</button>
+<button onClick="simpleGMI.refresh()" class="pure-button pure-button-secondary" style="float:right">
+   <i class="fa fa-refresh fa-2x blackiconcolor"></i>
+</button>
 </div>
 <script>
 var es = new EventSource("/sse");
@@ -211,12 +222,24 @@ var syncReceived = function(event) {
                var color=$(this).attr('data-dmcolor-on');
             else
                var color=$(this).attr('data-dmcolor-off');
+            alert(color);
             $(this).alterClass('pure-button-*', color);
          }
       )
    });
 }
 es.addEventListener("sync", syncReceived);
+
+setInterval(function(){
+   $.get("/rest/v1.2/keepalive/json", 
+      function(r){
+         if(r.data=='SLOGGEDOUT')
+         {
+            //location.reload();
+            simpleGMI.refresh();            
+         }
+      });
+    },5000);
 </script>
 </body>
 </html>
