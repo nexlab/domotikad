@@ -222,7 +222,7 @@ var syncReceived = function(event) {
                var color=$(this).attr('data-dmcolor-on');
             else
                var color=$(this).attr('data-dmcolor-off');
-            alert(color);
+            //alert(color);
             $(this).alterClass('pure-button-*', color);
          }
       )

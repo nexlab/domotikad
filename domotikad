@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 ###########################################################################
-# Copyright (c) 2011-2013 Unixmedia S.r.l. <info@unixmedia.it>
-# Copyright (c) 2011-2013 Franco (nextime) Lanza <franco@unixmedia.it>
+# Copyright (c) 2011-2014 Unixmedia S.r.l. <info@unixmedia.it>
+# Copyright (c) 2011-2014 Franco (nextime) Lanza <franco@unixmedia.it>
 #
 # Domotika System Controller Daemon "domotikad"  [http://trac.unixmedia.it]
 #
