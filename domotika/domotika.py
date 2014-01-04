@@ -305,7 +305,7 @@ class domotikaService(service.Service):
    def broadcastTime(self, ipdst="255.255.255.255"):
       if self.config.get("general", "timeserver").lower() in ['yes','y','1','true', 'on']:
          log.debug("Broadcasting Time to "+str(ipdst))
-         self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION, ipdst=ipdst)
+         self.sendCommand("SETTIME", arg_parse=False, arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION, ipdst=ipdst)
 
 
    def initializePlugins(self):
@@ -2126,7 +2126,12 @@ class domotikaService(service.Service):
 
    def sendCommand(self, *k, **kw):
       if 'arg' in kw.keys():
-         kw['arg']=self.parseDBArg(kw['arg'])
+         if 'arg_parse' in kw.keys():
+            if not kw['arg_parse']==False:
+               kw['arg']=self.parseDBArg(kw['arg'])
+            del kw['arg_parse']
+         else:
+            kw['arg']=self.parseDBArg(kw['arg'])
       send=False
       if str(self.config.get('ikapserver', 'enable')).lower() in ['yes', '1', 'y','true']:
          if self.udp:
