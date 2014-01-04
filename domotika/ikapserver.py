@@ -81,7 +81,8 @@ TCPCLIENTREG=TCPClientRegistry.getInstance()
 class DomIkaBaseProtocol(object):
 
    debugmode = False
- 
+   lastsettime=0 
+
    def __init__(self, core, *args, **kwargs):
       self.core = core
       self.initializated = False
@@ -357,8 +358,11 @@ class DomIkaBaseProtocol(object):
                self.core.manageIncomingPacket(self.ikahdr, src, dst, arg, host, port, ptype, argdict, data)
             else:
                log.error("INVALID PACKET TIME FROM "+str(host)+" - packet time: "+str(self.ikahdr.epoch)+" now: "+str(time.time()))
-               # XXX Set a min time between resend the time broadcasting to avoid DoS?
-               self.core.broadcastTime(host)
+               now=int(time.time())
+               if now-self.lastsettime>10:
+                  self.core.broadcastTime()
+               else
+                  self.core.broadcastTime(host)
                self.invalidPacket()
          else:
             log.error("INVALID PACKET (second check) FROM "+str(host))
@@ -451,8 +455,8 @@ class DomIkaTCP(Int8StringReceiver, DomIkaBaseProtocol):
       self.disconnected=False
       self.sendCommand("IOSTATUS.NOW", arg=C.IKAP_BROADCAST, act=C.IKAP_ACT_BOARD,
           ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_REQUESTCONF)
-      #self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION)
-      self.core.broadcastTime()
+      self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION)
+      #self.core.broadcastTime()
 
    def invalidPacket(self):
       try:
