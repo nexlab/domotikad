@@ -361,7 +361,7 @@ class DomIkaBaseProtocol(object):
                now=int(time.time())
                if now-self.lastsettime>10:
                   self.core.broadcastTime()
-               else
+               else:
                   self.core.broadcastTime(host)
                self.invalidPacket()
          else:
