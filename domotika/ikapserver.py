@@ -351,13 +351,17 @@ class DomIkaBaseProtocol(object):
          packet_isvalid=True
          #if self.ikahdr.msgtype!=C.IKAP_MSG_ACTION:
          #   argdict=False
-         if packet_isvalid and self.checkTimeLimits(self.ikahdr.epoch):
-            self.core.manageIncomingPacket(self.ikahdr, src, dst, arg, host, port, ptype, argdict, data)
+         if packet_isvalid:
+            if self.checkTimeLimits(self.ikahdr.epoch):
+               self.core.manageIncomingPacket(self.ikahdr, src, dst, arg, host, port, ptype, argdict, data)
+            else:
+               log.error("INVALID PACKET TIME FROM "+str(host)+" - packet time: "+str(self.ikahdr.epoch)+" now: "+str(time.time()))
+               self.invalidPacket()
          else:
-            log.error("INVALID TIME PACKET FROM "+str(host))
+            log.error("INVALID PACKET (second check) FROM "+str(host))
             self.invalidPacket()
       else:
-         log.error("INVALID TIME PACKET FROM "+str(host))
+         log.error("INVALID PACKET (start) FROM "+str(host))
          self.invalidPacket()
       log.debug('-----------------------------')
 
