@@ -194,7 +194,8 @@ class DomIkaBaseProtocol(object):
                if dst.startswith("DEBUG.INPUT.CHANGED.TO") or dst.startswith("DEBUG.RELAY.CHANGED.TO"):
                   arg=struct.unpack('B', arg[0])[0]
             elif self.ikahdr.msgtype==C.IKAP_MSG_NOTIFY and dst.startswith("BOOTED."):
-               self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION, ipdst=host)
+               self.core.broadcastTime(host)
+               #self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION, ipdst=host)
             elif self.ikahdr.msgtype==C.IKAP_MSG_NOTIFY and self.ikahdr.ctx==C.IKAP_CTX_SYSTEM and dst=='RELAY.AMPERE.LIMIT':
                try:
                   log.info("Relay "+str(struct.unpack("<B", arg[1])[0])+" has gone in overrun at "+str(float(struct.unpack("<B", arg[0])[0])/10.0)+" Ampere")
@@ -356,6 +357,8 @@ class DomIkaBaseProtocol(object):
                self.core.manageIncomingPacket(self.ikahdr, src, dst, arg, host, port, ptype, argdict, data)
             else:
                log.error("INVALID PACKET TIME FROM "+str(host)+" - packet time: "+str(self.ikahdr.epoch)+" now: "+str(time.time()))
+               # XXX Set a min time between resend the time broadcasting to avoid DoS?
+               self.core.broadcastTime(host)
                self.invalidPacket()
          else:
             log.error("INVALID PACKET (second check) FROM "+str(host))
@@ -448,7 +451,8 @@ class DomIkaTCP(Int8StringReceiver, DomIkaBaseProtocol):
       self.disconnected=False
       self.sendCommand("IOSTATUS.NOW", arg=C.IKAP_BROADCAST, act=C.IKAP_ACT_BOARD,
           ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_REQUESTCONF)
-      self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION)
+      #self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION)
+      self.core.broadcastTime()
 
    def invalidPacket(self):
       try:

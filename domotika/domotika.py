@@ -302,9 +302,10 @@ class domotikaService(service.Service):
             self.sendCommand(str(st), msgtype=C.IKAP_MSG_ACTION, ctx=C.IKAP_CTX_STATUS, act=C.IKAP_ACT_CHANGE, ipdst=ipdst)
 
 
-   def broadcastTime(self):
-      log.debug("Broadcasting Time...")
-      self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION)
+   def broadcastTime(self, ipdst="255.255.255.255"):
+      if self.config.get("general", "timeserver").lower() in ['yes','y','1','true', 'on']:
+         log.debug("Broadcasting Time to "+str(ipdst))
+         self.sendCommand("SETTIME", arg=struct.pack("<L", int(time.time())), act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_ACTION, ipdst=ipdst)
 
 
    def initializePlugins(self):
@@ -2356,6 +2357,9 @@ class domotikaService(service.Service):
 
    def plugin_on_execute(cmd):
       self.executeAction(cmd)
+
+   def domika_on_broadcastTime(self, ipdst="255.255.255.255"):
+      self.broadcastTime(ipdst)
 
    def domika_on_updateWebPort(self, src, host, webport, port, ptype):
       return dmdb.updateWebPort(src, host, webport)
