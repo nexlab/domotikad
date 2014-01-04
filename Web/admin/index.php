@@ -78,7 +78,8 @@
                             deleted or invalidated.
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Discard</button>
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal" >Discard</button>
+            <input type="checkbox" id="forcedetect">Force detection </input>
             <button type="button" class="btn btn-danger" data-dismiss="modal" id="startdetection">Start Autodetection</button>
           </div>
         </div><!-- /.modal-content -->
@@ -214,7 +215,10 @@
    <script type="text/javascript">
       $("#startdetection").click(
          function() {
-            $.get("/rest/v1.2/boards/autodetect/json");
+            if($('#forcedetect').is(":checked"))
+               $.get("/rest/v1.2/boards/forceautodetect/json");
+            else
+               $.get("/rest/v1.2/boards/autodetect/json");
          }
       );
    </script>

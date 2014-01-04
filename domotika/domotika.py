@@ -2186,7 +2186,9 @@ class domotikaService(service.Service):
    def web_on_getDaemonStatus(self):
       return self.daemonstatus
 
-   def web_on_startAutoDetection(self):
+   def web_on_startAutoDetection(self, force=False):
+      if force:
+         self.resetBoards()
       self.autoDetectBoards()
       return self.daemonstatus
 

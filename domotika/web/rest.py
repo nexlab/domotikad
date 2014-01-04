@@ -306,6 +306,12 @@ class BoardRest(RestCore):
       self.core.startAutoDetection()
       ResponseConversion(request, entity='OK')
 
+   @route("/forceautodetect")
+   @wrapResponse
+   def boardForceAutodetect(self, request, *a, **kw):
+      self.core.startAutoDetection(True)
+      ResponseConversion(request, entity='OK')
+
 
 class CronRest(RestCore):
 
