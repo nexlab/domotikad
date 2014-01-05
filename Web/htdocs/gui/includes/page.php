@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html manifest="offline.appcache">
   <head>
 <?=$PAGE_BUFFER['head']?>
 <?=$PAGE_ADDHEAD?>
+  </head>
   <body>
 <?=$PAGE_BUFFER['alerts']?>
 <?=$PAGE_BUFFER['navbar']?>
