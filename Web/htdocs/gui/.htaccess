@@ -4,7 +4,7 @@ FallbackResource /domotika/gui/index.php
     Deny from all
 </Files>
 
-<Files index.php>
+<FilesMatch "^(index|install)\.php$">
     Order Allow,Deny
     Allow from all
-</Files>
+</FilesMatch>

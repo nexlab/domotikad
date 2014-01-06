@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="offline.appcache">
+<html manifest="<?=$BASEGUIPATH?>/offline.appcache">
   <head>
 <?=$PAGE_BUFFER['head']?>
 <?=$PAGE_ADDHEAD?>

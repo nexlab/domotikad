@@ -27,6 +27,9 @@
    <script src="<?=$BASEGUIPATH;?>/js/combined.min.js"></script>
    <script>
 
+   //document.documentElement.requestFullscreen();
+
+
    var ttsEnabled=<?=$_DOMOTIKA['tts']?>; 
   
    //var scroller = new AppScroll({
@@ -399,8 +402,11 @@
 
 
    setInterval(function(i){
+      console.debug("setinterval");
       $.get("/rest/v1.2/keepalive/json", 
          function(r){
+            console.debug(r);
+            console.debug("getok");
             if(r.data=='SLOGGEDOUT')
             {
                location.reload();
@@ -409,6 +415,8 @@
                $("#modal_offline").modal('hide');
 
          }).fail(function(r){
+            console.debug("getfail");
+            console.debug(r);
             $("#modal_offline").modal('show');
          }
       );

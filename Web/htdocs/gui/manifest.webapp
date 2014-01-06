@@ -1,0 +1,13 @@
+{
+  "name": "Domotika GUI",
+  "description": "Home automation user interface",
+  "launch_path": "/domotika/gui",
+  "icons": {
+    "256": "/resources/img/logo_icon.png"
+  },
+  "developer": {
+    "name": "Unixmedia S.r.l.",
+    "url": "http://www.unixmedia.it"
+  },
+  "default_locale": "en"
+}
