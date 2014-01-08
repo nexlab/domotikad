@@ -3,6 +3,13 @@ FallbackResource /domotika/gui/index.php
     Order Deny,Allow
     Deny from all
 </Files>
+<Files offline.appcache>
+    Order Allow,Deny
+    Allow from all
+   ExpiresActive On
+   ExpiresDefault "access"
+
+</Files>
 
 <FilesMatch "^(index|install)\.php$">
     Order Allow,Deny

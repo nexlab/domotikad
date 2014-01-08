@@ -25,6 +25,7 @@
     <script src="/resources/EventSource/eventsource.js"></script>
    */ ?>
    <script src="<?=$BASEGUIPATH;?>/js/combined.min.js"></script>
+   <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/1.0.0/annyang.min.js"></script>  -->
    <script>
 
    //document.documentElement.requestFullscreen();
@@ -41,12 +42,17 @@
       
    function tmpPopover(el, cont, placement, timeout)
    {
+      console.debug(cont);
+      //el.popover("destroy");
       el.popover({
          placement: placement,
          content: cont,
          delay: {show: 100, hide: timeout},
+         container: el,
          trigger: "manual"});
+      console.debug(el.popover);
       el.popover("show");
+      el.find(".popover-content").html(cont);
       setTimeout(function(){el.popover("destroy")}, timeout);
    }
 
@@ -79,6 +85,24 @@
    {
       $.post("/rest/v1.2/actions/speech_text/json", spobj.serialize(), speechResult );
    }
+
+   /*
+   // Test SpeechAPI
+   function setSpeechText(terms)
+   {
+      $("#speech [name=text]").val(terms);
+      $("#speechsm [name=text]").val(terms);
+      console.debug("SpeechRecognized: "+terms)
+      sendSpeech($("#speech"));
+   }
+
+   var commands = {
+      'domotica *terms': setSpeechText 
+   };
+   annyang.init(commands);
+   annyang.setLanguage('it-IT')
+   annyang.start();
+   */
 
    var popupFader = function(ftype, title, message, timeout){
       if(typeof(timeout)==='undefined') timeout = 1500;
@@ -407,6 +431,10 @@
          function(r){
             console.debug(r);
             console.debug("getok");
+            //if('vibrate' in navigator) {
+            //   // ... vibrate for a second
+            //   navigator.vibrate(1000);
+            //}
             if(r.data=='SLOGGEDOUT')
             {
                location.reload();

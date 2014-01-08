@@ -63,6 +63,35 @@
       </div>
    </div>
    <div class="form-group">
+      <label for="slide" class="col-lg-2 control-label">Sliding GUI:</label>
+      <div class="col-lg-3">
+         <div class="make-switch switch-mini" id="slide-switch" data-on-label="YES" data-off-label="NO">
+            <input id="slide" type="radio" name="slide" />
+         </div>
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="lang" class="col-lg-2 control-label">Web Speech rec.:</label>
+      <div class="col-lg-3">
+         <select name="webspeech" id="webspeech" class="form-control">
+            <option value="no">no</option>
+            <option value="touch">touch</option>
+            <option value="continuous">continuous</option>
+         </select>
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="lang" class="col-lg-2 control-label">Speech lang:</label>
+      <div class="col-lg-3">
+         <select name="speechlang" id="speechlang" class="form-control">
+            <option value="en-US">US English</option>
+            <option value="en-GB">UK English</option>
+            <option value="it-IT">IT Italiano</option>
+            <option value="it-CH">CH Italiano</option>
+         </select>
+      </div>
+   </div>
+   <div class="form-group">
    <label for="mobilehome" class="col-lg-2 control-label"></label>
       <div class="col-lg-3">
          <input type="submit" value="Save"  class="btn btn-default">

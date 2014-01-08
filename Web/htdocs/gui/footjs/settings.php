@@ -10,15 +10,17 @@ var updateUser = function(r) {
   $("#desktophome").val(r.data.desktop_homepath);
   $("#mobilehome").val(r.data.mobile_homepath);
   if(r.data.tts==1)
-  {
     $('#tts-switch').bootstrapSwitch('setState', true); //$("#tts").attr('checked', true);
-  }
   else
-  {
     $('#tts-switch').bootstrapSwitch('setState', false); //$("#tts").attr('checked', false); 
-  }
-  $("#userform").show();
+  if(r.data.slide==1)
+    $('#slide').bootstrapSwitch('setState', true);
+  else
+    $('#slide').bootstrapSwitch('setState', false);
   $("#lang").val(r.data.language);
+  $("#webspeech").val(r.data.webspeech);
+  $("#speechlang").val(r.data.speechlang);
+  $("#userform").show();
 };
 
 
