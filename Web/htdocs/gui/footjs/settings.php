@@ -9,17 +9,17 @@ var updateUser = function(r) {
   $("#email").val(r.data.email);
   $("#desktophome").val(r.data.desktop_homepath);
   $("#mobilehome").val(r.data.mobile_homepath);
+  $("#lang").val(r.data.language);
+  $("#webspeech").val(r.data.webspeech);
+  $("#speechlang").val(r.data.speechlang);
   if(r.data.tts==1)
     $('#tts-switch').bootstrapSwitch('setState', true); //$("#tts").attr('checked', true);
   else
     $('#tts-switch').bootstrapSwitch('setState', false); //$("#tts").attr('checked', false); 
   if(r.data.slide==1)
-    $('#slide').bootstrapSwitch('setState', true);
+    $('#slide-switch').bootstrapSwitch('setState', true);
   else
-    $('#slide').bootstrapSwitch('setState', false);
-  $("#lang").val(r.data.language);
-  $("#webspeech").val(r.data.webspeech);
-  $("#speechlang").val(r.data.speechlang);
+    $('#slide-switch').bootstrapSwitch('setState', false);
   $("#userform").show();
 };
 

@@ -193,6 +193,10 @@
    border-radius: 4px;
 }
 
+/*
+input::-webkit-input-speech-button {
+   opacity: 0;
+}*/
 .notifybutton {
    background-image: url(/resources/img/notification.jpg);
    background-repeat: no-repeat;
@@ -209,6 +213,25 @@
 }
 
 .notifybutton:hover {
+   background-color: #fff;
+}
+.speechbutton {
+   background-image: url(/resources/img/microphone-little.png);
+   background-repeat: no-repeat;
+   background-size: contain;
+   background-color: #fff;
+   width: 37px;
+   max-width: 50px;
+   height: 37px;
+   padding: 8px 8px;
+   border: 0px solid transparent;
+   position: absolute;
+   bottom:5px;
+   right: 410px;
+   display:none;
+}
+
+.speechbutton:hover {
    background-color: #fff;
 }
 
@@ -257,7 +280,7 @@
 }
 .footbar-form {
    position:absolute;
-   right: 110px;
+   right: 105px;
    width: 300px;
    bottom: -2px;
 }
@@ -265,7 +288,7 @@
 .footbar-form-sm {
    position:absolute;
    left: 5px;
-   width: 100px;
+   width: 80px;
    bottom: -2px;
 }
 
@@ -434,6 +457,15 @@
  .panel-media-low {
    height: auto !important;
  }
+
+}
+
+@media (max-width: 768px) {
+
+   .speechbutton {
+     left: 88px;
+     right: auto;
+   }
 
 }
 

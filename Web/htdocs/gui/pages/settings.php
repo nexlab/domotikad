@@ -71,7 +71,7 @@
       </div>
    </div>
    <div class="form-group">
-      <label for="lang" class="col-lg-2 control-label">Web Speech rec.:</label>
+      <label for="webspeech" class="col-lg-2 control-label">Web Speech rec.:</label>
       <div class="col-lg-3">
          <select name="webspeech" id="webspeech" class="form-control">
             <option value="no">no</option>
@@ -81,7 +81,7 @@
       </div>
    </div>
    <div class="form-group">
-      <label for="lang" class="col-lg-2 control-label">Speech lang:</label>
+      <label for="speechlang" class="col-lg-2 control-label">Speech lang:</label>
       <div class="col-lg-3">
          <select name="speechlang" id="speechlang" class="form-control">
             <option value="en-US">US English</option>

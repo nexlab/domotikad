@@ -351,15 +351,24 @@ class UserRest(RestCore):
       pwd=False
       tts=False
       lang="it"
+      slide=False
+      webspeech="touch"
+      speechlang="it-IT"
       if 'lang' in r.keys():
          lang=r['lang']
       if 'tts' in r.keys():
          tts=True
       if 'passwd' in r.keys() and r['passwd'] != "":
          pwd=r['passwd']
+      if 'slide' in r.keys():
+         slide=True
+      if 'webspeech' in r.keys() and r['webspeech'] in ['no','touch','continuous']:
+         webspeech=r['webspeech']
+      if 'speechlang' in r.keys() and r['speechlang'] in ['it-IT','it-CH','en-US','en-GB']:
+         speechlang=r['speechlang']
       if 'desktop_homepath' in r.keys() and 'mobile_homepath' in r.keys() and 'email' in r.keys():
          return self.core.updateUserData(self.session.mind.perms.username, pwd, 
-                  r['email'], r['desktop_homepath'], r['mobile_homepath'], tts, lang).addCallbacks(onOk, onError)
+                  r['email'], r['desktop_homepath'], r['mobile_homepath'], tts, lang, slide, webspeech, speechlang).addCallbacks(onOk, onError)
       return ResponseConversion(request, code=400, entity="Bad request - error in parameters")
       #return self.callbackResponse(self.core.updateUserFromName(self.session.mind.perms.username), request)  
 

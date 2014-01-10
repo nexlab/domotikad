@@ -25,14 +25,43 @@
     <script src="/resources/EventSource/eventsource.js"></script>
    */ ?>
    <script src="<?=$BASEGUIPATH;?>/js/combined.min.js"></script>
-   <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/1.0.0/annyang.min.js"></script>  -->
+   <?
+   //if($_DOMOTIKA['webspeech']!="no")
+   if(FALSE)
+   {?>
+   <script src="/resources/speech/annyang.min.js"></script>  
+   <?}?>
    <script>
 
    //document.documentElement.requestFullscreen();
 
 
    var ttsEnabled=<?=$_DOMOTIKA['tts']?>; 
-  
+   var slideEnabled=<?=$_DOMOTIKA['slide']?>;
+   var speechEnabled='<?=$_DOMOTIKA['webspeech']?>';
+   if(speechEnabled=='touch' && document.createElement('input').webkitSpeech==undefined)
+   {
+      testSpeech=window.webkitSpeechRecognition ||
+                 window.mozSpeechRecognition ||
+                 window.msSpeechRecognition ||
+                 window.oSpeechRecognition ||
+                 window.SpeechRecognition;
+      
+      if(testSpeech)
+      {
+         $("#speechbutton").show(); // it isn't chrome with webkit-speech attribute, but it support WEB Speech API
+      }
+      else
+      {
+         $("#speechbutton").hide();
+         speechEnabled=='no';
+      }
+   } else {
+      speechEnabled='touch-chrome';
+   }
+   speechStartWord='*terms';
+   if(speechEnabled=='continuous')
+      speechStartWord='ok domotica *terms';
    //var scroller = new AppScroll({
    //   toolbar: $('#topbar')[0],
    //   scroller: $('#content')[0]
@@ -86,7 +115,6 @@
       $.post("/rest/v1.2/actions/speech_text/json", spobj.serialize(), speechResult );
    }
 
-   /*
    // Test SpeechAPI
    function setSpeechText(terms)
    {
@@ -97,17 +125,23 @@
    }
 
    var commands = {
-      'domotica *terms': setSpeechText 
+      speechStartWord: setSpeechText 
    };
-   annyang.init(commands);
-   annyang.setLanguage('it-IT')
-   annyang.start();
+   /*
+   if(speechEnabled=='touch' || speechEnabled=='continuous') 
+   {
+      annyang.init(commands);
+      annyang.setLanguage('<?=$_DOMOTIKA['speechlang']?>');
+   }
+   if(speechEnabled=='continuous')
+      annyang.start();
+   else if(speechEnabled=='touch')
+      annyang.recognition.continuous=false;
    */
-
    var popupFader = function(ftype, title, message, timeout){
       if(typeof(timeout)==='undefined') timeout = 1500;
       $("#alertTitle").text(title);
-      $("#alertMessage").text(" "+message);
+      r("#alertMessage").text(" "+message);
       $("#alertPopup").removeClass();
       $("#alertPopup").addClass("alert alert-"+ftype);
       $("#alertContainer").fadeIn(100);
@@ -124,7 +158,8 @@
       //dragger: $('#content')[0],
       dragger: $('[data-domotika-dragger="true"]')[0],
       minDragDistance: 20,
-      slideIntent: 30
+      slideIntent: 30,
+      //touchToDrag: slideEnabled
    });
    <? } ?>   
 
