@@ -23,5 +23,4 @@
     <link href="<?=$BASEGUIPATH;?>/css/style.css" rel="stylesheet" media="screen" />
     <? } else { ?>
     <link href="<?=$BASEGUIPATH;?>/css/combined.min.css" rel="stylesheet" media="screen" />
-    <link href="<?=$BASEGUIPATH;?>/css/style.css" rel="stylesheet" media="screen" />
     <? } ?>

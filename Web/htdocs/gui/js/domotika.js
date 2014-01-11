@@ -4,7 +4,7 @@
 
    var ttsEnabled=<?=$_DOMOTIKA['tts']?>; 
    var slideEnabled=<?=$_DOMOTIKA['slide']?>;
-   var speechEnabled='<?=$_DOMOTIKA['webspeech']?>';
+   var speechEnabled='<?=$_DOMOTIKA["webspeech"]?>';
 
    //var scroller = new AppScroll({
    //   toolbar: $('#topbar')[0],
