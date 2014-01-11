@@ -1,7 +1,7 @@
 <? @include_once("../includes/common.php");?>
     <? if($GUIDEBUG) { ?>
     <!-- JavaScript plugins (requires jQuery) -->
-    <script src="/resources/js/jquery-1.9.0.min.js"></script>
+    <script src="/resources/js/jquery-1.10.2.min.js"></script>
     <script src="/resources/jquery-color/jquery.color.min.js"></script>
     <script src="/resources/hammer.js/dist/hammer.min.js"></script> 
     <script src="/resources/hammer.js/plugins/hammer.fakemultitouch.js"></script>
