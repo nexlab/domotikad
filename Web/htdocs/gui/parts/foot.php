@@ -2,13 +2,13 @@
     <? if($GUIDEBUG) { ?>
     <!-- JavaScript plugins (requires jQuery) -->
     <script src="/resources/js/jquery-1.10.2.min.js"></script>
-    <script src="/resources/jquery-color/jquery.color.min.js"></script>
-    <script src="/resources/hammer.js/dist/hammer.min.js"></script> 
+    <script src="/resources/jquery-color/jquery.color.js"></script>
+    <script src="/resources/hammer.js/hammer.min.js"></script> 
     <script src="/resources/hammer.js/plugins/hammer.fakemultitouch.js"></script>
     <!--[if !IE]> -->
-    <script src="/resources/js/starthammer.js"></script>
+    <script src="<?=$BASEGUIPATH;?>/js/starthammer.js"></script>
     <!-- <![endif]-->
-    <script src="/resources/hammer.js/dist/jquery.hammer.min.js"></script>
+    <script src="/resources/hammer.js/plugins/jquery.hammer.js/jquery.hammer.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/resources/bootstrap/js/bootstrap.min.js"></script>
     <!-- Optionally enable responsive features in IE8 -->

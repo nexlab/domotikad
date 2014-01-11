@@ -2199,7 +2199,7 @@ class domotikaService(service.Service):
       return self.daemonstatus
 
    def web_on_getAuth(self, usr, pwd):
-      return dmdb.Users.find(where=['username=? AND passwd=? AND active=1', usr, pwd])
+      return dmdb.Users.find(where=["username='%s' AND passwd='%s' AND active=1" % ( usr, pwd)])
 
    def web_on_pluginRequest(self, pname, ppath, pargs, pheaders):
       return self.plugins.webRequest(pname, ppath, pargs, pheaders)
