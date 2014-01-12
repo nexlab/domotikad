@@ -8,7 +8,8 @@ CSS="../../resources/bootstrap/css/bootstrap.min.css
 ../../resources/glyphicons/css/bootstrap-glyphicons.css
 ../../resources/full-glyphicons/css/glyphicons.css
 ../../resources/bootstrap-switch/static/stylesheets/bootstrap-switch.css
-css/style.css"
+css/style.css
+"
 
 JS="
 ../../resources/js/jquery-1.10.2.min.js
@@ -39,7 +40,7 @@ for c in $CSS
       echo compressing $c ...
       rm -f /tmp/$o.compressed
       if [[ "$c" != *min.css ]] ; then
-         $YUI --type css -o /tmp/$o.compressed $c >/dev/null 2>&1
+         $YUI --type css --nomunge -o /tmp/$o.compressed $c >/dev/null 2>&1
       else
          echo "already minified..."
          cp $c /tmp/$o.compressed

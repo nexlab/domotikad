@@ -5,7 +5,7 @@ if($panel && is_array($panel)) {
    $visible="";
    if($panel['panel_visible']!="all") $visible=$panel['panel_visible'];
 ?>
-      <div class="panel col-lg-<?=$panel['panel_cols']?> panel-media-low <?=$visible?>" style="height: <?=$panel['panel_height']?>">
+      <div class="panel panel-default col-lg-<?=$panel['panel_cols']?> panel-media-low <?=$visible?>" style="height: <?=$panel['panel_height']?>">
 <?
    if($panel['panel_title']!="") {
 ?>

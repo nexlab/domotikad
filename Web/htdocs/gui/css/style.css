@@ -155,7 +155,7 @@
 }
 
 .primarycontainer {
-   background-color: #fff /*#777*/;
+   background-color: #fff;
    position: absolute;
    max-width: 100% !important;
    width: 100%;
@@ -196,7 +196,8 @@
 /*
 input::-webkit-input-speech-button {
    opacity: 0;
-}*/
+}
+*/
 .notifybutton {
    background-image: url(/resources/img/notification.jpg);
    background-repeat: no-repeat;
