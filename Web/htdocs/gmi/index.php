@@ -47,7 +47,7 @@ foreach($panels as $panel) {
 //$buttonar_right=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_right", "dmdomain","true",7);
 //print_r($buttonar_left);
 ?>
-<html>
+<html debug="true">
 <head>
 <title>Domotika GMI Interface</title>
 <link rel="stylesheet" href="/resources/pure/pure-nr-min.css">
@@ -58,6 +58,7 @@ foreach($panels as $panel) {
 <script src="/resources/js/sockjs-0.3.min.js" ></script>
 <script src="/resources/js/ajaxsocket.js" ></script>
 -->
+<script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script>
 <script src="/resources/js/jquery-1.9.0.min.js"></script>
 <script src="/resources/EventSource/eventsource.js"></script>
 <script language="javascript" src="simpleGMI.js"></script> 

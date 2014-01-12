@@ -11,7 +11,7 @@ $button_switchar=array(
    IKAP_CTX_MOTOR
    );
 ?>
-<?=$aaa;//print_r($button['inputs']);?>
+<?//print_r($button['inputs']);?>
 <div class="devlist-item">
    <div class="devlist-row">
       <div class="devlist-leftpart">
