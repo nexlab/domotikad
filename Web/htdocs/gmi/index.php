@@ -35,7 +35,8 @@ foreach($panels as $panel) {
             $buttonar_left=getPanelButtons($_DOMOTIKA['username'], $panel['panel_content'], $panel['panel_sections'], $panel['panel_websections'], $panel['panel_selector'],true,7);
             break;
          case 'gxv3175_center':
-            $buttonar_center=getPanelButtons($_DOMOTIKA['username'], $panel['panel_content'], $panel['panel_sections'], $panel['panel_websections'], $panel['panel_selector'],true,7);
+            $buttonar_center=DB::query("SELECT button_name,screenshot FROM mediasources 
+                  WHERE websection='citophone' AND active=1 ORDER BY position,id"); // AND DMDOMAIN(button_name, '".$panel['panel_content']."')=1
             break;
          case 'gxv3175_right':
             $buttonar_right=getPanelButtons($_DOMOTIKA['username'], $panel['panel_content'], $panel['panel_sections'], $panel['panel_websections'], $panel['panel_selector'],true,7);
@@ -46,24 +47,40 @@ foreach($panels as $panel) {
 //$buttonar_left=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_left", "dmdomain","true",7);
 //$buttonar_right=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_right", "dmdomain","true",7);
 //print_r($buttonar_left);
+//print_r($buttonar_center);
 ?>
 <html>
 <head>
+<script type="text/javascript"
+src="https://getfirebug.com/firebug-lite.js">
+{
+    overrideConsole: false,
+    startInNewWindow: false,
+    startOpened: true,
+    enableTrace: true
+}
+</script>
 <title>Domotika GMI Interface</title>
 <link rel="stylesheet" href="/resources/pure/pure-nr-min.css">
 <link rel="stylesheet" href="/resources/fontawesome/css/font-awesome.min.css">
 <link href='style.css' type='text/css' rel='stylesheet'>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate, max-age=-1, max-stale=0, post-check=0, pre-check=0">
+<meta http-equiv="expires" content="-1">
 <!--
 <script src="/resources/js/sockjs-0.3.min.js" ></script>
 <script src="/resources/js/ajaxsocket.js" ></script>
-<script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script>
--->
 <script src="/resources/js/jquery-1.9.0.min.js"></script>
+<script type="text/javascript" src="http://getfirebug.com/firebug-lite.js"></script>
+-->
+<script src="/resources/js/zepto.min.js"></script>
 <script src="/resources/EventSource/eventsource.js"></script>
 <script language="javascript" src="simpleGMI.js"></script> 
 <script type="text/javascript">
 
+
+window.lastAction=new Date().getTime();
 simpleGMI.fullScreen();
 
 /**
@@ -99,7 +116,7 @@ $.fn.alterClass = function ( removals, additions ) {
    });
    return !additions ? self : self.addClass( additions );
 };
-})( jQuery );
+})( window.jQuery || window.Zepto );
 
 /*
 function postreply(arg)
@@ -119,15 +136,16 @@ function playClick(volume) {
 
 function butpushed(btype, bid)
 {
+   window.lastAction=new Date().getTime();
    //playClick(1);
    //simpleGMI.play('/domotika/gmi/beep.wav',0,0,function(data){alert(data)});
    $.post("/rest/v1.2/"+btype+"/setbyid/"+bid+"/json");
    //simpleGMI.post("http://q.unixmedia.net/rest/v1.2/"+btype+"/setbyid/"+bid+"/json", 'gmi=true', postreply);
 }
 
-setInterval(function(){
-   simpleGMI.refresh();
-}, 3600000);
+//setInterval(function(){
+//   simpleGMI.refresh();
+//}, 3600000);
 //   simpleGMI.post('http://q.unixmedia.net/domotika/gmi/style.css', 'aaa=sarca', postreply);
 //}, 5000);
 </script>
@@ -151,26 +169,22 @@ setInterval(function(){
    </div>
    <div class="pure-u-1-3" style="width:31%">
       <div style="padding:5px;">
-         <button class="pure-button pure-button-primary" style="width:100%;height:130px;" onclick="simpleGMI.refresh()">test</button>
+         <? if(count($buttonar_center)<1) { ?>
+            <button class="pure-button pure-button-primary" style="width:100%;height:130px;" onclick="simpleGMI.refresh()">No Citophones</button>
+         <? } else { ?>
+         <select class="styled-select" id=camerasel name=camerasel style="width:100%;height:130px;">
+            <? foreach($buttonar_center as $cit) { ?>
+               <option value="<?=$cit['screenshot'];?>"><?=$cit['button_name']?></option>
+            <? } ?>               
+         </select>
+         <? } ?>
       </div>
+      
       <div style="height:80px" onclick="simpleGMI.refresh()">
       </div>
-      <div style="padding:5px;display:none">
-         <img src="https://192.168.4.45/enu/camera320x240.jpg" style="width:100%;height:190px" onclick="simpleGMI.refresh()"></img>
+      <div style="padding:5px;display:block">
+         <img id="camera" src="/domotika/gmi/img/camera.jpg" style="width:100%;height:190px" onclick="simpleGMI.refresh()"></img>
       </div>
-      <div style="padding:5px;">
-         <div class="pure-g">
-            <div class="pure-u-1-3" >
-               <button class="pure-button"><h1>15</h1></button>
-            </div>
-            <div class="pure-u-1-3" style="width:28%">
-               <button class="pure-button"><h1>:</h1></button>
-            </div>
-            <div class="pure-u-1-3" >
-               <button class="pure-button"><h1>15</h1></button>
-            </div>
-         </div>
-      </div>   
 
 
    </div>
@@ -231,7 +245,29 @@ var syncReceived = function(event) {
 }
 es.addEventListener("sync", syncReceived);
 
-setInterval(function(){
+window.camimage = new Image();
+window.camimage.src = "/domotika/gmi/img/camera.jpg";
+
+function updateImage()
+{
+   if(window.camimage.complete) {
+      $('#camera').attr('src', window.camimage.src);
+      window.camimage = new Image();
+      window.camimage.src = $('#camerasel').val() + "?time=" + new Date().getTime();
+      //alert($('#camerasel option:selected').text());
+   }
+   if(es!=null)
+      setTimeout(updateImage, 500);
+}
+
+window.camimagenum = <?=count($buttonar_center)?>;
+
+
+if(window.camimagenum>0)
+   updateImage();
+
+keepAlive = setInterval(function(){
+   
    $.get("/rest/v1.2/keepalive/json", 
       function(r){
          if(r.data=='SLOGGEDOUT')
@@ -241,6 +277,29 @@ setInterval(function(){
          }
       });
     },5000);
+
+function endGMI()
+{
+   clearInterval(keepAlive);
+   es.close();
+   es=null;
+   simpleGMI.exit();
+}
+
+function checkEnd()
+{
+   window.checkAction=new Date().getTime();
+   if((window.checkAction-window.lastAction)>30000)
+   {
+      endGMI();
+   } else { 
+      setTimeout(checkEnd, 1000);
+   }
+      
+}
+
+setTimeout(checkEnd, 1000);
+setTimeout(endGMI, 900000);
 </script>
 </body>
 </html>

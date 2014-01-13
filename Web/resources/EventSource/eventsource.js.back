@@ -5,7 +5,7 @@
  */
 
 /*jslint indent: 2, vars: true, plusplus: true */
-/*global setTimeout, clearTimeout */
+/*global setTimeout, clearTimeout, navigator */
 
 (function (global) {
   "use strict";
@@ -38,7 +38,6 @@
 
   EventTarget.prototype = {
     dispatchEvent: function (event) {
-      event.target = this;
       var type = String(event.type);
       var listeners = this.listeners;
       var typeListeners = listeners.get(type);
@@ -98,7 +97,6 @@
 
   function Event(type) {
     this.type = type;
-    this.target = null;
   }
 
   function MessageEvent(type, options) {
@@ -124,8 +122,11 @@
   var VALUE_START = 6;
   var VALUE = 7;
   var contentTypeRegExp = /^text\/event\-stream;?(\s*charset\=utf\-8)?$/i;
+  var isWebKitBefore535 = /AppleWebKit\/5([0-2][0-9]|3[0-4])[\.\s\w]/.test(navigator.userAgent);
+  var isGecko = Boolean(XHR && ((new XHR()).sendAsBinary !== undefined));
+  var isPresto = Object.prototype.toString.call(global.opera) === "[object Opera]";
 
-  var MINIMUM_DURATION = 1000;
+  var MINIMUM_DURATION = 1;
   var MAXIMUM_DURATION = 18000000;
 
   function getDuration(value, def) {
@@ -148,6 +149,7 @@
 
     var withCredentials = Boolean(isCORSSupported && options && options.withCredentials);
     var initialRetry = getDuration(options ? options.retry : NaN, 1000);
+    var retryLimit = getDuration(options ? options.retryLimit : NaN, 300000);
     var heartbeatTimeout = getDuration(options ? options.heartbeatTimeout : NaN, 45000);
     var lastEventId = (options && options.lastEventId && String(options.lastEventId)) || "";
     var that = this;
@@ -189,20 +191,15 @@
     function onProgress(isLoadEnd) {
       var responseText = currentState === OPEN || currentState === CONNECTING ? xhr.responseText || "" : "";
       var event = null;
-      var isWrongStatusCodeOrContentType = false;
 
       if (currentState === CONNECTING) {
         var status = 0;
-        var statusText = "";
         var contentType = "";
         if (isXHR) {
           try {
             status = Number(xhr.status || 0);
-            statusText = String(xhr.statusText || "");
             contentType = String(xhr.getResponseHeader("Content-Type") || "");
           } catch (error) {
-            // https://bugs.webkit.org/show_bug.cgi?id=29121
-            status = 0;
             // FF < 14, WebKit
             // https://bugs.webkit.org/show_bug.cgi?id=29658
             // https://bugs.webkit.org/show_bug.cgi?id=77854
@@ -222,19 +219,6 @@
           if (currentState === CLOSED) {
             return;
           }
-        } else {
-          if (status !== 0) {
-            var message = "";
-            if (status !== 200) {
-              message = "EventSource's response has a status " + status + " " + statusText.replace(/\s+/g, " ") + " that is not 200. Aborting the connection.";
-            } else {
-              message = "EventSource's response has a Content-Type specifying an unsupported type: " + contentType.replace(/\s+/g, " ") + ". Aborting the connection.";
-            }
-            setTimeout(function () {
-              throw new Error(message);
-            });
-            isWrongStatusCodeOrContentType = true;
-          }
         }
       }
 
@@ -244,9 +228,8 @@
         }
         var i = charOffset - 1;
         var length = responseText.length;
-        var c = "\n";
         while (++i < length) {
-          c = responseText[i];
+          var c = responseText[i];
           if (state === AFTER_CR && c === "\n") {
             state = FIELD_START;
           } else {
@@ -263,6 +246,11 @@
               } else if (field === "retry") {
                 initialRetry = getDuration(value, initialRetry);
                 retry = initialRetry;
+                if (retryLimit < initialRetry) {
+                  retryLimit = initialRetry;
+                }
+              } else if (field === "retryLimit") {//!
+                retryLimit = getDuration(value, retryLimit);
               } else if (field === "heartbeatTimeout") {//!
                 heartbeatTimeout = getDuration(value, heartbeatTimeout);
                 if (timeout !== 0) {
@@ -319,18 +307,15 @@
       }
 
       if ((currentState === OPEN || currentState === CONNECTING) &&
-          (isLoadEnd || isWrongStatusCodeOrContentType || (charOffset > 1024 * 1024) || (timeout === 0 && !wasActivity))) {
+          (isLoadEnd || (charOffset > 1024 * 1024) || (timeout === 0 && !wasActivity))) {
         currentState = WAITING;
         xhr.abort();
         if (timeout !== 0) {
           clearTimeout(timeout);
           timeout = 0;
         }
-        if (retry > initialRetry * 16) {
-          retry = initialRetry * 16;
-        }
-        if (retry > MAXIMUM_DURATION) {
-          retry = MAXIMUM_DURATION;
+        if (retry > retryLimit) {
+          retry = retryLimit;
         }
         timeout = setTimeout(onTimeout, retry);
         retry = retry * 2 + 1;
@@ -355,7 +340,7 @@
       onProgress(true);
     }
 
-    if (isXHR) {
+    if (isPresto) {
       // workaround for Opera issue with "progress" events
       timeout0 = setTimeout(function f() {
         if (xhr.readyState === 3) {
@@ -371,29 +356,36 @@
         onProgress(false);
         return;
       }
-      // loading indicator in Safari, Chrome < 14, Firefox
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=736723
-      if (isXHR && (xhr.sendAsBinary !== undefined || xhr.onloadend === undefined) && global.document && global.document.readyState && global.document.readyState !== "complete") {
-        timeout = setTimeout(onTimeout, 4);
+      if (navigator.onLine === false) {
+        // "online" event is not supported under Web Workers
+        // https://bugs.webkit.org/show_bug.cgi?id=118832
+        timeout = setTimeout(onTimeout, 500);
+        return;
+      }
+      // loading indicator in Safari, Chrome < 14
+      if (isWebKitBefore535 && global.document && global.document.readyState !== "complete") {
+        timeout = setTimeout(onTimeout, 100);
         return;
       }
       // XDomainRequest#abort removes onprogress, onerror, onload
 
       xhr.onload = xhr.onerror = onLoadEnd;
 
-      if (isXHR) {
-        // improper fix to match Firefox behaviour, but it is better than just ignore abort
-        // see https://bugzilla.mozilla.org/show_bug.cgi?id=768596
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=880200
-        // https://code.google.com/p/chromium/issues/detail?id=153570
-        xhr.onabort = onLoadEnd;
+      // improper fix to match Firefox behaviour, but it is better than just ignore abort
+      // see https://bugzilla.mozilla.org/show_bug.cgi?id=768596
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=880200
+      // https://code.google.com/p/chromium/issues/detail?id=153570
+      xhr.onabort = onLoadEnd;
 
+      if (isXHR) {
         // Firefox 3.5 - 3.6 - ? < 9.0
         // onprogress is not fired sometimes or delayed
         xhr.onreadystatechange = onProgress2;
       }
 
-      xhr.onprogress = onProgress2;
+      if (!isGecko) {// Firefox (any version) shows loading indicator
+        xhr.onprogress = onProgress2;
+      }
 
       wasActivity = false;
       timeout = setTimeout(onTimeout, heartbeatTimeout);
@@ -415,12 +407,12 @@
       }
       xhr.open("GET", s, true);
 
+      // withCredentials should be set after "open" for Safari and Chrome (< 19 ?)
+      xhr.withCredentials = withCredentials;
+
+      xhr.responseType = "text";
+
       if (isXHR) {
-        // withCredentials should be set after "open" for Safari and Chrome (< 19 ?)
-        xhr.withCredentials = withCredentials;
-
-        xhr.responseType = "text";
-
         // Request header field Cache-Control is not allowed by Access-Control-Allow-Headers.
         // "Cache-control: no-cache" are not honored in Chrome and Firefox
         // https://bugzilla.mozilla.org/show_bug.cgi?id=428916
@@ -463,7 +455,6 @@
     // https://code.google.com/p/chromium/issues/detail?id=260144
     // https://code.google.com/p/chromium/issues/detail?id=225654
     // ...
-    global.NativeEventSource = global.EventSource;
     global.EventSource = EventSource;
   }
 
