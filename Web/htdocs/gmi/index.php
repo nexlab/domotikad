@@ -35,7 +35,7 @@ foreach($panels as $panel) {
             $buttonar_left=getPanelButtons($_DOMOTIKA['username'], $panel['panel_content'], $panel['panel_sections'], $panel['panel_websections'], $panel['panel_selector'],true,7);
             break;
          case 'gxv3175_center':
-            $buttonar_center=DB::query("SELECT button_name,screenshot FROM mediasources 
+            $buttonar_center=DB::query("SELECT button_name,screenshot,audiostream FROM mediasources 
                   WHERE websection='citophone' AND active=1 ORDER BY position,id"); // AND DMDOMAIN(button_name, '".$panel['panel_content']."')=1
             break;
          case 'gxv3175_right':
@@ -44,23 +44,9 @@ foreach($panels as $panel) {
       }
 }
 
-//$buttonar_left=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_left", "dmdomain","true",7);
-//$buttonar_right=getPanelButtons($_DOMOTIKA['username'], "*","*","_grandstream_right", "dmdomain","true",7);
-//print_r($buttonar_left);
-//print_r($buttonar_center);
 ?>
 <html>
 <head>
-<!--
-<script type="text/javascript"
-src="https://getfirebug.com/firebug-lite.js">
-{
-    overrideConsole: false,
-    startInNewWindow: false,
-    startOpened: true,
-    enableTrace: true
-}
-</script> -->
 <title>Domotika GMI Interface</title>
 <link rel="stylesheet" href="/resources/pure/pure-nr-min.css">
 <link rel="stylesheet" href="/resources/fontawesome/css/font-awesome.min.css">
@@ -69,31 +55,14 @@ src="https://getfirebug.com/firebug-lite.js">
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate, max-age=-1, max-stale=0, post-check=0, pre-check=0">
 <meta http-equiv="expires" content="-1">
-<!--
-<script src="/resources/js/sockjs-0.3.min.js" ></script>
-<script src="/resources/js/ajaxsocket.js" ></script>
-<script src="/resources/js/jquery-1.9.0.min.js"></script>
-<script type="text/javascript" src="http://getfirebug.com/firebug-lite.js"></script>
--->
 <script src="/resources/js/zepto.min.js"></script>
 <script src="/resources/EventSource/eventsource.js"></script>
 <script language="javascript" src="simpleGMI.js"></script> 
 <script type="text/javascript">
 
-
 window.lastAction=new Date().getTime();
 simpleGMI.fullScreen();
 
-/**
- * jQuery alterClass plugin
- *
- * Remove element classes with wildcard matching. Optionally add classes:
- *   $( '#foo' ).alterClass( 'foo-* bar-*', 'foobar' )
- *
- * Copyright (c) 2011 Pete Boere (the-echoplex.net)
- * Free under terms of the MIT license: http://www.opensource.org/licenses/mit-license.php
- *
- */
 (function ( $ ) {
 $.fn.alterClass = function ( removals, additions ) {
    var self = this;
@@ -119,53 +88,36 @@ $.fn.alterClass = function ( removals, additions ) {
 };
 })( window.jQuery || window.Zepto );
 
-
-/*
-function postreply(arg)
-{
-   console.debug(arg);
-} */
-/*
-var clicksound = new Audio("/domotika/gmi/beep.wav");
-clicksound.preload = 'auto';
-clicksound.load();
-
-function playClick(volume) {
-  var click=clicksound.cloneNode();
-  click.volume=volume;
-  click.play();
-}*/
-
 function butpushed(btype, bid)
 {
    window.lastAction=new Date().getTime();
-   //playClick(1);
-   //simpleGMI.play('/domotika/gmi/beep.wav',0,0,function(data){alert(data)});
    $.post("/rest/v1.2/"+btype+"/setbyid/"+bid+"/json");
-   //simpleGMI.post("http://q.unixmedia.net/rest/v1.2/"+btype+"/setbyid/"+bid+"/json", 'gmi=true', postreply);
 }
-
 
 function selcamopen()
 {
    window.lastAction=new Date().getTime();
    $('#camopts').show();
    $('#camchoose').hide();
+   $('#camcall').hide();
 }
 
-function changeCamera(uri, name)
+function changeCamera(uri, name, sip)
 {
    window.lastAction=new Date().getTime();
    $('#camchoose').attr('data-uri', uri)
-   $('#camchoose').text(name);
+   $('#camchoose').text('CAM: '+name);
+   $('#camcall').attr('data-sip', sip);
    $('#camchoose').show();
+   $('#camcall').show();
    $('#camopts').hide();
 }
-//setInterval(function(){
-//   simpleGMI.refresh();
-//}, 3600000);
-//   simpleGMI.post('http://q.unixmedia.net/domotika/gmi/style.css', 'aaa=sarca', postreply);
-//}, 5000);
+
+function callcam()
+{
+   window.lastAction=new Date().getTime();
+   simpleGMI.dial(0, 1, 0, $('#camcall').attr('data-sip'), '', 0);
+}
 </script>
 </head>
 <body>
@@ -190,13 +142,17 @@ function changeCamera(uri, name)
          <? if(count($buttonar_center)<1) { ?>
             <button class="pure-button pure-button-warning" style="width:100%;height:130px;" onclick="simpleGMI.refresh()">No Citophones</button>
          <? } else { ?>
-               <button class="pure-button pure-button-success" style="width:100%;height:130px;" 
+               <button class="pure-button pure-button-success" style="width:100%;height:60px;" 
                      data-uri="<?=$buttonar_center['0']['screenshot'];?>" id="camchoose"
                      onclick="selcamopen()">CAM: <?=$buttonar_center['0']['button_name']?></button>
+               <button class="pure-button pure-button-warning" style="width:100%;height:60px;margin-top:10px;" 
+                     data-sip="<?=str_replace('SIP:','',$buttonar_center['0']['audiostream']);?>" id="camcall"
+                     onclick="callcam()">Chiama</button>
+
                <div style="width:30%;background-color:#000;position:absolute;top:10px;display:none;z-index:1000;overflow:auto;height:85%" id="camopts">
             <? foreach($buttonar_center as $cit) { ?>
                <button class="pure-button pure-button-secondary" 
-                  onclick="changeCamera('<?=$cit['screenshot'];?>', '<?=$cit['button_name']?>')"
+                  onclick="changeCamera('<?=$cit['screenshot'];?>', '<?=$cit['button_name']?>', '<?=str_replace('SIP:','', $cit['audiostream'])?>')"
                   style="width:100%;height:50px;margin-top:5px;" ><?=$cit['button_name']?></button>
             <? } ?>               
                </div>
@@ -231,15 +187,6 @@ function changeCamera(uri, name)
 </div>
 
 <div class="footer-bar" style="z-index:10000">
-<!--
-<button onClick="simpleGMI.dial(0, 0, 0, 281, '', 1)" class="pure-button pure-button-secondary">
-   <i class="fa fa-microphone fa-2x blackiconcolor"></i>
-</button>
-<span> STATUS: DEFAULT</span>
-<button onClick="simpleGMI.refresh()" class="pure-button pure-button-secondary" style="float:right">
-   <i class="fa fa-refresh fa-2x fa-spin blackiconcolor"></i>
-</button>
--->
 <button onClick="simpleGMI.dial(0, 0, 0, 281, '', 1)" class="pure-button pure-button-secondary">
    <i class="fa fa-microphone fa-2x blackiconcolor"></i>
 </button>
@@ -259,7 +206,6 @@ var syncReceived = function(event) {
                var color=$(this).attr('data-dmcolor-on');
             else
                var color=$(this).attr('data-dmcolor-off');
-            //alert(color);
             $(this).alterClass('pure-button-*', color);
          }
       )
@@ -274,16 +220,13 @@ function updateImage()
    if(window.camimage.complete) {
       $('#camera').attr('src', window.camimage.src);
       window.camimage = new Image();
-      //window.camimage.src = $('#camerasel').val() + "?time=" + new Date().getTime();
       window.camimage.src = $('#camchoose').attr('data-uri') + "?time=" + new Date().getTime();
-      //alert($('#camerasel option:selected').text());
    }
    if(window.es!=null)
       setTimeout(updateImage, 500);
 }
 
 window.camimagenum = <?=count($buttonar_center)?>;
-
 
 Zepto(function($){
    window.es = new EventSource("/sse");
@@ -298,7 +241,6 @@ keepAlive = setInterval(function(){
       function(r){
          if(r.data=='SLOGGEDOUT')
          {
-            //location.reload();
             simpleGMI.refresh();            
          }
       });
@@ -307,8 +249,12 @@ keepAlive = setInterval(function(){
 function endGMI()
 {
    clearInterval(keepAlive);
-   es.close();
-   es=null;
+   try {
+      es.close();
+      es=null;
+   } catch(err) {
+
+   }
    simpleGMI.exit();
 }
 
