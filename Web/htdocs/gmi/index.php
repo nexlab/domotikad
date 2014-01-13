@@ -51,6 +51,7 @@ foreach($panels as $panel) {
 ?>
 <html>
 <head>
+<!--
 <script type="text/javascript"
 src="https://getfirebug.com/firebug-lite.js">
 {
@@ -59,7 +60,7 @@ src="https://getfirebug.com/firebug-lite.js">
     startOpened: true,
     enableTrace: true
 }
-</script>
+</script> -->
 <title>Domotika GMI Interface</title>
 <link rel="stylesheet" href="/resources/pure/pure-nr-min.css">
 <link rel="stylesheet" href="/resources/fontawesome/css/font-awesome.min.css">
@@ -118,6 +119,7 @@ $.fn.alterClass = function ( removals, additions ) {
 };
 })( window.jQuery || window.Zepto );
 
+
 /*
 function postreply(arg)
 {
@@ -143,6 +145,22 @@ function butpushed(btype, bid)
    //simpleGMI.post("http://q.unixmedia.net/rest/v1.2/"+btype+"/setbyid/"+bid+"/json", 'gmi=true', postreply);
 }
 
+
+function selcamopen()
+{
+   window.lastAction=new Date().getTime();
+   $('#camopts').show();
+   $('#camchoose').hide();
+}
+
+function changeCamera(uri, name)
+{
+   window.lastAction=new Date().getTime();
+   $('#camchoose').attr('data-uri', uri)
+   $('#camchoose').text(name);
+   $('#camchoose').show();
+   $('#camopts').hide();
+}
 //setInterval(function(){
 //   simpleGMI.refresh();
 //}, 3600000);
@@ -170,20 +188,25 @@ function butpushed(btype, bid)
    <div class="pure-u-1-3" style="width:31%">
       <div style="padding:5px;">
          <? if(count($buttonar_center)<1) { ?>
-            <button class="pure-button pure-button-primary" style="width:100%;height:130px;" onclick="simpleGMI.refresh()">No Citophones</button>
+            <button class="pure-button pure-button-warning" style="width:100%;height:130px;" onclick="simpleGMI.refresh()">No Citophones</button>
          <? } else { ?>
-         <select class="styled-select" id=camerasel name=camerasel style="width:100%;height:130px;">
+               <button class="pure-button pure-button-success" style="width:100%;height:130px;" 
+                     data-uri="<?=$buttonar_center['0']['screenshot'];?>" id="camchoose"
+                     onclick="selcamopen()">CAM: <?=$buttonar_center['0']['button_name']?></button>
+               <div style="width:30%;background-color:#000;position:absolute;top:10px;display:none;z-index:1000;overflow:auto;height:85%" id="camopts">
             <? foreach($buttonar_center as $cit) { ?>
-               <option value="<?=$cit['screenshot'];?>"><?=$cit['button_name']?></option>
+               <button class="pure-button pure-button-secondary" 
+                  onclick="changeCamera('<?=$cit['screenshot'];?>', '<?=$cit['button_name']?>')"
+                  style="width:100%;height:50px;margin-top:5px;" ><?=$cit['button_name']?></button>
             <? } ?>               
-         </select>
+               </div>
          <? } ?>
       </div>
       
       <div style="height:80px" onclick="simpleGMI.refresh()">
       </div>
-      <div style="padding:5px;display:block">
-         <img id="camera" src="/domotika/gmi/img/camera.jpg" style="width:100%;height:190px" onclick="simpleGMI.refresh()"></img>
+      <div style="padding:5px;display:block;position:absolute;top:220px;">
+         <img id="camera" src="/domotika/gmi/img/camera.jpg" style="width:80%;height:190px" onclick="simpleGMI.refresh()"></img>
       </div>
 
 
@@ -207,7 +230,7 @@ function butpushed(btype, bid)
 
 </div>
 
-<div class="footer-bar">
+<div class="footer-bar" style="z-index:10000">
 <!--
 <button onClick="simpleGMI.dial(0, 0, 0, 281, '', 1)" class="pure-button pure-button-secondary">
    <i class="fa fa-microphone fa-2x blackiconcolor"></i>
@@ -225,7 +248,6 @@ function butpushed(btype, bid)
 </button>
 </div>
 <script>
-var es = new EventSource("/sse");
 
 var syncReceived = function(event) {
    var res=$.parseJSON(event.data);
@@ -243,7 +265,6 @@ var syncReceived = function(event) {
       )
    });
 }
-es.addEventListener("sync", syncReceived);
 
 window.camimage = new Image();
 window.camimage.src = "/domotika/gmi/img/camera.jpg";
@@ -253,18 +274,23 @@ function updateImage()
    if(window.camimage.complete) {
       $('#camera').attr('src', window.camimage.src);
       window.camimage = new Image();
-      window.camimage.src = $('#camerasel').val() + "?time=" + new Date().getTime();
+      //window.camimage.src = $('#camerasel').val() + "?time=" + new Date().getTime();
+      window.camimage.src = $('#camchoose').attr('data-uri') + "?time=" + new Date().getTime();
       //alert($('#camerasel option:selected').text());
    }
-   if(es!=null)
+   if(window.es!=null)
       setTimeout(updateImage, 500);
 }
 
 window.camimagenum = <?=count($buttonar_center)?>;
 
 
-if(window.camimagenum>0)
-   updateImage();
+Zepto(function($){
+   window.es = new EventSource("/sse");
+   window.es.addEventListener("sync", syncReceived);
+   if(window.camimagenum>0)
+      updateImage();
+});
 
 keepAlive = setInterval(function(){
    
@@ -289,7 +315,7 @@ function endGMI()
 function checkEnd()
 {
    window.checkAction=new Date().getTime();
-   if((window.checkAction-window.lastAction)>30000)
+   if((window.checkAction-window.lastAction)>60000)
    {
       endGMI();
    } else { 
