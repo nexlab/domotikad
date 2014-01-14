@@ -111,7 +111,7 @@ function getPanelIO($table, $content, $websection, $activeonly=true, $where="",$
    }
    elseif($table=='actions')
    {
-      $dom="ikap_dst";
+      $dom="select_domain";
       $ljoin="actstatus on actions.id=actstatus.buttonid";
       $add="actstatus.status as status, actstatus.status2 as status2";
    }
