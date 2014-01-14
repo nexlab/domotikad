@@ -2,9 +2,12 @@
 include_once("common_includes.php");
 
 $DEFPANELS = array();
-$DEFPANELS[]=array('panel_title'=>'grandstream_left','panel_websections'=>'_grandstream_left','panel_type'=>'gxv3175_left','panel_content'=>'*')+$PANELDEFAULTS;
-$DEFPANELS[]=array('panel_title'=>'grandstream_center','panel_websections'=>'_grandstream_center','panel_type'=>'gxv3175_center','panel_content'=>'*')+$PANELDEFAULTS;
-$DEFPANELS[]=array('panel_title'=>'grandstream_right','panel_websections'=>'_grandstream_right','panel_type'=>'gxv3175_right','panel_content'=>'*')+$PANELDEFAULTS;
+$DEFPANELS[]=array('panel_title'=>'grandstream_left','panel_websections'=>'_grandstream_left','panel_type'=>'gxv3175_left',
+      'panel_content'=>'','panel_selector'=>'any')+$PANELDEFAULTS;
+$DEFPANELS[]=array('panel_title'=>'grandstream_center','panel_websections'=>'_grandstream_center','panel_type'=>'gxv3175_center',
+      'panel_content'=>'','panel_selector'=>'any')+$PANELDEFAULTS;
+$DEFPANELS[]=array('panel_title'=>'grandstream_right','panel_websections'=>'_grandstream_right','panel_type'=>'gxv3175_right',
+      'panel_content'=>'','panel_selector'=>'any')+$PANELDEFAULTS;
 
 $colors=array(
    'gray' => 'pure-button-active',

@@ -89,7 +89,7 @@ function getSectionElements($section, $table='relay', $activeonly=true) {
 
 /* NEW FUNCTIONS */
 
-function getPanelIO($table, $content, $websection, $activeonly=true, $where="",$orderby="", $limit="")
+function getPanelIO($table, $selector, $content, $websection, $activeonly=true, $where="",$orderby="", $limit="")
 {
    if($table=='input')
    {
@@ -178,9 +178,9 @@ function getPanelIO($table, $content, $websection, $activeonly=true, $where="",$
       $sqlquery.=" AND";
    if($activeonly)
       $sqlquery.=" active>0";
-   if(($websection!="*" || $activeonly) && $content!="")
+   if(($websection!="*" || $activeonly) && ($content!="" && $selector!="any"))
       $sqlquery.=" AND";
-   if($content!="")
+   if($content!="" && $selector=='dmdomain')
    {
       $dmds=explode(',',$content);
       if(count($dmds)<2)
@@ -266,37 +266,35 @@ function getPanelButtons($user, $content, $sections="*", $websection="*", $selec
    } else {
       $sectar=explode(",",str_replace(" ","",$sections));
    }
-   if($selector=="dmdomain")
+   foreach($sectar as $sect)
    {
-      foreach($sectar as $sect)
+      $res=array();
+      switch($sect)
       {
-         $res=array();
-         switch($sect)
-         {
-            case "relay":
-               $res=getPanelIO("relay",$content, $websection, $activeonly, "", "", $limit);
-               $buts=$buts+$res;
-               break;
-            case "input":
-               $res=getPanelIO("input", $content, $websection, $activeonly, "", "", $limit);
-               $buts=$buts+$res;
-               break;
-            case "analog":
-               $res=getPanelIO("analog", $content, $websection, $activeonly, "", "", $limit);
-               $buts=$buts+$res;
-               break;
-            case "output":
-               $res=getPanelIO("output",$content, $websection, $activeonly, "", "", $limit);
-               $buts=$buts+$res;
-               break;
-            case "actions":
-               $res=getPanelIO("actions",$content, $websection, $activeonly, "", "", $limit);
-               $buts=$buts+$res;
-               break;
+         case "relay":
+            $res=getPanelIO("relay", $selector, $content, $websection, $activeonly, "", "", $limit);
+            $buts=$buts+$res;
+            break;
+         case "input":
+            $res=getPanelIO("input", $selector, $content, $websection, $activeonly, "", "", $limit);
+            $buts=$buts+$res;
+            break;
+         case "analog":
+            $res=getPanelIO("analog",$selector, $content, $websection, $activeonly, "", "", $limit);
+            $buts=$buts+$res;
+            break;
+         case "output":
+            $res=getPanelIO("output",$selector, $content, $websection, $activeonly, "", "", $limit);
+            $buts=$buts+$res;
+            break;
+         case "actions":
+            $res=getPanelIO("actions",$selector ,$content, $websection, $activeonly, "", "", $limit);
+            $buts=$buts+$res;
+            break;
 
-         }
       }
    }
+
    return $buts;
 }
 
