@@ -89,8 +89,16 @@ function getSectionElements($section, $table='relay', $activeonly=true) {
 
 /* NEW FUNCTIONS */
 
+//$numnum=0;
+
 function getPanelIO($table, $selector, $content, $websection, $activeonly=true, $where="",$orderby="", $limit="")
 {
+   /*
+   global $numnum;
+   $numnum++;
+   print_r("\n");
+   print_r($numnum);
+   */
    if($table=='input')
    {
       $dom="inpname";
@@ -222,7 +230,7 @@ function getPanelIO($table, $selector, $content, $websection, $activeonly=true, 
          $ret[$k]['inputs'] = array();
          $ret[$k]['analogs'] = array();
          if(intval($row['has_relays'])>0) {
-            $ret[$k]['relays'] = getPanelIO('relay', $ret[$k]['domain'], $websection, $activeonly,
+            $ret[$k]['relays'] = getPanelIO('relay', $selector, $ret[$k]['domain'], $websection, $activeonly,
                                     "relay.board_ip='".$row['board_ip']."' AND relay.outnum='".$row['outnum']."' and relay.outtype='".$row['outtype']."'",
                                     "position,button_name");
          }
@@ -241,9 +249,9 @@ function getPanelIO($table, $selector, $content, $websection, $activeonly=true, 
          }
          $wheredomain_inp.=")";
          $wheredomain_ana.=")";
-         $ret[$k]['inputs'] = getPanelIO('input', "", "*", $activeonly,
+         $ret[$k]['inputs'] = getPanelIO('input', $selector, "", "*", $activeonly,
                               $wheredomain_inp, "id", $limit);
-         $ret[$k]['analogs'] = getPanelIO('analog', "", "*", $activeonly,
+         $ret[$k]['analogs'] = getPanelIO('analog', $selector, "", "*", $activeonly,
                               $wheredomain_ana, "id", $limit);
 
       }
