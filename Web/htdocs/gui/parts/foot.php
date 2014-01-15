@@ -29,5 +29,4 @@
     <script src="<?=$BASEGUIPATH;?>/js/domotika.js"></script>
    <? } else { ?>
    <script src="<?=$BASEGUIPATH;?>/js/combined.min.js"></script>
-    <script src="<?=$BASEGUIPATH;?>/js/domotika.js"></script>
    <? } ?>

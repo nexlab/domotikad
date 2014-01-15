@@ -56,6 +56,7 @@
 
    function sendSpeech(spobj)
    {
+      console.debug(spobj.serialize());
       $.post("/rest/v1.2/actions/speech_text/json", spobj.serialize(), speechResult );
    }
 
@@ -84,6 +85,7 @@
 
    function setSpeechText(terms)
    {
+      // XXX Sistema sta cosa!
       $("#speech [name=text]").val(terms);
       $("#speechsm [name=text]").val(terms);
       console.debug("SpeechRecognized: "+terms)
@@ -231,18 +233,22 @@
 
    $('#speech').bind('webkitspeechchange',function(event) {
       event.preventDefault();
+      console.debug("AAAA");
       sendSpeech($("#speech"));
    });
 
    $('#speechsm').bind('webkitspeechchange',function(event) {
       event.preventDefault();
-      sendSpeech($("#speech"));
+      console.debug("BBBBB");
+      sendSpeech($("#speechsm"));
    });
 
    $("#speech").keypress(function(event) {
       var keycode = (event.keyCode ? event.keyCode : event.which);
       if(keycode == 13) {
          event.preventDefault();
+         console.debug("CCCC");
+         console.debug($("#speech"));
          sendSpeech($("#speech"));
       }
    });
@@ -436,11 +442,11 @@
 
 
    setInterval(function(i){
-      console.debug("setinterval");
+      //console.debug("setinterval");
       $.get("/rest/v1.2/keepalive/json", 
          function(r){
-            console.debug(r);
-            console.debug("getok");
+            //console.debug(r);
+            //console.debug("getok");
             //if('vibrate' in navigator) {
             //   // ... vibrate for a second
             //   navigator.vibrate(1000);
