@@ -59,7 +59,7 @@ from twisted.internet import defer
 from nevow import appserver
 import time
 import auth
-
+from dmlib.utils.genutils import configFile
 import phpserialize
 
 log = logging.getLogger( 'Webgui' )
@@ -129,24 +129,58 @@ class RootPage(rend.Page):
          return session.sse
       return self.childFactory(ctx, 'sse')
 
-   def child_plugin(self, ctx):
+   def child_rawplugin(self, ctx):
       request = inevow.IRequest(ctx)
       pl=request.path.split("/")
-      if len(pl)>=2:
+      if len(pl)>2:
          pname=pl[2]
-         ppath="/".join(pl[3:])
-         pargs=urllib.urlencode(request.args)
-         pheaders=""
-         for hk, hv in request.requestHeaders.getAllRawHeaders():
-            for hvv in hv:
-               pheaders=hk+"="+hvv+"\r\n"
-         if pheaders.endswith("\r\n"):
-            pheaders=pheaders[:-2]
-         ret = self.core.pluginRequest(pname, ppath, pargs, pheaders)
-         r=codeOk()
-         r.setContent(ret)
-         return r
-      return self.childFactory(ctx, 'plugin')
+         pconf=os.path.normpath("/".join([curdir, 'plugins', pname, 'conf', pname+".conf" ]))
+         log.debug("trying to read "+str(dconf))
+         if os.path.isfile(dconf):
+            try:
+               pcfg=configFile(pconf)
+               pcfg.readConfig()
+               port=int(pcfg.get('web','port'))
+            except:
+               port=False
+               log.debug("Cannot read config file for plugin "+pname)
+            if port:
+               self._sendProxySession(request, ctx)
+               log.debug("Proxying to plugin path "+str(request.path))
+               return proxy.WebProxyResource('localhost', port, path='/', remove=1)
+         else:
+            log.debug("Plugin hasn't a conf file to read")
+      else:
+         log.debug("no plugin name in request")
+      return self.childFactory(ctx, 'rawplugin')
+
+   def child_rawdaemon(self, ctx):
+      request = inevow.IRequest(ctx)
+      log.debug("Raw Daemon request for "+str(request.path))
+      pl=request.path.split("/")
+      if len(pl)>2:
+         dname=pl[2]
+         dconf=os.path.normpath("/".join([curdir, 'daemons', dname, 'conf', dname+".conf" ]))
+         log.debug("trying to read "+str(dconf))
+         if os.path.isfile(dconf):
+            try:
+               dcfg=configFile(dconf)
+               dcfg.readConfig()
+               port=int(dcfg.get('web','port'))
+            except:
+               port=False
+               log.debug("Cannot read config file for daemon "+dname)
+            if port:
+               self._sendProxySession(request, ctx)
+               log.debug("Proxying to daemon path "+str(request.path))
+               return proxy.WebProxyResource('localhost', port, path='/', remove=1)
+               
+         else:
+            log.debug("Daemon hasn't a conf file to read")
+      else:
+         log.debug("no daemon name in request")
+      return self.childFactory(ctx, 'rawdaemon') 
+
 
    def child_mediaproxy(self, ctx):
       if str(self.core.configGet('web', 'enablemediagui')).lower() in ['yes', '1', 'y','true']:
@@ -248,7 +282,7 @@ class RootPage(rend.Page):
       #log.info("Request: "+str(request))
       if host and host in self.core.configGet('proxy', 'localproxyhosts').split(','):
          self._sendProxySession(request, ctx)
-         return proxy.ApacheProxyResource('localhost', int(self.core.configGet('proxy', 'localproxyport')), path='/')
+         return proxy.WebProxyResource('localhost', int(self.core.configGet('proxy', 'localproxyport')), path='/')
       else:
          if self.logged:
             if(len(self.perms.homepath)) > 0:
@@ -266,12 +300,12 @@ class RootPage(rend.Page):
       #log.info("childFactory2 "+str(request))
       if name in self.core.configGet('proxy', 'localproxypaths').split(','):
          self._sendProxySession(request, ctx)
-         return proxy.ApacheProxyResource('localhost', 80, path='/'+name)
+         return proxy.WebProxyResource('localhost', 80, path='/'+name)
       host=request.getHeader('host')
       log.debug("HOST CALLED: "+str(host))
       if host and host in self.core.configGet('proxy', 'localproxyhosts').split(','):
          self._sendProxySession(request, ctx)
-         return proxy.ApacheProxyResource('localhost', 80, path='/'+name)
+         return proxy.WebProxyResource('localhost', 80, path='/'+name)
       log.debug("No child found (%s)" % name)
       return permissionDenied()
 
@@ -288,7 +322,7 @@ class SessionWrapper(guard.SessionWrapper):
       log.debug("SessionWrapper HOST CALLED: "+str(host))
       if host and host in self.core.configGet('proxy', 'localproxyhostsnologin').split(','):
          log.debug("Proxy Bypass Host in SessionWrapper renderHTTP "+host)
-         return proxy.ApacheProxyResource('localhost', int(self.core.configGet('proxy', 'localproxyport')), path='/')
+         return proxy.WebProxyResource('localhost', int(self.core.configGet('proxy', 'localproxyport')), path='/')
       return guard.SessionWrapper.renderHTTP(self, ctx)
 
 
@@ -306,7 +340,7 @@ class SessionWrapper(guard.SessionWrapper):
          for n in self.core.configGet('proxy', 'localproxypathsnologin').split(','):
             if n and name.startswith(n):
                log.info("Proxy Bypass localproxypathsnologin locateChild "+name)
-               return (proxy.ApacheProxyResource('localhost', 80, path='/'+name), '')
+               return (proxy.WebProxyResource('localhost', 80, path='/'+name), '')
          for n in self.core.configGet('web', 'nologinpaths').split(','):
             if n and name.startswith(n):
                if not ((name==n and n.endswith("/")) or (name[:-1]==n and name.endswith("/"))):
@@ -317,7 +351,7 @@ class SessionWrapper(guard.SessionWrapper):
       for n in self.core.configGet('proxy', 'localproxyhostsnologin').split(','):
          if n and host==n:
             log.info("Proxy Bypass Host in SessionWrapper locateChild "+host)
-            return (proxy.ApacheProxyResource('localhost', 80, path='/'+name), '')
+            return (proxy.WebProxyResource('localhost', 80, path='/'+name), '')
       u = self.core.configGet('web', 'nologindefaultuser')
       p = self.core.configGet('web', 'nologindefaultpass')
       for n in self.core.configGet('web', 'nologinips').split(','):

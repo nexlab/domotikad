@@ -321,10 +321,6 @@ class Loader(object):
          else:
             log.debug("Plugin "+str(plugin)+" doesn't exists or not loaded")
 
-   def webRequest(self, pname, ppath, pargs, pheaders):
-      self.push_request(pname, ['WEB', ppath, base64.b64encode(pargs), base64.b64encode(pheaders)])
-      return 'OK' # XXX vediamo di ritornare qualcosa di utile?
-
    def loadPlugin(self, name):
       if name in PLUGINREGISTRY.plugins.keys():
          log.debug("stopping plugin "+str(name))

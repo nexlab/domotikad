@@ -39,7 +39,7 @@ import logging
 
 log = logging.getLogger( 'Proxy' )
 
-class ApacheProxyClient(ProxyClient):
+class WebProxyClient(ProxyClient):
    def handleHeader(self, key, value):
       if key.lower() == 'location':
          log.debug("Manage location header")
@@ -92,7 +92,7 @@ class ApacheProxyClient(ProxyClient):
       resource.reactor.disconnect()
 
 
-class ApacheProxyClientFactory(ProxyClientFactory):
+class WebProxyClientFactory(ProxyClientFactory):
    def __init__(self, command, rest, version, headers, data, father, resource):
       self.resource = resource
       ProxyClientFactory.__init__(self,
@@ -104,7 +104,7 @@ class ApacheProxyClientFactory(ProxyClientFactory):
                                   father=father)
 
    def buildProtocol(self, addr):
-      return ApacheProxyClient(command=self.command,
+      return WebProxyClient(command=self.command,
                                rest=self.rest,
                                version=self.version,
                                headers=self.headers,
@@ -119,19 +119,27 @@ def hostport(host, port, headerhost, defaultport=80):
    return '%s:%d' % (host, port)
 
 
-class ApacheProxyResource(ReverseProxyResource):
+class WebProxyResource(ReverseProxyResource):
    """ Just to permit future modifications """
-   clientFactory = ApacheProxyClientFactory
+   clientFactory = WebProxyClientFactory
+   remove = False
 
    def __init__(self, *arg, **kwarg):
-      log.debug("ApacheProxy called")
+      log.debug("WebProxy called")
+      #try:
+      if True:
+         if 'remove' in kwarg.keys():
+            self.remove=int(kwarg['remove'])
+            del kwarg['remove']
+      #except:
+      #   log.debug("error in remove")
       return ReverseProxyResource.__init__(self, *arg, **kwarg)
 
 
    def getChild(self, path, request):
       log.debug("APACHE PROXY SEND HEADERS "+str(request.requestHeaders))
       #return ReverseProxyResource.getChild(self, path, request)
-      return ApacheProxyResource(self.host, self.port, self.path+'/'+urlquote(path, safe=""))
+      return WebProxyResource(self.host, self.port, self.path+'/'+urlquote(path, safe=""), remove=self.remove)
 
 
    def render(self, request):
@@ -159,6 +167,17 @@ class ApacheProxyResource(ReverseProxyResource):
          rest = self.path + '?' + qs
       else:
          rest = self.path
+      if rest.startswith("//"):
+         rest=rest[1:]
+ 
+      if self.remove:
+
+         tmprest="/".join([x for x in rest.split("/") if x != ''][self.remove:])
+         if rest.endswith('/'):
+            tmprest+="/"
+         rest="/"+tmprest
+     
+      log.debug("Proxying requesto to "+str(rest))
       clientFactory = self.clientFactory(command=request.method,
                                          rest=rest,
                                          version=request.clientproto,
