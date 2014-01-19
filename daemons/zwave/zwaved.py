@@ -7,6 +7,7 @@ from twisted.internet import epollreactor
 epollreactor.install()
 from twisted.internet import reactor
 from dmlib.daemonizer import Daemonizer
+from dmlib.utils.genutils import configFile
 import logging, time, sys, os
 from logging import handlers as loghandlers
 
@@ -20,8 +21,8 @@ except:
 
 log = logging.getLogger( 'ZWaved' )
 
-#sys.path.append(os.path.abspath(os.path.dirname(sys.argv[0])+"/../../"))
-
+CURDIR=os.path.abspath(os.path.dirname(sys.argv[0]))
+sys.path.append(os.path.abspath(CURDIR+"/../../"))
 
 """
 {'homeId': 23191651L, 'event': 0, 'valueId': {'index': 0, 'units': '', 'type': 'Bool', 'nodeId': 2, 'value': None, 'commandClass': 'COMMAND_CLASS_NO_OPERATION', 'instance': 1, 'readOnly': False, 'homeId': 23191651L, 'label': '', 'genre': 'Basic', 'id': 72057594071482368L}, 'notificationType': 'NodeEvent', 'nodeId': 2}
@@ -30,6 +31,9 @@ log = logging.getLogger( 'ZWaved' )
 class DMZWave(object):
 
    def __init__(self):
+      cfgfile=os.path.abspath("/".join([CURDIR, 'conf','zwave.conf']))
+      self.cfg=configFile(cfgfile)
+      self.cfg.readConfig()
       self.options = libopenzwave.PyOptions()
       #self.options.create("openzwave/","","--logging false")
       self.options.create("openzwave/","","")
@@ -38,7 +42,8 @@ class DMZWave(object):
       self.manager = libopenzwave.PyManager()
       self.manager.create()
       self.manager.addWatcher(self.callback)
-      self.manager.addDriver("/dev/ttyUSB0")
+      for controller in self.cfg.get('controller', 'dev').replace(' ','').split(','):
+         self.manager.addDriver(controller)
       
 
    def callback(self, res):

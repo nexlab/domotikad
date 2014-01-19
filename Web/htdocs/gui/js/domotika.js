@@ -118,7 +118,7 @@
    var popupFader = function(ftype, title, message, timeout){
       if(typeof(timeout)==='undefined') timeout = 1500;
       $("#alertTitle").text(title);
-      r("#alertMessage").text(" "+message);
+      $("#alertMessage").text(" "+message);
       $("#alertPopup").removeClass();
       $("#alertPopup").addClass("alert alert-"+ftype);
       $("#alertContainer").fadeIn(100);
