@@ -78,6 +78,7 @@ class WebProxyClient(ProxyClient):
       headers["connection"] = "close"
       headers.pop('keep-alive', None)
       self.headers = headers
+      log.debug("Proxy Client SEND headers: "+str(headers))
       ProxyClient.__init__(self,
                           command=command,
                           rest=rest,
@@ -126,18 +127,17 @@ class WebProxyResource(ReverseProxyResource):
 
    def __init__(self, *arg, **kwarg):
       log.debug("WebProxy called")
-      #try:
-      if True:
+      try:
          if 'remove' in kwarg.keys():
             self.remove=int(kwarg['remove'])
             del kwarg['remove']
-      #except:
-      #   log.debug("error in remove")
+      except:
+         log.debug("error in remove")
       return ReverseProxyResource.__init__(self, *arg, **kwarg)
 
 
    def getChild(self, path, request):
-      log.debug("APACHE PROXY SEND HEADERS "+str(request.requestHeaders))
+      #log.debug("APACHE PROXY SEND HEADERS "+str(request.requestHeaders))
       #return ReverseProxyResource.getChild(self, path, request)
       return WebProxyResource(self.host, self.port, self.path+'/'+urlquote(path, safe=""), remove=self.remove)
 
@@ -153,6 +153,8 @@ class WebProxyResource(ReverseProxyResource):
       headerhost=request.getHeader('host')
       headers['host'] = hostport(self.host, self.port, headerhost)
      
+      log.debug("APACHE PROXY / SEND HEADERS "+str(request.requestHeaders))
+
       try:
          request.content.seek(0, 0)
          reqdata=request.content.read()
