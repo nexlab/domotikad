@@ -9,7 +9,8 @@ $PANELDEFAULTS=array(
                   'panel_websections'=>'*',
                   'panel_selector'=>'dmdomain',
                   'panel_content'=>'',
-                  'panel_visible'=>'all'
+                  'panel_visible'=>'all',
+                  'panel_position'=>0
                );
 
 require_once("session.php");

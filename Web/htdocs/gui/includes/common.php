@@ -45,6 +45,8 @@ $PAGE_ADDFOOTJS = "";
 $PAGE_ADDLEFT = "";
 $PAGE_ADDRIGHT = "";
 
+$SHOW_EMPTY_PANELS=TRUE;
+
 function addFootJS($file)
 {
    ob_start();

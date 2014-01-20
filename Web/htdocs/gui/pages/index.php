@@ -25,13 +25,6 @@ if(!$panels or count($panels)<1) {
    }
 
 }
-foreach($panels as $panel) {
-      if(file_exists($FSPATH."/panels/head/".$panel['panel_type'].".php"))
-         addHead($FSPATH."/panels/head/".$panel['panel_type'].".php");
-      if(file_exists($FSPATH."/panels/content/".$panel['panel_type'].".php"))
-         include($FSPATH."/panels/content/".$panel['panel_type'].".php");
-      if(file_exists($FSPATH."/panels/footjs/".$panel['panel_type'].".php"))
-         addFootJS($FSPATH."/panels/footjs/".$panel['panel_type'].".php");
-}
+include($FSPATH."/panels/include.php");
 ?>
    </div> <!-- row -->
