@@ -51,11 +51,14 @@
             myapp.onsuccess = function(data) {
                $("#install_ff").hide()
                console.log(this);
-               alert('Web Application installed.');
+               popupFader('success', 'SUCCESS:','Web app installata correttamente');
+               var a = playTTS('Web app installata correttamente');
+
             };
             myapp.onerror = function() {
                console.log('Install failed, error: ' + this.error.name);
-               alert('Install failed, error: ' + this.error.name);
+               popupFader('danger', 'ERROR:', 'App not installed: '+this.error.name);
+               playTTS('Errore, applicazione non installata');
             };
          };
    
