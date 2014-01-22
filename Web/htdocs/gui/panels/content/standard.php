@@ -34,7 +34,7 @@ if($panel && is_array($panel)) {
       $dmheight="style=\"height:100%;\"";
    }
 ?>
-    <div class="domotika-panel<?=$dmfull;?>" <?=$dmheight;?>>
+    <div class="domotika-panel <?=$dmfull;?>" <?=$dmheight;?>>
       <div class="home-panel" <?=$dmheight;?>>
          <div class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>">     
 <?

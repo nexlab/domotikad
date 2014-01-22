@@ -160,21 +160,23 @@
    max-width: 100% !important;
    width: 100%;
    height: 100%;
-   bottom: 50px;
+   /*bottom: 50px;*/
+   padding-top: 50px;
+   padding-bottom: 55px;
 }
 .theme-dmblack {
    background-color: #000;
 }
 
 .container {
-   padding-top: 100px;
+   /*padding-top: 100px;*/
    height:100%;
-   padding-bottom: 45px;
+   padding-bottom: 20px; /* was 45 */
 }
 
 .insider {
-   margin-top: 20px;
-   margin-bottom: 40px;
+   /*margin-top: 20px;
+   margin-bottom: 40px;*/
    height:100%;
 }
 
@@ -338,6 +340,7 @@ input::-webkit-input-speech-button {
 .devlist-item-theme-dmblack{
    background-color: rgb(24,24,24);
    border: 0px;
+   color: #888;
 }
 
 .devlist-row {
@@ -460,12 +463,30 @@ input::-webkit-input-speech-button {
    border: 0px;
 }
 
-.panel-head-theme-dmblack {
-   background-color: #2a2ac0;
-   border-bottom: 0px;
-   margin: 0px;
+.panel-theme-dmwhite {
+   border: 0px;
 }
 
+.panel-head-theme-dmblack {
+   /*background-color: #2a2ac0;*/
+   background-color: #494992;
+   border-bottom: 0px;
+   margin: 0px;
+   margin-bottom: 10px;
+   border-radius: 6px;
+}
+
+.panel-head-theme-dmwhite {
+   background-color: #bbb;
+   border-bottom: 0px;
+   margin: 0px;
+   margin-bottom: 10px;
+   border-radius: 6px;
+}
+
+.panel {
+   margin-bottom: 0px;
+}
 
 body.theme-dmblack {
    color: #fff;
