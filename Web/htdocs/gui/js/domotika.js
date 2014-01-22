@@ -210,21 +210,6 @@
       $("#alertContainer").fadeOut({duration:timeout, easing:'easeInQuint'});
    };
 
-   <? if($left || $right) { ?>
-   var snapper = new Snap({
-      resistance: 0,
-      easing: 'linear',
-      transitionSpeed: 0.1,
-      tapToClose: false,
-      element: $('#content')[0],
-      dragger: $('#content')[0],
-      //dragger: $('[data-domotika-dragger="true"]')[0],
-      minDragDistance: 20,
-      slideIntent: 30,
-      touchToDrag: slideEnabled
-   });
-   <? } ?>   
-
     <? if($left || $right) { ?>
 
    function calcSnapSize()
@@ -240,6 +225,21 @@
       mval = calcSnapSize();
       $(".left-drawer").css("width", mval);
       $(".right-drawer").css("width", mval)
+   });
+
+   var snapper = new Snap({
+      resistance: 0,
+      easing: 'linear',
+      transitionSpeed: 0.1,
+      tapToClose: false,
+      element: $('#content')[0],
+      dragger: $('#content')[0],
+      //dragger: $('[data-domotika-dragger="true"]')[0],
+      minDragDistance: 20,
+      slideIntent: 30,
+      touchToDrag: slideEnabled,
+      maxPosition: calcSnapSize(),
+      minPosition: -calcSnapSize()
    });
 
    snapper.on('animating',
