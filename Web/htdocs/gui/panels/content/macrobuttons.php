@@ -5,11 +5,11 @@ if($panel && is_array($panel)) {
    $visible="";
    if($panel['panel_visible']!="all") $visible=$panel['panel_visible'];
 ?>
-      <div class="panel panel-default col-lg-<?=$panel['panel_cols']?> panel-media-low <?=$visible?>" style="height: <?=$panel['panel_height']?>">
+      <div class="panel panel-default panel-theme-<?=$_DOMOTIKA['gui_theme']?> col-lg-<?=$panel['panel_cols']?> panel-media-low <?=$visible?>" style="height: <?=$panel['panel_height']?>">
 <?
    if($panel['panel_title']!="") {
 ?>
-         <div class="panel-heading"><h2 class="panel-title"><?=$panel['panel_title']?></h2></div>
+         <div class="panel-heading panel-head-theme-<?=$_DOMOTIKA['gui_theme']?>"><h2 class="panel-title"><?=$panel['panel_title']?></h2></div>
 <? 
    }
 

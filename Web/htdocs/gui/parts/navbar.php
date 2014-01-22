@@ -13,8 +13,13 @@ function isActive($name)
    }
    return;
 }
+
+$themeclass="";
+if($_DOMOTIKA['gui_theme']=='dmblack')
+   $themeclass="navbar-inverse";
+
 ?>
-<div id="topbar" class="navbar navbar-fixed-top">
+<div id="topbar" class="navbar <?=$themeclass?> navbar-fixed-top">
    <? if($left) { ?>
     <button id="open-left" type="button" class="navbar-open navbar-openleft">
       <i class="glyphicon glyphicon-indent-left"></i>
@@ -39,6 +44,7 @@ function isActive($name)
              <li><a href="<?=$BASEGUIPATH?>"/>Domotika GUI</a></li>
              <? } ?>
              <li><a href="/admin/">admin gui</a></li>
+             <li id="install_ff" style="display:none"><a id="installbutton">install as webapp</a></li>
              <li><a href="/__LOGOUT__/">Logout</a></li>
           </ul>
        </li>

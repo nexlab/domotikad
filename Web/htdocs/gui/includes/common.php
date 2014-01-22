@@ -36,6 +36,10 @@ $dmcolors=array(
 include_once("common_includes.php");
 @include_once("config.php");
 include_once("translations.php");
+
+//print_r($_DOMOTIKA);
+
+
 $lang=$_DOMOTIKA['language'];
 $tr = new Translations($lang);
 $img = new Translations("icons");

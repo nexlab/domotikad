@@ -3,8 +3,13 @@
 $webspeech="";
 if($_DOMOTIKA['webspeech']=='touch')
    $webspeech='x-webkit-speech="x-webkit-speech"';
+
+$themeclass="";
+if($_DOMOTIKA['gui_theme']=='dmblack')
+   $themeclass="navbar-inverse";
+
 ?>
-<div class="navbar navbar-fixed-bottom">
+<div class="navbar <?=$themeclass?> navbar-fixed-bottom">
    <a class="navbar-brand" href="http://www.unixmedia.it" target=_blank>Domotika</a>
    <p class="navbar-text hidden-sm"><a href="http://www.unixmedia.it" class="navbar-link" target=_blank>by Unixmedia</a></p>
    <button id="speechbutton" type="button" class="btn btn-default navbar-btn pull-right speechbutton"></button>
@@ -19,10 +24,10 @@ if($_DOMOTIKA['webspeech']=='touch')
    </button>
    <a class="btn btn-default navbar-btn pull-right homebutton" href="<?=$BASEGUIPATH;?>"></a>
 
-  <div id="notifypanel" class="panel notifypanel">
-    <div class="panel-heading"><h4>Notifications<i class="glyphicon glyphicon-remove pull-right" id="notify-removeall"></i></h4></div>
+  <div id="notifypanel" class="panel panel-theme-<?=$_DOMOTIKA['gui_theme']?> notifypanel">
+    <div class="panel-heading panel-head-theme-<?=$_DOMOTIKA['gui_theme']?>"><h4>Notifications<i class="glyphicon glyphicon-remove pull-right" id="notify-removeall"></i></h4></div>
     <div class="notifylist">
-      <div id="notifications" class="list-group" data-snap-ignore="true">
+      <div id="notifications" class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>" data-snap-ignore="true">
       </div>
     </div>
   </div>

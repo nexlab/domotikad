@@ -335,6 +335,23 @@ class UserRest(RestCore):
    def userbyname(self, request=None, username='', *a, **kw):
       return self.callbackResponse(self.core.getUserFromName(username), request)
 
+   @route("/refreshme")
+   @wrapResponse
+   def refreshme(self, request=None,*a, **kw):
+      def setUserSession(res):
+         self.session.mind.perms.gui_theme=res.gui_theme
+         self.session.mind.perms.email=res.email
+         self.session.mind.perms.tts=res.tts
+         self.session.mind.perms.language=res.language
+         self.session.mind.perms.slide=res.slide
+         self.session.mind.perms.webspeech=res.webspeech
+         self.session.mind.perms.speechlang=res.speechlang
+      
+         return res
+      log.info('Refresh session for user '+str(self.session.mind.perms.username))
+      d=self.core.getUserFromName(self.session.mind.perms.username).addCallback(setUserSession)
+      return self.callbackResponse(d, request)
+
    @route("/me")
    @wrapResponse
    def getme(self, request=None,*a, **kw):
@@ -344,9 +361,12 @@ class UserRest(RestCore):
    @wrapResponse
    def setme(self, request=None,*a, **kw):
       def onOk(res):
+         log.info(res)
          return self.callbackResponse(self.core.getUserFromName(self.session.mind.perms.username), request)
       def onError(res):
+         log.info(res)
          return ResponseConversion(request, code=404, entity="User not found")
+      log.info("REST Update user "+str(self.session.mind.perms.username))
       r = self._getRequestArgs(request)
       pwd=False
       tts=False
@@ -354,6 +374,7 @@ class UserRest(RestCore):
       slide=False
       webspeech="touch"
       speechlang="it-IT"
+      theme='dmblack'
       if 'lang' in r.keys():
          lang=r['lang']
       if 'tts' in r.keys():
@@ -362,15 +383,18 @@ class UserRest(RestCore):
          pwd=r['passwd']
       if 'slide' in r.keys():
          slide=True
+      if 'gui_theme' in r.keys():
+         theme=str(r['gui_theme'])
       if 'webspeech' in r.keys() and r['webspeech'] in ['no','touch','continuous']:
          webspeech=r['webspeech']
       if 'speechlang' in r.keys() and r['speechlang'] in ['it-IT','it-CH','en-US','en-GB']:
          speechlang=r['speechlang']
       if 'desktop_homepath' in r.keys() and 'mobile_homepath' in r.keys() and 'email' in r.keys():
          return self.core.updateUserData(self.session.mind.perms.username, pwd, 
-                  r['email'], r['desktop_homepath'], r['mobile_homepath'], tts, lang, slide, webspeech, speechlang).addCallbacks(onOk, onError)
+                  r['email'], r['desktop_homepath'], r['mobile_homepath'], 
+                  tts, lang, slide, webspeech, speechlang, theme).addCallbacks(onOk, onError)
+      log.info('Erroneous request on update my userdata! ('+str(self.session.mind.perms.username)+')')
       return ResponseConversion(request, code=400, entity="Bad request - error in parameters")
-      #return self.callbackResponse(self.core.updateUserFromName(self.session.mind.perms.username), request)  
 
 class ActionRest(RestCore):
    

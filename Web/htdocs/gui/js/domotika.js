@@ -1,6 +1,11 @@
 <? @include_once("../includes/common.php");?>
    //document.documentElement.requestFullscreen();
 
+   //window.screen.mozLockOrientation('portrait');
+
+   var windowWidth = window.screen.width < window.outerWidth ?
+                  window.screen.width : window.outerWidth;
+   var mobile = windowWidth < 500;
 
    var ttsEnabled=<?=$_DOMOTIKA['tts']?>; 
    var slideEnabled=<?=$_DOMOTIKA['slide']?>;
@@ -12,6 +17,70 @@
    //})
 
    var audioTagSupport = !!(document.createElement('audio').canPlayType);
+   /*  
+   function DoFullScreen() {
+      if (!document.fullscreenElement &&    // alternative standard method
+            !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
+         if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+         } else if (document.documentElement.msRequestFullscreen) {
+            document.documentElement.msRequestFullscreen();
+         } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+         } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+         }
+      }
+   }
+   */
+
+   if(mobile)
+   { 
+      if(window.navigator.userAgent.match(/firefox/i) && window.navigator.userAgent.match(/mobile/i))
+      {
+
+         var installbutton = $("#installbutton");
+         var port="";
+         if(document.location.port)
+            var port=":"+document.location.port;
+         var manifest_url = document.location.protocol+"//"+document.location.host+port+"<?=str_replace("/js/domotika.js","",$BASEGUIPATH)?>/manifest.webapp";
+         
+         function installFFApp(ev) {
+            ev.preventDefault();
+            var myapp = navigator.mozApps.install(manifest_url);
+            myapp.onsuccess = function(data) {
+               $("#install_ff").hide()
+               console.log(this);
+               alert('Web Application installed.');
+            };
+            myapp.onerror = function() {
+               console.log('Install failed, error: ' + this.error.name);
+               alert('Install failed, error: ' + this.error.name);
+            };
+         };
+   
+
+         var installCheck = navigator.mozApps.checkInstalled(manifest_url);
+
+         installCheck.onsuccess = function() {
+            if(installCheck.result) {
+               $("#install_ff").hide();
+            } else {
+               $("#install_ff").show();
+               installbutton.on('click', installFFApp);
+            };
+         };
+      }
+
+      if(jQuery.isFunction(window.screen.lockOrientation))
+         window.screen.lockOrientation('portrait');
+      else if(jQuery.isFunction(window.screen.mozLockOrientation))
+         window.screen.mozLockOrientation('portrait');
+      else if(jQuery.isFunction(window.screen.msLockOrientation))
+         window.screen.msLockOrientation('portrait');
+      else if(jQuery.isFunction(window.screen.webkitLockOrientation))
+         window.screen.webkitLockOrientation('portrait');
+   }
       
    function tmpPopover(el, cont, placement, timeout)
    {
@@ -36,11 +105,20 @@
       if (!audioTagSupport) return false;
       if (text=='') return false;
       if (ttsEnabled!=1 && force===false) return false;
-      var audio = document.createElement('audio');
+      if($("playTTS_audio").length)
+      {
+         var audio = $("playTTS_audio");
+      }
+      else
+      {
+         var audio = document.createElement('audio');
+         audio.setAttribute('id' , 'playTTS_audio');
+      }
       // XXX BUG: webkit based browsers seems to not work with https:// in <audio>, so, we fix this to http
       audio.setAttribute('src', 'http://translate.google.com/translate_tts?tl='+lang+'&q=' + encodeURIComponent(text));
       audio.load();
       audio.play();
+      return audio;
    }  
 
    function speechResult(data) {
@@ -141,12 +219,25 @@
    <? } ?>   
 
     <? if($left || $right) { ?>
+
+   function calcSnapSize()
+   {
+      if($(window).width()>768)
+         var mval=Math.min(Math.ceil((75/100)*$(window).width()), 800);
+      else
+         var mval=Math.max(Math.ceil((75/100)*$(window).width()), 266);
+      return mval
+   }
+
+   $(document).ready(function() {
+      mval = calcSnapSize();
+      $(".left-drawer").css("width", mval);
+      $(".right-drawer").css("width", mval)
+   });
+
    snapper.on('animating',
       function(e) {
-         if($(window).width()>768)
-            mval=Math.min(Math.ceil((75/100)*$(window).width()), 800);
-         else
-            mval=Math.max(Math.ceil((75/100)*$(window).width()), 266);
+         var mval = calcSnapSize();
          <? if($left) { ?>
          if(snapper.state().info.opening=='left' && snapper.state().state!='left' && $(".left-drawer").css("width")!=mval+"px")
          {

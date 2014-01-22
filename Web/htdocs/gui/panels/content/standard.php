@@ -10,11 +10,11 @@ if($panel && is_array($panel)) {
       $visible.=" hidden-xs hidden-sm";
    }
 ?>
-      <div class="panel col-lg-<?=$panel['panel_cols']?> panel-media-low <?=$visible?>" style="height:<?=$panel['panel_height'];?>;">
+      <div class="panel panel-theme-<?=$_DOMOTIKA['gui_theme']?> col-lg-<?=$panel['panel_cols']?> panel-media-low <?=$visible?>" style="height:<?=$panel['panel_height'];?>;">
 <?
    if($panel['panel_title']!="") {
 ?>
-         <div class="panel-heading"><h2 class="panel-title"><?=$panel['panel_title']?></h2></div>
+         <div class="panel-heading panel-head-theme-<?=$_DOMOTIKA['gui_theme']?>"><h2 class="panel-title"><?=$panel['panel_title']?></h2></div>
 <? 
    }
 
@@ -36,7 +36,7 @@ if($panel && is_array($panel)) {
 ?>
     <div class="domotika-panel<?=$dmfull;?>" <?=$dmheight;?>>
       <div class="home-panel" <?=$dmheight;?>>
-         <div class="list-group">     
+         <div class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>">     
 <?
    foreach($buttonar as $button) {
       if(file_exists($FSPATH."/buttons/".$button['devtype'].".php"))

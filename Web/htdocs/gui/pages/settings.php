@@ -4,7 +4,7 @@
     <h1>Settings</h1>
 <ul class="nav nav-tabs">
   <li <? if($GUISUBSECTION=="") {?>class="active"<?}?>><a href="<?=$BASEGUIPATH.'/'.$GUISECTION?>">User options</a></li>
-  <li <? if($GUISUBSECTION=="gui") {?>class="active"<?}?>><a href="<?=$BASEGUIPATH.'/'.$GUISECTION?>/gui">GUI options</a></li>
+ <!-- <li <? if($GUISUBSECTION=="gui") {?>class="active"<?}?>><a href="<?=$BASEGUIPATH.'/'.$GUISECTION?>/gui">GUI options</a></li> -->
 </ul>
 <? if($GUISUBSECTION=="") {?>
 <div class="formcontainer">
@@ -92,6 +92,15 @@
       </div>
    </div>
    <div class="form-group">
+      <label for="gui_theme" class="col-lg-2 control-label">GUI Theme:</label>
+      <div class="col-lg-3">
+         <select name="gui_theme" id="gui_theme" class="form-control">
+            <option value="dmblack">DM Black</option>
+            <option value="dmwhite">DM White</option>
+         </select>
+      </div>
+   </div>
+   <div class="form-group">
    <label for="mobilehome" class="col-lg-2 control-label"></label>
       <div class="col-lg-3">
          <input type="submit" value="Save"  class="btn btn-default">
@@ -99,7 +108,7 @@
    </div>
 </form>
 <div>
-<?} elseif($GUISUBSECTION=="gui") { // $GUISUBSECTIONOPT?>
+<?}/* elseif($GUISUBSECTION=="gui") { // $GUISUBSECTIONOPT?>
 <ul class="nav nav-pills nav-stacked">
   <li class="active"><a href="#">Home</a></li>
   <li><a href="#">Profile</a></li>
@@ -122,7 +131,7 @@
 
 </form>
 </div>
-<?} else  {
+<?} */ else  {
    header("Location: $BASEGUIPATH/settings");
    exit(0); 
 }?>

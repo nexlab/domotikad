@@ -18,7 +18,7 @@ if(intval($button['status'])>0) {
    $button_text=$button['text_on'];
 }
 ?>
-<div class="devlist-item">
+<div class="devlist-item devlist-item-theme-<?=$_DOMOTIKA['gui_theme']?>">
    <div class="devlist-row">
       <div class="devlist-leftpart">
             <h4 class="devlist-name"><?=$button['button_name']?></h4>

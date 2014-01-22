@@ -12,6 +12,7 @@ var updateUser = function(r) {
   $("#lang").val(r.data.language);
   $("#webspeech").val(r.data.webspeech);
   $("#speechlang").val(r.data.speechlang);
+  $("#gui_theme").val(r.data.gui_theme);
   if(r.data.tts==1)
     $('#tts-switch').bootstrapSwitch('setState', true); //$("#tts").attr('checked', true);
   else
@@ -36,7 +37,10 @@ $("#userform").on("submit", function(event) {
       $.ajax({url: "/rest/v1.2/users/me/json", type:"PUT", data: $(this).serialize(),
                success: function(res) {
                   popupFader('success', 'SUCCESS:','Utente aggiornato correttamente...');
-                  playTTS('Utente aggiornato correttamente');
+                  var a = playTTS('Utente aggiornato correttamente');
+                  a.addEventListener("ended", function(){
+                     $.get("/rest/v1.2/users/refreshme/json", function(){location.reload();});
+                  });
                },
                error: function(res) {
                   msg=$.parseJSON(res.responseText).data;

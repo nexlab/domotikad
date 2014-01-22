@@ -23,7 +23,7 @@ if(floatval($button['status'])==floatval($button['minval']))
 $pbcoln="progress-bar-";
 $perc=(floatval($button['status'])-floatval($button['minval']))*100/(floatval($button['maxval'])-floatval($button['minval']))
 ?>
-<div class="devlist-item">
+<div class="devlist-item devlist-item-theme-<?=$_DOMOTIKA['gui_theme']?>">
    <div class="devlist-row">
       <div class="devlist-leftpart">
             <h4 class="devlist-name"><?=$button['button_name']?></h4>

@@ -21,6 +21,7 @@
     <link href="/resources/full-glyphicons/css/glyphicons.css" rel="stylesheet" media="screen">
     <link href="/resources/bootstrap-switch/static/stylesheets/bootstrap-switch.css" rel="stylesheet" media="screen">
     <link href="<?=$BASEGUIPATH;?>/css/style.css" rel="stylesheet" media="screen" />
+
     <? } else { ?>
     <link href="<?=$BASEGUIPATH;?>/css/combined.min.css" rel="stylesheet" media="screen" />
     <? } ?>

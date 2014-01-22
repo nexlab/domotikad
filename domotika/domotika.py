@@ -2218,8 +2218,9 @@ class domotikaService(service.Service):
    def web_on_getUserFromName(self, name):
       return dmdb.Users.find(where=['username=?', name], limit=1)
 
-   def web_on_updateUserData(self, username, pwd, email, dhome, mhome, tts, lang, slide=False, webspeech='touch', speechlang='it-IT'):
-      return dmdb.updateUserData(username, pwd, email, dhome, mhome, tts, lang,slide, webspeech, speechlang) 
+   def web_on_updateUserData(self, username, pwd, email, dhome, mhome, tts, 
+                              lang, slide=False, webspeech='touch', speechlang='it-IT', theme='dmblack'):
+      return dmdb.updateUserData(username, pwd, email, dhome, mhome, tts, lang,slide, webspeech, speechlang, theme) 
 
    def web_on_getMaxLocalTranscode(self):
       return int(self.config.get('media', 'localtranscode'))

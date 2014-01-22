@@ -249,7 +249,7 @@ class RootPage(rend.Page):
       if headers.hasHeader("DMSESSION"):
          headers.removeHeader("DMSESSION")
       headervalue = str(session.uid)
-      cols=['username','passwd','id','homepath','email','tts','language','slide','webspeech','speechlang']
+      cols=['username','passwd','id','homepath','email','tts','language','slide','webspeech','speechlang','gui_theme']
       try:
          headervalue = session.mind.perms.toHash(cols)
       except:
@@ -264,6 +264,7 @@ class RootPage(rend.Page):
          headervalue['slide'] = 0
          headervalue['webspeech'] = 'touch'
          headervalue['speechlang'] = 'it-IT'
+         headervalue['gui_theme' ] = 'dmblack'
       headervalue['sessionid'] = session.uid
       headervalue['logged'] = self.logged
       log.debug('DMSESSION SEND '+str(headervalue))
@@ -461,6 +462,7 @@ class LoginPage(rend.Page):
 <title>Domotika By Unixmedia</title>
 @SCRIPT@
 </head>
+<body class="@THEME@">
 <form method="post" name="loginform" action="@PATH@">
 <fieldset id="form"><legend>Login</legend>
 <p>Username: <input type="text" name="username" size="20" value="@USERNAME@" /></p>
@@ -533,6 +535,7 @@ class LoginPage(rend.Page):
       html = html.replace("@USERNAME@", '')
       html = html.replace("@PASSWORD@", '')
       html = html.replace("@SCRIPT@", "")
+      html = html.replace("@THEME@", str(self.core.configGet('web', 'logintheme')))
       html = html.replace("@CHECKED@", "")
       return html
 
@@ -564,6 +567,7 @@ class LoginPage(rend.Page):
                html = html.replace("@PASSWORD@", str(lp))
                html = html.replace("@CHECKED@", "checked")
                html = html.replace("@SCRIPT@", str(self.getScript(req.path)))
+               html = html.replace("@THEME@", str(self.core.configGet('web', 'logintheme')))
                log.debug("login html")
                return html
 

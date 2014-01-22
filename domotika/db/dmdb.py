@@ -748,7 +748,8 @@ def getUsersInGroup(group, activeonly=True):
    return UsersGroup.find(where=["group=?", group])
 
 
-def updateUserData(username, pwd, email, dhome, mhome, tts=False, lang="it",slide=False, webspeech='touch', speechlang='it-IT'):
+def updateUserData(username, pwd, email, dhome, mhome, tts=False, 
+                  lang="it",slide=False, webspeech='touch', speechlang='it-IT', theme='dmblack'):
    def onRes(res):
       if res>0:
          return defer.succeed(username+" correctly updated")
@@ -769,6 +770,7 @@ def updateUserData(username, pwd, email, dhome, mhome, tts=False, lang="it",slid
       qstring+=",slide=0"
    qstring+=",webspeech='%s'" % webspeech
    qstring+=",speechlang='%s'" % speechlang
+   qstring+=",gui_theme='%s'" % str(theme)
    qstring+=" WHERE username='%s' AND active > 0" %(username)
    log.debug(qstring)
    return runOperation(qstring).addCallback(onRes)
