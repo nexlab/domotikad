@@ -43,7 +43,11 @@
          var port="";
          if(document.location.port)
             var port=":"+document.location.port;
-         var manifest_url = document.location.protocol+"//"+document.location.host+port+"<?=str_replace("/js/domotika.js","",$BASEGUIPATH)?>/manifest.webapp";
+         <?
+            $manif=str_replace("/js/domotika.js","",$BASEGUIPATH);
+            $manif=str_replace("/js/combined.min.js", "", $manif);
+         ?>
+         var manifest_url = document.location.protocol+"//"+document.location.host+port+"<?=$manif?>/manifest.webapp";
          
          function installFFApp(ev) {
             ev.preventDefault();
