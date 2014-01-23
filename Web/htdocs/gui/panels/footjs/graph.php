@@ -1,56 +1,14 @@
-<?
-include_once("common_includes.php");
-?>
-<html>
-<head title="Domotika GUI stats">
-   <title>Domotika GUI Stats</title>
-   <meta charset="utf-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-   <meta content="true" name="HandheldFriendly" />
-   <meta content="320" name="MobileOptimized" /> 
-   <meta name="apple-mobile-web-app-capable" content="yes">
-   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-   <meta http-equiv="cleartype" content="on">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-   <script src="/resources/js/jquery-1.9.0.min.js" type="text/javascript" ></script>
-   <script src="/resources/js/jquery-migrate-1.0.0.min.js" type="text/javascript" ></script>
-   <script src="/resources/js/sockjs-0.3.min.js" ></script>
-   <script src="/resources/js/ajaxsocket.js" ></script>
-   <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="/resources/js/jqplot/excanvas.min.js"></script><![endif]-->
-   <script src="/resources/js/jqplot/jquery.jqplot.min.js" ></script>
-   <link rel="stylesheet" type="text/css" href="/resources/js/jqplot/jquery.jqplot.min.css" />
-   <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
-   <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.highlighter.min.js"></script>
-   <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.cursor.min.js"></script>
-   <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
-   <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
-   <style>
-   </style>
-</head>
-<body>
-<?
-$days = getLastNDays(7, 'Y-m-d' );
-$daysql = getLastNDays(7, 'Y-m-d');
-$charts=DB::query("SELECT * FROM stats_charts WHERE active=1 order by webposition");
-
-?>
-<h1>Statistiche impianto domotico</h1>
-<h2>Tutti i grafici</h2>
-<?
-foreach($charts as $chart)
-{?>
-<hr/>
-<div id="<?=$chart['name']?>" style="height:250px;width:700px"></div>
-<?}?>
+<? @include_once("../../includes/common.php"); ?>
 <script type="text/javascript">
 $(document).ready(function() {
 <?
-foreach($charts as $chart)
+$days = getLastNDays(7, 'Y-m-d' );
+$daysql = getLastNDays(7, 'Y-m-d');
+foreach($_SESSION[PANELS_CHARTS] as $eid => $chart)
 {
    $chartserie = getChartData($chart['name']);
-?>
-
-var plot_<?=$chart['name']?>=$.jqplot('<?=$chart['name']?>', [<?
+   ?>
+var plot_<?=$chart['name']?>=$.jqplot('<?=$eid?>', [<?
    $maxseriecount=0;
    for($c=0;$c<count($chartserie);$c++)
    {
@@ -141,7 +99,6 @@ var plot_<?=$chart['name']?>=$.jqplot('<?=$chart['name']?>', [<?
                echo ",\n";
       }
       ?>
-
        ],
        seriesDefaults:{
          rendererOptions: {
@@ -151,13 +108,8 @@ var plot_<?=$chart['name']?>=$.jqplot('<?=$chart['name']?>', [<?
          }
        }
     });
-<? 
+<?
 }
 ?>
-window.setTimeout('location.reload()', 60000);
-
 });
-
 </script>
-</body>
-</html>

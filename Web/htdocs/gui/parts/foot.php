@@ -24,6 +24,15 @@
     <!-- jquery easing plugin -->
     <script src="/resources/js/jquery.easing.1.3.min.js"></script>
     <script src="/resources/js/jquery.alterclass.js"></script>
+    <!-- jqplot -->
+    <script src="/resources/js/jqplot/jquery.jqplot.min.js" ></script>
+    <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
+    <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.highlighter.min.js"></script>
+    <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.cursor.min.js"></script>
+    <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+    <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+
+
     <script src="<?=$BASEGUIPATH;?>/js/fastclick.js"></script>
     <script src="<?=$BASEGUIPATH;?>/js/speech.js"></script>
     <script src="<?=$BASEGUIPATH;?>/js/domotika.js"></script>

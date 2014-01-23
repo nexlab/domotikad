@@ -21,6 +21,7 @@ require_once("meekrodb.php");
 require_once("conn.php");
 require_once("helpers.php");
 require_once("libraries.php");
+require_once("graphlib.php");
 define("DOMOTIKA", true);
 if(startsWith($_SERVER['SCRIPT_FILENAME'], DOMOTIKAD_HTTPPATH)) {
    if(file_exists(DOMOTIKAD_HTTPPATH."includes/common.php"))

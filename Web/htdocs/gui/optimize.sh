@@ -8,6 +8,7 @@ CSS="../../resources/bootstrap/css/bootstrap.min.css
 ../../resources/glyphicons/css/bootstrap-glyphicons.css
 ../../resources/full-glyphicons/css/glyphicons.css
 ../../resources/bootstrap-switch/static/stylesheets/bootstrap-switch.css
+../../resources/js/jqplot/jquery.jqplot.min.css
 css/style.css
 "
 
@@ -26,6 +27,12 @@ js/starthammer.js
 ../../resources/EventSource/eventsource.js
 ../../resources/js/jquery.easing.1.3.min.js
 ../../resources/js/jquery.alterclass.js
+../../resources/js/jqplot/jquery.jqplot.min.js
+../../resources/js/jqplot/plugins/jqplot.dateAxisRenderer.min.js
+../../resources/js/jqplot/plugins/jqplot.highlighter.min.js
+../../resources/js/jqplot/plugins/jqplot.cursor.min.js
+../../resources/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js
+../../resources/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js
 js/fastclick.js
 js/speech.js
 js/domotika.js
