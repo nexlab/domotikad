@@ -36,7 +36,6 @@ $("#userform").on("submit", function(event) {
       popupFader('danger', 'ERROR:','Le password inserite non coincidono');
       playTTS('Errore, Le password inserite non coincidono');
    } else {
-      alert($(this).serialize());
       $.ajax({url: "/rest/v1.2/users/me/json", type:"PUT", data: $(this).serialize(),
                success: function(res) {
                   popupFader('success', 'SUCCESS:','Utente aggiornato correttamente...');
