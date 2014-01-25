@@ -2194,6 +2194,205 @@ class domotikaService(service.Service):
       return True
 
 
+   def parseChartSeries(self, series, chartdata, chartname):
+
+      ret=""
+      def getSelectorSubtype(serie):
+         if str(serie.selector_subtype)=='back_in_time':
+            ret=" AND date >= DATE_ADD(NOW(),"
+            ret+=" INTERVAL -"+str(serie.selector_numopt)+" DAY)"
+         elif str(serie.selector_subtype)=='limits':
+            if serie.selector_start:
+               ret+=" AND date >= '"+str(serie.selector_start)+"'"
+            if serie.selector_stop:
+               ret+=" AND date <= '"+str(serie.selector_stop)+"'"
+         return ret
+
+      def parseSelectorName(cmd, serie):
+         cmd=cmd.replace("#OPTNUM#", str(serie.selector_numopt))
+         cmd=cmd.replace("#NAME#", str(serie.name))
+         cmd=cmd.replace("#START#",str(serie.selector_start))
+         cmd=cmd.replace("#STOP#",str(serie.selector_stop))
+         cmd=cmd.replace("#SUBTYPE#",str(serie.selector_subtype))
+         cmd=cmd.replace("#ID#",str(serie.id))
+         return cmd
+
+      def addAxes(result, chartdata):
+            axes={ 
+               'xaxis': {
+                  'renderer': "eval('$.jqplot.DateAxisRenderer')",
+                  'tickRenderer': "eval('$.jqplot.CanvasAxisTickRenderer')",
+                  'autoscale': True,
+                  'tickOptions': {
+                     'angle': 30
+                  }
+               },
+               'yaxis': {
+                  'min': 0,
+                  'tickOptions': {}
+               }
+            }       
+            if chartdata[0].x_numberTicks:
+               if result['maxseriecount']<int(chartdata[0].x_numberTicks):
+                  axes['xaxis']['numberTicks']=result['maxseriecount']
+               else:
+                  axes['xaxis']['numberTicks']=int(chartdata[0].x_numberTicks)
+            if chartdata[0].x_formatString:
+               axes['xaxis']['tickOptions']['formatString']=chartdata[0].x_formatString
+
+            if chartdata[0].y_numberTicks:
+               axes['yaxis']['numberTicks']=int(chartdata[0].y_numberTicks)
+
+            if chartdata[0].y_formatString:
+               axes['yaxis']['tickOptions']['formatString']=chartdata[0].y_formatString
+            else:
+               axes['yaxis']['tickOptions']['formatString']='%.'+str(chartdata[0].y_label_precision)+'f'
+
+            result['opt']['axes']=axes
+
+            return result
+
+      def sqlQuery(result, query, idx):
+         log.debug(query)
+         return dmdb.runQuery(query).addCallback(addResult, idx, result)
+
+      def addResult(res, idx, result):
+         data=[]
+         for l in res:
+            data.append([l[0].strftime("%Y-%m-%d %H:%M:%S"), l[1]])
+         result['data'].append(data)
+         if len(res) > result['maxseriecount']:
+            result['maxseriecount'] = len(res)
+         return result
+         
+      def hourlySqlQuery(result, query, idx, serie):
+         return dmdb.runQuery(query).addCallback(hourlyResult, idx, result, serie)
+
+      def hourlyResult(res, idx, result, serie):
+         from datetime import datetime
+         today=datetime.strftime(datetime.now(), '%Y-%m-%d')
+         hournow=int(datetime.strftime(datetime.now(), '%H'))
+         data=[]
+         for l in res:
+            if str(serie.selector_subtype)=='back_in_time' and today==str(l[0]):
+               maxh=hournow+1
+            else:
+               maxh=24
+            for h in xrange(0,24):
+               data.append([str(l[0])+" "+str(h).zfill(2)+":00AM", l[h+1] ])
+         result['data'].append(data)
+         if len(data) > result['maxseriecount']:
+            result['maxseriecount'] = len(data)
+         return result
+
+      log.debug('PARSE CHART SERIES FOR '+str(chartname))
+      grid_shadow=True
+      grid_border=True
+      legend_show=True
+      if chartdata[0].grid_shadow=='false':
+         grid_shadow=False
+      if chartdata[0].grid_border=='false':
+         grid_border=False
+      if chartdata[0].legend_show=='false':
+         legend_show=False
+      opt={ 'title': chartdata[0].title,
+            'legend':{
+               'show': legend_show,
+               'location': chartdata[0].legend_position,
+               'renderOptions': {
+                  'placement': chartdata[0].legend_placement
+               }
+            },
+            'grid':{
+               'shadow': grid_shadow,
+               'drawBorder': grid_border,
+               'background': chartdata[0].grid_background
+            },
+            'axes':{},
+            'highlighter':{'show':True,'sizeAdjust': 7.5},
+            'cursor':{'show':False},
+            'series':[],
+            'seriesDefaults': {'rendererOptions': {'smooth':True, 'shadowAlpha': 0.1, 'fillToZero': True}}
+          }
+      result={'opt':opt, 'data':[], 'maxseriecount':0}
+      idx=0
+      callbacks=[]
+      for s in series:
+         addserie=True
+         if s.selector_type=='SQL':
+            callbacks.append([sqlQuery, s.selector_name, idx])
+         elif s.selector_type=='daily_sum':
+            query="SELECT date as 'x', SUM("
+            query+="+".join(['h'+str(x).zfill(2) for x in range(0,24)])
+            query+=") as 'y' FROM stats_history WHERE"
+            if str(s.selector_name).startswith('dmdomain:'):
+               query+=" DMDOMAIN(name, '"+parseSelectorName(str(s.selector_name).replace('dmdomain:',''), s)+"')=1"
+            elif str(s.selector_name).startswith('like:'):
+               query+=" name LIKE '"+parseSelectorName(str(s.selector_name).replace('like:',''), s)+"'"
+            else:
+               query+=" name='"+parseSelectorName(str(s.selector_name), s)+"'"
+
+            query+=getSelectorSubtype(s)
+            query+=" group by date"
+            callbacks.append([sqlQuery, query, idx])
+         elif s.selector_type=='hourly_sum':
+            query="SELECT date,"
+            query+=",".join(['SUM(h'+str(x).zfill(2)+") as h"+str(x).zfill(2) for x in range(0,24)])
+            query+=" FROM stats_history WHERE"
+            if str(s.selector_name).startswith('dmdomain:'):
+               query+=" DMDOMAIN(name, '"+parseSelectorName(str(s.selector_name).replace('dmdomain:',''), s)+"')=1"
+            elif str(s.selector_name).startswith('like:'):
+               query+=" name LIKE '"+parseSelectorName(str(s.selector_name).replace('like:',''), s)+"'"
+            else:
+               query+=" name='"+parseSelectorName(str(s.selector_name), s)+"'"
+            query+=getSelectorSubtype(s)
+            query+=" group by date" 
+            callbacks.append([hourlySqlQuery, query, idx, s])
+         else:
+            addserie=False
+
+         if addserie:
+            marker_show=True
+            if str(s.marker_show)=='false':
+               marker_show=False
+            fill=True
+            if str(s.fill)=='false':
+               fill=False
+            result['opt']['series'].append({
+               'label': s.label,
+               'lineWidth': s.line_width,
+               'markerOptions': {
+                  'style': s.marker_style,
+                  'size': s.marker_size
+               },
+               'color': s.color,
+               'showMarker': marker_show,
+               'showLine': True,
+               'fill': fill,
+               'fillAndStroke': True,
+               'highlighter': {
+                  'formattingString': s.highlighter_formatString
+               }
+            })
+
+         idx+=1
+         
+      d=defer.succeed(result)
+      for c in callbacks:
+         d.addCallback(c[0], *c[1:])
+      d.addCallback(addAxes, chartdata)
+      return d
+
+
+   def getChartData(self, resdata, chartname):
+      if resdata and len(resdata)>0:
+         return dmdb.getChartSeries(chartname).addCallback(self.parseChartSeries, resdata, chartname)
+      return defer.fail('No chart with the name '+str(chartname))
+
+   def web_on_getChartData(self, chartname):
+      log.debug('GET CHART DATA FOR '+str(chartname))
+      return dmdb.getChartData(chartname).addCallback(self.getChartData, chartname)
+
    def web_on_getDaemonStatus(self):
       return self.daemonstatus
 
@@ -2219,8 +2418,10 @@ class domotikaService(service.Service):
       return dmdb.Users.find(where=['username=?', name], limit=1)
 
    def web_on_updateUserData(self, username, pwd, email, dhome, mhome, tts, 
-                              lang, slide=False, webspeech='touch', speechlang='it-IT', theme='dmblack'):
-      return dmdb.updateUserData(username, pwd, email, dhome, mhome, tts, lang,slide, webspeech, speechlang, theme) 
+                              lang, slide=False, webspeech='touch', speechlang='it-IT', 
+                              theme='dmblack', leftb='hidden-sm', rightb='hidden-sm'):
+      return dmdb.updateUserData(username, pwd, email, dhome, mhome, tts, lang,slide, 
+                                 webspeech, speechlang, theme, leftb, rightb) 
 
    def web_on_getMaxLocalTranscode(self):
       return int(self.config.get('media', 'localtranscode'))

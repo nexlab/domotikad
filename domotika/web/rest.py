@@ -346,7 +346,8 @@ class UserRest(RestCore):
          self.session.mind.perms.slide=res.slide
          self.session.mind.perms.webspeech=res.webspeech
          self.session.mind.perms.speechlang=res.speechlang
-      
+         self.session.mind.perms.left_bar=res.left_bar
+         self.session.mind.perms.right_bar=res.right_bar
          return res
       log.info('Refresh session for user '+str(self.session.mind.perms.username))
       d=self.core.getUserFromName(self.session.mind.perms.username).addCallback(setUserSession)
@@ -375,6 +376,8 @@ class UserRest(RestCore):
       webspeech="touch"
       speechlang="it-IT"
       theme='dmblack'
+      leftb='hidden-sm'
+      rightb='hidden-sm'
       if 'lang' in r.keys():
          lang=r['lang']
       if 'tts' in r.keys():
@@ -389,10 +392,15 @@ class UserRest(RestCore):
          webspeech=r['webspeech']
       if 'speechlang' in r.keys() and r['speechlang'] in ['it-IT','it-CH','en-US','en-GB']:
          speechlang=r['speechlang']
+      if 'leftb' in r.keys() and r['leftb'] in ['all','none','visible-sm','visible-md','visible-lg','hidden-sm','hidden-md','hidden-lg']:
+         leftb=str(r['leftb'])
+      if 'rightb' in r.keys() and r['rightb'] in ['all','none','visible-sm','visible-md','visible-lg','hidden-sm','hidden-md','hidden-lg']:
+         rightb=str(r['rightb'])
+
       if 'desktop_homepath' in r.keys() and 'mobile_homepath' in r.keys() and 'email' in r.keys():
          return self.core.updateUserData(self.session.mind.perms.username, pwd, 
                   r['email'], r['desktop_homepath'], r['mobile_homepath'], 
-                  tts, lang, slide, webspeech, speechlang, theme).addCallbacks(onOk, onError)
+                  tts, lang, slide, webspeech, speechlang, theme, leftb, rightb).addCallbacks(onOk, onError)
       log.info('Erroneous request on update my userdata! ('+str(self.session.mind.perms.username)+')')
       return ResponseConversion(request, code=400, entity="Bad request - error in parameters")
 
@@ -477,7 +485,25 @@ class RelayRest(RestCore):
       return self.callbackResponse(self.core.setRelayById(rid, 'change'), request)
 
 
+class ChartRest(RestCore):
 
+   path="charts"
+
+   @route("/", (Http.GET))
+   @wrapResponse
+   def charts(self, request, *a, **kw):
+      return ResponseConversion(request, code=404, entity="Not yet implemented")
+
+
+   @route("/chartbyid/<int:cid>", (Http.GET))
+   @wrapResponse
+   def chartById(self, request, cid, *a, **kw):
+      return ResponseConversion(request, code=404, entity="Not yet implemented (chart by id)")
+
+   @route("/chartbyname/<chartname>", (Http.GET))
+   @wrapResponse
+   def chartByName(self, request, chartname, *a, **kw):
+      return self.callbackResponse(self.core.getChartData(chartname), request)
 
 
 RESTv12LIST=(
@@ -488,6 +514,7 @@ RESTv12LIST=(
    ActionRest,
    NotifyRest,
    RelayRest,
+   ChartRest,
 )
 
 

@@ -35,8 +35,8 @@ if($panel && is_array($panel)) {
    }
 ?>
     <div class="domotika-panel <?=$dmfull;?>" <?=$dmheight;?>>
-      <div class="home-panel" <?=$dmheight;?>>
-         <div class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>">
+      <div class="home-panel chartpanel" <?=$dmheight;?> >
+         <div class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>" >
 <?
    foreach($charts as $chart) {
       //print_r($chart);

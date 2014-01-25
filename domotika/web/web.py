@@ -249,7 +249,8 @@ class RootPage(rend.Page):
       if headers.hasHeader("DMSESSION"):
          headers.removeHeader("DMSESSION")
       headervalue = str(session.uid)
-      cols=['username','passwd','id','homepath','email','tts','language','slide','webspeech','speechlang','gui_theme']
+      cols=['username','passwd','id','homepath','email','tts','language','slide',
+            'webspeech','speechlang','gui_theme', 'left_bar','right_bar']
       try:
          headervalue = session.mind.perms.toHash(cols)
       except:
@@ -265,6 +266,8 @@ class RootPage(rend.Page):
          headervalue['webspeech'] = 'touch'
          headervalue['speechlang'] = 'it-IT'
          headervalue['gui_theme' ] = 'dmblack'
+         headervalue['left_bar' ] = 'hidden-sm'
+         headervalue['right_bar' ] = 'hidden-sm'
       headervalue['sessionid'] = session.uid
       headervalue['logged'] = self.logged
       log.debug('DMSESSION SEND '+str(headervalue))

@@ -182,15 +182,6 @@ class Users(DBObject):
 class UsersGroup(DBObject):
    TABLENAME="users_groups"
 
-class StatsConf(DBObject):
-   TABLENAME="stats_conf"
-
-class StatsData(DBObject):
-   TABLENAME="stats_data"
-
-class StatsHistory(DBObject):
-   TABLENAME="stats_history"
-
 class EmailConf(DBObject):
    TABLENAME="email_conf"
 
@@ -218,6 +209,20 @@ class Notifications(DBObject):
 class Flags(DBObject):
    TABLENAME="flags"
 
+class StatsCharts(DBObject):
+   TABLENAME="stats_charts"
+
+class StatsChartsSeries(DBObject):
+   TABLENAME="stats_charts_series"
+
+class StatsConf(DBObject):
+   TABLENAME="stats_conf"
+
+class StatsData(DBObject):
+   TABLENAME="stats_data"
+
+class StatsHistory(DBObject):
+   TABLENAME="stats_history"
 
 def cleanFlags():
    Registry.getConfig().delete("flags", where=["expire<="+str(time.time())])
@@ -539,9 +544,13 @@ def matchIncomingPacket(dst, src, msgtype, ctx, act, islocal=False):
    localonly=""
    if not islocal:
       localonly="AND local_only=0"
-   log.debug("rcv_ctx=%s AND rcv_act=%s AND rcv_msgtype=%s AND active=1 %s AND ikap_src!=%s AND ((DMDOMAIN(rcv_dst, '%s')=1 AND exact_dst=0) OR (rcv_dst='%s' AND exact_dst > 0))" %(str(ctx), str(act), str(msgtype), str(localonly), str(src), str(dst), str(dst)))
-   return Actions.find(
-      where=['rcv_ctx=? AND rcv_act=? AND rcv_msgtype=? AND active=1 '+localonly+' AND ikap_src!=? AND ((DMDOMAIN(rcv_dst, ?)=1 AND exact_dst=0) OR (rcv_dst=? AND exact_dst > 0))', ctx, act, msgtype, src, dst, dst ])
+   sq="rcv_ctx='%s' AND rcv_act='%s' AND rcv_msgtype='%s' AND active=1 " %(str(ctx), str(act), str(msgtype))
+   sq+=localonly
+   sq+=" AND ikap_src!='%s'"  %(str(src))
+   sq+=" AND ((DMDOMAIN(rcv_dst, '%s')=1 AND exact_dst=0) OR (rcv_dst='%s' AND exact_dst > 0))" %(str(dst), str(dst))
+   sq+=" AND (DMDOMAIN('%s',rcv_src)=1 OR rcv_src='')""" %(str(src))
+   log.debug(sq)
+   return Actions.find(where=[sq])
 
 
 def getActionLoops():
@@ -749,7 +758,8 @@ def getUsersInGroup(group, activeonly=True):
 
 
 def updateUserData(username, pwd, email, dhome, mhome, tts=False, 
-                  lang="it",slide=False, webspeech='touch', speechlang='it-IT', theme='dmblack'):
+                  lang="it",slide=False, webspeech='touch', speechlang='it-IT', 
+                  theme='dmblack',leftb='hidden-sm', rightb='hidden-sm'):
    def onRes(res):
       if res>0:
          return defer.succeed(username+" correctly updated")
@@ -771,6 +781,8 @@ def updateUserData(username, pwd, email, dhome, mhome, tts=False,
    qstring+=",webspeech='%s'" % webspeech
    qstring+=",speechlang='%s'" % speechlang
    qstring+=",gui_theme='%s'" % str(theme)
+   qstring+=",left_bar='%s'" % str(leftb)
+   qstring+=",right_bar='%s'" % str(rightb)
    qstring+=" WHERE username='%s' AND active > 0" %(username)
    log.debug(qstring)
    return runOperation(qstring).addCallback(onRes)
@@ -806,3 +818,11 @@ def getPermissionForPath(user, path):
             )
       ) AS U order by length(selection) DESC,level LIMIT 1"""
    return runQuery(qstring)
+
+
+def getChartData(chartname):
+   return StatsCharts.find(where=["name='%s'" % str(chartname)])
+
+def getChartSeries(chartname):
+   log.debug("SELECT * FROM stats_charts_series WHERE active=1 AND name='%s'" % str(chartname))
+   return StatsChartsSeries.find(where=["name='%s'" % str(chartname)])

@@ -101,6 +101,37 @@
       </div>
    </div>
    <div class="form-group">
+      <label for="leftb" class="col-lg-2 control-label">Left bar visibility:</label>
+      <div class="col-lg-3">
+         <select name="leftb" id="leftb" class="form-control">
+            <option value="all">All sizes</option>
+            <option value="none">No</option>
+            <option value="visible-sm">Small only</option>
+            <option value="visible-md">Medium only</option>
+            <option value="visible-lg">Big only</option>
+            <option value="hidden-sm">All but small</option>
+            <option value="hidden-md">All but medium</option>
+            <option value="hidden-lg">All but big</option>
+         </select>
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="rightb" class="col-lg-2 control-label">Left bar visibility:</label>
+      <div class="col-lg-3">
+         <select name="rightb" id="rightb" class="form-control">
+            <option value="all">All sizes</option>
+            <option value="none">No</option>
+            <option value="visible-sm">Small only</option>
+            <option value="visible-md">Medium only</option>
+            <option value="visible-lg">Big only</option>
+            <option value="hidden-sm">All but small</option>
+            <option value="hidden-md">All but medium</option>
+            <option value="hidden-lg">All but big</option>
+         </select>
+      </div>
+   </div>
+
+   <div class="form-group">
    <label for="mobilehome" class="col-lg-2 control-label"></label>
       <div class="col-lg-3">
          <input type="submit" value="Save"  class="btn btn-default">

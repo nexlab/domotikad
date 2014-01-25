@@ -39,6 +39,32 @@ include_once("translations.php");
 
 //print_r($_DOMOTIKA);
 
+switch($_DOMOTIKA['left_bar'])
+{
+   case 'all': $LBAR=array('small','medium','big'); break;
+   case 'visible-sm': $LBAR=array('small'); break;
+   case 'visible-md': $LBAR=array('medium'); break;
+   case 'visible-lg': $LBAR=array('big'); break;
+   case 'hidden-sm': $LBAR=array('medium','big'); break;
+   case 'hidden-md': $LBAR=array('small','big'); break;
+   case 'hidden-lg': $LBAR=array('small','medium'); break;
+   case 'none': $LBAR=array(); break;
+   default: $LBAR=array('medium','big'); 
+}
+switch($_DOMOTIKA['right_bar'])
+{
+   case 'all': $RBAR=array('small','medium','big'); break;
+   case 'visible-sm': $RBAR=array('small'); break;
+   case 'visible-md': $RBAR=array('medium'); break;
+   case 'visible-lg': $RBAR=array('big'); break;
+   case 'hidden-sm': $RBAR=array('medium','big'); break;
+   case 'hidden-md': $RBAR=array('small','big'); break;
+   case 'hidden-lg': $RBAR=array('small','medium'); break;
+   case 'none': $RBAR=array(); break;
+   default: $RBAR=array('medium','big'); 
+}  
+
+
 
 $lang=$_DOMOTIKA['language'];
 $tr = new Translations($lang);

@@ -34,51 +34,52 @@
    }
    */
 
-   if(mobile)
-   { 
-      if(window.navigator.userAgent.match(/firefox/i) && window.navigator.userAgent.match(/mobile/i))
-      {
 
-         var installbutton = $("#installbutton");
-         var port="";
-         if(document.location.port)
-            var port=":"+document.location.port;
-         <?
-            $manif=str_replace("/js/domotika.js","",$BASEGUIPATH);
-            $manif=str_replace("/js/combined.min.js", "", $manif);
-         ?>
-         var manifest_url = document.location.protocol+"//"+document.location.host+port+"<?=$manif?>/manifest.webapp";
+   if(window.navigator.userAgent.match(/firefox/i) && window.navigator.userAgent.match(/mobile/i))
+   {
+
+      var installbutton = $("#installbutton");
+      var port="";
+      if(document.location.port)
+         var port=":"+document.location.port;
+      <?
+         $manif=str_replace("/js/domotika.js","",$BASEGUIPATH);
+         $manif=str_replace("/js/combined.min.js", "", $manif);
+      ?>
+      var manifest_url = document.location.protocol+"//"+document.location.host+port+"<?=$manif?>/manifest.webapp";
          
-         function installFFApp(ev) {
-            ev.preventDefault();
-            var myapp = navigator.mozApps.install(manifest_url);
-            myapp.onsuccess = function(data) {
-               $("#install_ff").hide()
-               console.log(this);
-               popupFader('success', 'SUCCESS:','Web app installata correttamente');
-               var a = playTTS('Web app installata correttamente');
+      function installFFApp(ev) {
+         ev.preventDefault();
+         var myapp = navigator.mozApps.install(manifest_url);
+         myapp.onsuccess = function(data) {
+            $("#install_ff").hide()
+            console.log(this);
+            popupFader('success', 'SUCCESS:','Web app installata correttamente');
+            var a = playTTS('Web app installata correttamente');
 
-            };
-            myapp.onerror = function() {
-               console.log('Install failed, error: ' + this.error.name);
-               popupFader('danger', 'ERROR:', 'App not installed: '+this.error.name);
-               playTTS('Errore, applicazione non installata');
-            };
          };
+         myapp.onerror = function() {
+            console.log('Install failed, error: ' + this.error.name);
+            popupFader('danger', 'ERROR:', 'App not installed: '+this.error.name);
+            playTTS('Errore, applicazione non installata');
+         };
+      };
    
 
-         var installCheck = navigator.mozApps.checkInstalled(manifest_url);
+      var installCheck = navigator.mozApps.checkInstalled(manifest_url);
 
-         installCheck.onsuccess = function() {
-            if(installCheck.result) {
-               $("#install_ff").hide();
-            } else {
-               $("#install_ff").show();
-               installbutton.on('click', installFFApp);
-            };
+      installCheck.onsuccess = function() {
+         if(installCheck.result) {
+            $("#install_ff").hide();
+         } else {
+            $("#install_ff").show();
+            installbutton.on('click', installFFApp);
          };
-      }
+      };
+   }
 
+   if(mobile)
+   {
       if(jQuery.isFunction(window.screen.lockOrientation))
          window.screen.lockOrientation('portrait');
       else if(jQuery.isFunction(window.screen.mozLockOrientation))

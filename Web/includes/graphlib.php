@@ -115,7 +115,7 @@ function getChartData($chartname)
             $seriesret=array();
             $file = @fopen(parseSelectorName($serie['selector_name'], $serie), "r"); 
             while (!feof($file))
-            {
+           {
                $currentLine = explode(":", fgets($file));
                if(count($currentLine)>=2)
                   $seriesret[]=array('x' => $currentLine[0], 'y' => $currentLine[1]);

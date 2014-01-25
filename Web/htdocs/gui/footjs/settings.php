@@ -13,6 +13,8 @@ var updateUser = function(r) {
   $("#webspeech").val(r.data.webspeech);
   $("#speechlang").val(r.data.speechlang);
   $("#gui_theme").val(r.data.gui_theme);
+  $("#leftb").val(r.data.left_bar);
+  $("#rightb").val(r.data.right_bar);
   if(r.data.tts==1)
     $('#tts-switch').bootstrapSwitch('setState', true); //$("#tts").attr('checked', true);
   else
@@ -34,6 +36,7 @@ $("#userform").on("submit", function(event) {
       popupFader('danger', 'ERROR:','Le password inserite non coincidono');
       playTTS('Errore, Le password inserite non coincidono');
    } else {
+      alert($(this).serialize());
       $.ajax({url: "/rest/v1.2/users/me/json", type:"PUT", data: $(this).serialize(),
                success: function(res) {
                   popupFader('success', 'SUCCESS:','Utente aggiornato correttamente...');

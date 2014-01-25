@@ -72,7 +72,7 @@ class DomotikaUPNP(object):
                descr[k] = getattr(device, k, None)
             except:
                descr[k] = 'Unknown'
-      log.info('DEVICE DATA: '+str(descr))
+      log.debug('DEVICE DATA: '+str(descr))
       if 'Network Camera' in descr['deviceType']:
          log.debug("FOUND A CAMERA TO ADD")
          self.core.addMediaSource(descr)
