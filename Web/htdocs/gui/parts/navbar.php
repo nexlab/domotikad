@@ -32,12 +32,12 @@ if($_DOMOTIKA['gui_theme']=='dmblack')
       <i class="glyphicon glyphicon-indent-right"></i>
     </button>
    <? } ?>
-    <ul class="nav navbar-user">
+    <ul class="nav navbar-user navbar-user-theme-<?=$_DOMOTIKA['gui_theme']?> ">
        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+          <a class="dropdown-toggle " data-toggle="dropdown" href="#">
             <?=$_DOMOTIKA['username']?> <i class="glyphicon glyphicon-user"></i>
           </a>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+          <ul class="dropdown-menu <?=$themeclass?>" role="menu" aria-labelledby="dropdownMenu">
              <? if($GUISECTION!="settings") { ?>
              <li><a href="<?=$BASEGUIPATH?>/settings">Settings</a></li>
              <? } else { ?>

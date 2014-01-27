@@ -97,6 +97,12 @@
    border-radius: 0;
 }
 
+.navbar-user-theme-dmblack>li>a:hover,
+.navbar-user-theme-dmblack>li>a:focus {
+   background-color:#222;
+   color:#888;
+}
+
 .drawers {
    background-color: #2e2e2e;
    color: #2e2e2e;
@@ -283,21 +289,44 @@ input::-webkit-input-speech-button {
 
 }
 
+.leftbtn {
+   background-repeat: no-repeat;
+   background-position:right;
+}
+
 .rightbtn-attuazioni {
-   background-image: url(/resources/icons/on_off.png);
+   background-image: url(/resources/icons/OnOff_white_alpha_64x64.png);
 }
 
 .rightbtn-alarm {
-   background-image: url(/resources/icons/antithief.png);
+   background-image: url(/resources/icons/Alarm_white_alpha_64x64.png);
 }
 
 .rightbtn-video {
-   background-image: url(/resources/icons/video.png);
+   background-image: url(/resources/icons/Camera1_white_alpha_64x64.png);
 }
 
 .rightbtn-stats {
-   background-image: url(/resources/icons/stats.png);
+   background-image: url(/resources/icons/Stats_white_64x64.png);
 }
+
+.rightbtn-tv {
+   background-image: url(/resources/icons/Multimedia_white_alpha_64x64.png);
+}
+
+.rightbtn-clima {
+   background-image: url(/resources/icons/Climate_white_alpha_64x64.png);
+}
+
+.rightbtn-audio {
+   background-image: url(/resources/icons/Music_white_alpha_64x64.png);
+}
+
+.rightbtn-irr {
+   background-image: url(/resources/icons/Water2_white_alpha_64x64.png);
+}
+
+
 .footbar-form {
    position:absolute;
    right: 105px;
