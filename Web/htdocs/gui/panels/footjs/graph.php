@@ -18,8 +18,12 @@ function plotGraph(settings)
       success: function(res){  
          res.data.opt.axes.xaxis.renderer=$.jqplot.DateAxisRenderer;
          res.data.opt.axes.xaxis.tickRenderer=$.jqplot.CanvasAxisTickRenderer;
-         $("#"+t.settings.eid).empty();
-         $.jqplot(t.settings.eid, res.data.data, res.data.opt); 
+         //$("#"+t.settings.eid).empty();
+         if(typeof(t.jq)!='undefined')
+            t.jq.destroy();
+         t.jq=$.jqplot(t.settings.eid, res.data.data, res.data.opt);
+         //t.jq.destroy();
+   
       }
    });
 }
