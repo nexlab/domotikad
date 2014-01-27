@@ -3,7 +3,10 @@
   "description": "Home automation user interface",
   "launch_path": "/domotika/gui",
   "icons": {
-    "256": "/resources/img/logo_icon.png"
+    "256": "/resources/img/logo_icon.png",
+    "128": "/resources/img/logo_icon_128x128.png",
+    "64": "/resources/img/logo_icon_64x64.png",
+    "32": "/resources/img/logo_icon_32x32.png"
   },
   "developer": {
     "name": "Unixmedia S.r.l.",
