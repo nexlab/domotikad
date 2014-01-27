@@ -1,6 +1,6 @@
 <?
-//$GUIDEBUG=FALSE;
-$GUIDEBUG=TRUE;
+$GUIDEBUG=FALSE;
+//$GUIDEBUG=TRUE;
 
 $BASEGUIPATH=str_replace("/index.php","",$_SERVER['PHP_SELF']);
 $FSPATH=realpath(dirname(__FILE__)."/..");
