@@ -1,3 +1,8 @@
+html {
+   overflow: hidden;
+   overflow-y: auto;
+   width:100%;
+}
 
 .alert-container {
    position: fixed;
@@ -149,6 +154,14 @@
     display: none;
 }
 
+#content {
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden; 
+    -moz-backface-visibility:hidden; 
+    -ms-backface-visibility:hidden; 
+
+}
+
 .scrollable{
     overflow: auto;
     -webkit-transition-property: top, bottom;
@@ -158,6 +171,30 @@
     -webkit-transition-timing-function: linear, linear;
     transition-timing-function: linear, linear;
     -webkit-overflow-scrolling: touch;
+   /*
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden; 
+    -moz-backface-visibility:hidden; 
+    -ms-backface-visibility:hidden; 
+   */
+}
+
+.scrollable-vertical{
+   overflow: hidden;
+   overflow-y: auto;
+    -webkit-transition-property: top, bottom;
+    transition-property: top, bottom; 
+    -webkit-transition-duration: .2s, .2s;
+    transition-duration: .2s, .2s;
+    -webkit-transition-timing-function: linear, linear;
+    transition-timing-function: linear, linear; 
+    -webkit-overflow-scrolling: touch;
+    /*
+     backface-visibility:hidden;
+    -webkit-backface-visibility:hidden; 
+    -moz-backface-visibility:hidden;
+    -ms-backface-visibility:hidden; 
+    */
 }
 
 .primarycontainer {
