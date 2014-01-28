@@ -1104,19 +1104,19 @@ class domotikaService(service.Service):
             if st[1]=='domain':
                try:
                   ret=doQuery("""SELECT COUNT(value) FROM statusrealtime 
-                        WHERE DMDOMAIN(status_name, """+str(st[0])+")=1 AND DMDOMAIN(value,'"+st['2']+"')=1", restype)
+                        WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND DMDOMAIN(value,'"+st['2']+"')=1", restype)
                except:
                   pass
             elif genutils.is_number(st[2]):
                try:
                   ret=doQuery("""SELECT COUNT(value) FROM statusrealtime 
-                        WHERE DMDOMAIN(status_name, """+str(st[0])+")=1 AND CONVERT(value, SIGNED)"+st['1']+st[2], restype)
+                        WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)"+st['1']+st[2], restype)
                except:
                   pass
          elif restype in ['bool','int'] and len(st)==2 and genutils.is_number(st[1]):
             try:
                ret=doQuery("""SELECT COUNT(value) FROM statusrealtime 
-                  WHERE DMDOMAIN(status_name, """+str(st[0])+")=1 AND CONVERT(value, SIGNED)="+st['1'], restype) 
+                  WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)="+st['1'], restype) 
             except:
                pass
          elif restype=='string' and len(st)>0:
@@ -1133,13 +1133,13 @@ class domotikaService(service.Service):
             if st[1]=='domain':
                try:
                   ret=doQuery("""SELECT COUNT(value) FROM uniques
-                        WHERE DMDOMAIN(name, """+str(st[0])+")=1 AND DMDOMAIN(value,'"+st['2']+"')=1", restype)
+                        WHERE DMDOMAIN(name, '"""+str(st[0])+"')=1 AND DMDOMAIN(value,'"+st['2']+"')=1", restype)
                except:
                   pass
             elif genutils.is_number(st[2]):
                try:
                   ret=doQuery("""SELECT COUNT(value) FROM uniques
-                        WHERE DMDOMAIN(name, """+str(st[0])+")=1 AND CONVERT(value, SIGNED)"+st['1']+st[2], restype)
+                        WHERE DMDOMAIN(name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)"+st['1']+st[2], restype)
                except:
                   pass
 
@@ -1505,6 +1505,7 @@ class domotikaService(service.Service):
          return
 
       if usecon:
+         log.info("Sequence condition check (RESULT:"+str(conval)+" CONDITION: "+str(res.condition_act)+" ACTVALUE: "+str(res.condition_actvalue)+")")
          if genutils.isTrue(conval):
             if res.condition_act=='GOTOSTEP':
                if genutils.is_number(res.condition_actvalue):
