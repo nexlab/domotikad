@@ -1667,13 +1667,8 @@ class domotikaService(service.Service):
                   and converWday(loctime.tm_wday)  in timedict["dows"]
                   and loctime.tm_hour in timedict["hours"]
                   and loctime.tm_min in timedict["minutes"]):
-                  
-                  if (time.time()-float(ract.lastrun)) < float(ract.min_time):
-                     continue
-               
-
-                  ract.lastrun=time.time()
-                  ract.save()
+                     # Do nothing mean "ok, maybe it's to be executed
+                     pass  
                else:
                   continue
 
@@ -1702,8 +1697,14 @@ class domotikaService(service.Service):
                         continue
                else:
                   continue
-       
+ 
+               if (time.time()-float(ract.lastrun)) < float(ract.min_time):
+                  continue
+
                # if we are here, the actions is to be executed!
+               ract.lastrun=time.time()
+               ract.save()
+
                if genutils.isTrue(ract.ikapacket):
                   self.sendCommand(ract.ikap_dst, act=ract.ikap_act, ctx=ract.ikap_ctx, msgtype=ract.ikap_msgtype,
                      arg=ract.ikap_arg, src=ract.ikap_src, ipdst=str(ract.ipdest))
@@ -1711,6 +1712,8 @@ class domotikaService(service.Service):
                   reactor.callLater(ract.retard, self.executeAction, ract.command)
                if genutils.isTrue(ract.launch_sequence) and ract.launch_sequence_name != None:
                   reactor.callLater(ract.retard, self.launchSequence, ract.launch_sequence_name, 'statuses')
+
+
 
    def launchSequence(self, name, sequencecaller='unknown'):
       return dmdb.getSequence(name).addCallback(self.manageSequence, sequencecaller)
