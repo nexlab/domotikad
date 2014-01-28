@@ -28,7 +28,7 @@ function plotGraph(settings)
    });
 }
 <?
-foreach($_SESSION[PANELS_CHARTS] as $eid => $chart)
+foreach($_SESSION['PANELS_CHARTS'] as $eid => $chart)
 {
 ?>
 

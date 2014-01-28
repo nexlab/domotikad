@@ -8,7 +8,7 @@
 <?=$PAGE_BUFFER['head']?>
 <?=$PAGE_ADDHEAD?>
   </head>
-  <body class="scrollable-vertical theme-<?=$_DOMOTIKA['gui_theme']?>">
+  <body class="scrollable-vertical theme-<?=$_DOMOTIKA['gui_theme']?>"> 
 <?=$PAGE_BUFFER['alerts']?>
 <?=$PAGE_BUFFER['navbar']?>
    <div class="drawers">

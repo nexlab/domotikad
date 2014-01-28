@@ -7,8 +7,8 @@
  <!-- <li <? if($GUISUBSECTION=="gui") {?>class="active"<?}?>><a href="<?=$BASEGUIPATH.'/'.$GUISECTION?>/gui">GUI options</a></li> -->
 </ul>
 <? if($GUISUBSECTION=="") {?>
-<div class="formcontainer">
-<form id="userform" name="userform" class="form-horizontal" style="display:none">
+<div class="formcontainer" >
+<form id="userform" name="userform" class="form-horizontal" style="display:none;margin-bottom:60px;">
    <div class="form-group">
       <label for="username" class="col-lg-2 control-label">Username:</label>
       <div class="col-lg-3">
