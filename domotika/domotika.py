@@ -953,12 +953,12 @@ class domotikaService(service.Service):
          ret=defer.succeed(parseReturn(ret.communicate()[0], reverse))
       elif trigger.startswith("SQL ") or trigger.startswith("SQL:"):
          sqlstring = trigger[4:]
-         ret=doQuery(sqlstring)
+         ret=doQuery(sqlstring, reverse)
       elif trigger.startswith("TMPFLAG ") or trigger.startswith("TMPFLAG:"):
          fl=trigger[8:].split()
          if len(fl)>0:
             try:
-               ret=doQuery("SELECT COUNT(name) FROM flags WHERE name='"+str(fl[0])+"'")
+               ret=doQuery("SELECT COUNT(name) FROM flags WHERE name='"+str(fl[0])+"'", reverse)
             except:
                pass
       elif trigger.startswith("CRONSTATUS ") or trigger.startswith("CRONSTATUS:"):
@@ -972,7 +972,7 @@ class domotikaService(service.Service):
          bname=trigger[12:].split()
          if len(bname)>0:
             try:
-               ret=doQuery("SELECT online FROM dmboards WHERE name='"+str(bname[0])+"'")
+               ret=doQuery("SELECT online FROM dmboards WHERE name='"+str(bname[0])+"'", reverse)
             except:
                pass
       elif trigger.startswith("INPSTATUS ") or trigger.startswith("INPSTATUS:"):
@@ -1100,28 +1100,30 @@ class domotikaService(service.Service):
             st=trigger[7:].split(':')
          else:
             st=trigger[7:].split()
+         if restype in ['string','int']:
+            reverse=False
          if restype in ['bool','int'] and len(st)>2 and st[1] in ['<=','>=','=','!=','>','<','domain']:
             if st[1]=='domain':
                try:
                   ret=doQuery("""SELECT COUNT(value) FROM statusrealtime 
-                        WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND DMDOMAIN(value,'"+st['2']+"')=1", restype)
+                        WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND DMDOMAIN(value,'"+st[2]+"')=1", reverse)
                except:
                   pass
             elif genutils.is_number(st[2]):
                try:
                   ret=doQuery("""SELECT COUNT(value) FROM statusrealtime 
-                        WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)"+st['1']+st[2], restype)
+                        WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)="+st[1]+st[2], reverse)
                except:
                   pass
          elif restype in ['bool','int'] and len(st)==2 and genutils.is_number(st[1]):
             try:
                ret=doQuery("""SELECT COUNT(value) FROM statusrealtime 
-                  WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)="+st['1'], restype) 
+                  WHERE DMDOMAIN(status_name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)="+st[1], reverse) 
             except:
                pass
          elif restype=='string' and len(st)>0:
             try:
-               ret=doQuery("SELECT value FROM statusrealtime WHERE DMDOMAIN(status_name,'"+str(st[0])+"')=1", restype=False)
+               ret=doQuery("SELECT value FROM statusrealtime WHERE DMDOMAIN(status_name,'"+str(st[0])+"')=1")
             except:
                pass
       elif trigger.startswith("UNIQUE ") or trigger.startswith("UNIQUE:"):
@@ -1129,23 +1131,26 @@ class domotikaService(service.Service):
             st=trigger[7:].split(':')
          else:
             st=trigger[7:].split()
+         if restype in ['string','int']:
+            reverse=False
+
          if restype in ['bool','int'] and len(st)>2 and st[1] in ['<=','>=','=','!=','>','<','domain']:
             if st[1]=='domain':
                try:
                   ret=doQuery("""SELECT COUNT(value) FROM uniques
-                        WHERE DMDOMAIN(name, '"""+str(st[0])+"')=1 AND DMDOMAIN(value,'"+st['2']+"')=1", restype)
+                        WHERE DMDOMAIN(name, '"""+str(st[0])+"')=1 AND DMDOMAIN(value,'"+st[2]+"')=1", reverse)
                except:
                   pass
             elif genutils.is_number(st[2]):
                try:
                   ret=doQuery("""SELECT COUNT(value) FROM uniques
-                        WHERE DMDOMAIN(name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)"+st['1']+st[2], restype)
+                        WHERE DMDOMAIN(name, '"""+str(st[0])+"')=1 AND CONVERT(value, SIGNED)"+st[1]+st[2], reverse)
                except:
                   pass
 
          elif restype=='string' and len(st)>0:
             try:
-               ret=doQuery("SELECT value FROM uniques WHERE DMDOMAIN(name,'"+str(st[0])+"')=1", restype=False)
+               ret=doQuery("SELECT value FROM uniques WHERE DMDOMAIN(name,'"+str(st[0])+"')=1")
             except:
                pass
 

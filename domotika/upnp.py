@@ -61,7 +61,11 @@ class DomotikaUPNP(object):
              'modelNumber': 'Unknown',
              'deviceType': 'Unknown',
              'host': 'Unknown'}
-      xmlstring=xml.parseXMLString(res)
+      try:
+         xmlstring=xml.parseXMLString(res)
+      except:
+         log.info("Cannot parse XML for "+str(device))
+         return
       log.debug('RAW DEVICE XML: '+str(res)+' FOR DEVICE: '+str(device))
       xmldev=xml.getElementsByTagName(xmlstring, 'device')[0]
       for k in descr.keys():
