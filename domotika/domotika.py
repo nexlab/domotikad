@@ -1214,17 +1214,23 @@ class domotikaService(service.Service):
          for c in self.clients.getAll():
             try:
                if c['session'].mind.perms.username==username:
-                  self.clientSend('notify',{'msg':msg,'nid':res.id,'source':res.source})
+                  self.clientSend('notify',{'msg':msg,'nid':res.id,'source':res.source}, c['session'])
             except:
                pass
       dmdb.insertNotify(nsource, username, msg, expiretime).addCallback(_inserted)
  
-   def clientSend(self, event, data):
-      for c in self.clients.getAll():
+   def clientSend(self, event, data, session=False):
+      if not session:
+         for c in self.clients.getAll():
+            try:
+               #if not 'ts' in data.keys():
+               #   data['ts'] = float(time.time())
+               c['session'].sse.sendJSON(event=event, data=data)
+            except:
+               pass
+      else:
          try:
-            #if not 'ts' in data.keys():
-            #   data['ts'] = float(time.time())
-            c['session'].sse.sendJSON(event=event, data=data)
+            session.sse.sendJSON(event=event, data=data)
          except:
             pass
      

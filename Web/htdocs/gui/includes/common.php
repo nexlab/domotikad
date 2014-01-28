@@ -109,9 +109,9 @@ function addRight($file, $sobstitute=false)
       $GLOBALS['PAGE_BUFFER']['right_drawer']="";
 }
 
-function notifyListItem()
+function notifyListItem($addclass='')
 {
-   $ret='<a class="list-group-item notify-swipe-deletable" id="notifyid-[NID]" href="#">';
+   $ret='<a class="list-group-item notify-swipe-deletable '.$addclass.'" id="notifyid-[NID]" href="#">';
    $ret.='  <h4 class="list-group-item-heading">From: [NSOURCE]<i class="glyphicon glyphicon-remove pull-right notify-deletable"></i></h4>';
    $ret.='  <p class="list-group-item-text">[NDATE]</p>';
    $ret.='  <p class="list-group-item-text">[TXT]</p>';

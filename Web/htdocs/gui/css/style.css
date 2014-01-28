@@ -103,6 +103,7 @@
    color:#888;
 }
 
+
 .drawers {
    background-color: #2e2e2e;
    color: #2e2e2e;
@@ -273,6 +274,11 @@ input::-webkit-input-speech-button {
 .notifybutton:hover {
    background-color: #fff;
 }
+
+.notify-item-theme-dmblack .list-group-item-heading,
+.notify-item-theme-dmblack .list-group-item-text {
+   color: #888 !important;
+}
 .speechbutton {
    background-image: url(/resources/img/microphone-little.png);
    background-repeat: no-repeat;
@@ -376,7 +382,7 @@ input::-webkit-input-speech-button {
 .notifypanel {
    position:absolute;
    right: 5px;
-   bottom: 30px;
+   bottom: 50px;
    box-shadow: -6px -6px 8px #999;
    width: 300px;
    height: 500px;

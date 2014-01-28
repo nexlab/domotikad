@@ -11,6 +11,10 @@
    var slideEnabled=<?=$_DOMOTIKA['slide']?>;
    var speechEnabled='<?=$_DOMOTIKA["webspeech"]?>';
 
+   var notifyColor='#fff';
+   if('<?=$_DOMOTIKA["gui_theme"]?>'=='dmblack')
+      notifyColor='#000';
+
    //var scroller = new AppScroll({
    //   toolbar: $('#topbar')[0],
    //   scroller: $('#content')[0]
@@ -133,6 +137,7 @@
          container: el,
          trigger: "manual"});
       console.debug(el.popover);
+      el.addClass('text-on-white-theme-<?=$_DOMOTIKA["gui_theme"]?>');
       el.popover("show");
       el.find(".popover-content").html(cont);
       setTimeout(function(){el.popover("destroy")}, timeout);
@@ -331,7 +336,7 @@
    {
       var nd = new Date(parseInt(ndate*1000));
       var ndate=nd.toLocaleString();
-      var nli='<?=notifyListItem();?>';
+      var nli='<?=notifyListItem("notify-item-theme-".$_DOMOTIKA["gui_theme"]);?>';
       nli=nli.replace('[TXT]', text);
       nli=nli.replace('[NDATE]', ndate);
       nli=nli.replace('[NSOURCE]', source);
@@ -503,7 +508,7 @@
       {
          $("#notifications").prepend(notifylistitem(nt.msg, nt.source, nt.nid, ts));
          $("#notifyid-"+nt.nid).animate({backgroundColor: "#0080ff"},200);
-         $("#notifyid-"+nt.nid).animate({backgroundColor: "#fff"},3500);
+         $("#notifyid-"+nt.nid).animate({backgroundColor: notifyColor},3500);
       }
       playTTS("nuova notifica,"+nt.msg);
       
