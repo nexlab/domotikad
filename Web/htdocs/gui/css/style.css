@@ -158,6 +158,14 @@
 
 }
 
+#content.theme-dmwithe {
+   box-shadow: 0px 0px 15px 3px #969696;
+} 
+
+#content.theme-dmblack {
+  box-shadow: 0px 0px 15px 3px #7e79ff;
+}
+
 .scrollable{
     overflow: auto;
     -webkit-transition-property: top, bottom;

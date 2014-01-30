@@ -9,13 +9,24 @@
       $links[$tr->Get($ws)]=$ws;
    }
    ksort($links, SORT_NATURAL | SORT_FLAG_CASE);
+   $nonelink=false;
    foreach($links as $k => $v)
    {
       if(!startsWith($v, '_')) {
+         if($v!='none') {
       ?>
          <a href="<?=$BASEGUIPATH."/actuations/".$v?>" data-guisubsection='<?=$v?>' class="btn btn-block btn-default leftbtn"><?=$k?></a>
       <?
+         } else {
+            $nonelink=true;
+         }
       }
+   }
+   if($nonelink)
+   {
+      ?>
+         <a href="<?=$BASEGUIPATH."/actuations/none"?>" data-guisubsection='none' class="btn btn-block btn-default leftbtn"><?=$tr->Get('none')?></a>
+      <?
    }
 ?>
       </div>
