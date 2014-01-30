@@ -379,6 +379,14 @@ input::-webkit-input-speech-button {
    bottom: -2px;
 }
 
+.shadow-dmwhite {
+  box-shadow: 0px 0px 25px 6px #969696 inset;
+}  
+
+.shadow-dmblack {
+  box-shadow: 0px 0px 25px 6px #7e79ff inset;
+}
+
 .notifypanel {
    position:absolute;
    right: 5px;

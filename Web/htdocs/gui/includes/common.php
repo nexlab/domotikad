@@ -2,18 +2,66 @@
 $GUIDEBUG=FALSE;
 //$GUIDEBUG=TRUE;
 
-$BASEGUIPATH=str_replace("/index.php","",$_SERVER['PHP_SELF']);
-$FSPATH=realpath(dirname(__FILE__)."/..");
-$GUIPATH=str_replace($BASEGUIPATH,'',explode('?',$_SERVER['REQUEST_URI'])[0]);
-$sectar=explode("/", $GUIPATH);
-$GUISECTION="index";
-$GUISUBSECTION="";
-if(count($sectar)>1 and $sectar[1]!="")
-   $GUISECTION=$sectar[1];
-if(count($sectar)>2)
-   $GUISUBSECTION=$sectar[2];
-if(count($sectar)>3)
-   $GUISUBSECTIONOPT=$sectar[3];
+
+function getBaseGuiPath()
+{
+   return str_replace("/index.php","",$_SERVER['PHP_SELF']);
+}
+
+function getFSPath()
+{
+   return realpath(dirname(__FILE__)."/..");
+}
+
+
+function getGuiPath()
+{
+   return str_replace(getBaseGuiPath(),'',explode('?',$_SERVER['REQUEST_URI'])[0]);
+}
+
+
+
+function getSection($path=false)
+{
+   if($path)
+      $sectar=explode("/", $path);
+   else
+      $sectar=explode("/", getGuiPath());
+   $GUISECTION="index"; 
+   if(count($sectar)>1 and $sectar[1]!="")
+      $GUISECTION=$sectar[1];
+   return $GUISECTION;
+}
+
+function getSubsection($path=false)
+{
+   if($path)
+      $sectar=explode("/", $path);
+   else
+      $sectar=explode("/", getGuiPath());
+   $GUISUBSECTION="";
+   if(count($sectar)>2)
+      $GUISUBSECTION=$sectar[2];
+   return $GUISUBSECTION;
+}
+
+function getSubsectionOpt($path=false)
+{
+   if($path)
+      $sectar=explode("/", $path);
+   else
+      $sectar=explode("/", getGuiPath());
+   $GUISUBSECTIONOPT="";
+   if(count($sectar)>3)
+      $GUISUBSECTIONOPT=$sectar[3];
+   return $GUISUBSECTIONOPT;
+}
+$BASEGUIPATH=getBaseGuiPath();
+$FSPATH=getFSPath();
+$GUIPATH=getGuiPath();
+$GUISECTION=getSection();
+$GUISUBSECTION=getSubsection();
+$GUISUBSECTIONOPT=getSubsectionOpt();
 
 $left=FALSE;
 $right=FALSE;

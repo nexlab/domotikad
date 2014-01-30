@@ -1,7 +1,7 @@
 <? @include_once("../includes/common.php"); ?>
    <div class="left-drawer">
       <div id="websectionlist" class="panel drawer-container scrollable">
-         <a href="<?=$BASEGUIPATH?>" class="btn btn-block btn-default leftbtn" <? /* style="background-image: url(/resources/icons/home_white_alpha_32x32.png)" */?>>home</a>
+         <a href="<?=$BASEGUIPATH?>/" data-guisubsection='' class="btn btn-block btn-default leftbtn" <? /* style="background-image: url(/resources/icons/home_white_alpha_32x32.png)" */?>>home</a>
 <?
    $links=array();
    foreach(getWebSections(array('home'), array(), 'devsection') as $ws)
@@ -13,7 +13,7 @@
    {
       if(!startsWith($v, '_')) {
       ?>
-         <a href="<?=$BASEGUIPATH."/actuations/".$v?>" class="btn btn-block btn-default leftbtn"><?=$k?></a>
+         <a href="<?=$BASEGUIPATH."/actuations/".$v?>" data-guisubsection='<?=$v?>' class="btn btn-block btn-default leftbtn"><?=$k?></a>
       <?
       }
    }
