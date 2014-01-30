@@ -34,12 +34,12 @@ if(@is_array($button_switchar) && in_array($button['ctx'], $button_switchar)) {
    $button_text=$button['text_off'];
    $button_color="btn-".$dmcolors[$button['color_off']];
    if(intval($button['status'])>0) {
-      $button_checked="btn-".$dmcolors[$button['color_on']];
+      $button_color="btn-".$dmcolors[$button['color_on']];
       $button_text=$button['text_on'];
 
    }
 ?>
-         <button class="btn devlist-button <?=$button_checked?>" data-domotika-actid="<?=$button['id']?>"
+         <button class="btn devlist-button <?=$button_color?>" data-domotika-actid="<?=$button['id']?>"
             data-dmcolor-on="btn-<?=$dmcolors[$button['color_on']]?>" data-dmcolor-off="btn-<?=$dmcolors[$button['color_off']]?>"
             data-dmtext-on="<?=$button['text_on']?>" data-dmtext-off="<?=$button['text_off']?>"><?=$button_text?></button>
 <?
