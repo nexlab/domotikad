@@ -1,6 +1,6 @@
 <? @include_once("../../includes/common.php"); ?>
 <? 
-$_SESSION[PANELS_CHARTS]=array();
+$_SESSION['PANELS_CHARTS']=array();
 if($panel && is_array($panel)) { 
    $days = getLastNDays(7, 'Y-m-d' );
    $daysql = getLastNDays(7, 'Y-m-d');
@@ -40,7 +40,7 @@ if($panel && is_array($panel)) {
 <?
    foreach($charts as $chart) {
       //print_r($chart);
-      $_SESSION[PANELS_CHARTS][$chart['name']."-".$panel['id']]=$chart;
+      $_SESSION['PANELS_CHARTS'][$chart['name']."-".$panel['id']]=$chart;
    ?>
       <div id="<?=$chart['name']."-".$panel['id']?>" style="height:200px;width:550px"><?=$chart['name']?></div>
    <?

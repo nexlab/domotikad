@@ -1,5 +1,6 @@
 <? @include_once("../../includes/common.php"); ?>
 <?
+$showpanels=array();
 foreach($panels as $panel)
 {
    $paneldo=TRUE;
