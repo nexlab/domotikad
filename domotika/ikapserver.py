@@ -251,9 +251,9 @@ class DomIkaBaseProtocol(object):
                         rawinp=rawio[16:28]
                         if baseboard_type==C.BOARD_WORKER_12R12I_v3:
                            self.core.setAnalogStatus(src, host, port, ptype, 1,
-                              struct.unpack('<H', struct.pack('<2B', *astr[9:11]))[0])
+                              struct.unpack('<h', struct.pack('<2B', *astr[9:11]))[0])
                            self.core.setAnalogStatus(src, host, port, ptype, 2,
-                              struct.unpack('<H', struct.pack('<2B', *astr[11:13]))[0])
+                              struct.unpack('<h', struct.pack('<2B', *astr[11:13]))[0])
 
                            rawamp=astr[13:25]
                         else:
