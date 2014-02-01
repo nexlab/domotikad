@@ -1,0 +1,2 @@
+./boardcmd.py $1 "SETOTP$2" 0.0.0.0 eth0
+
