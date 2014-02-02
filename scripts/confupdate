@@ -1,0 +1,101 @@
+#!/usr/bin/python
+import sys, shutil, os
+import struct
+
+def printhelp():
+   print
+   print '##################################################################################'
+   print 
+   print 'Domotika I/O Boards file updater'
+   print
+   print 'usage: ', sys.argv[0], '<source file> <destination file> [config version]'
+   print 
+   print ' * source file is a devconf.bin or config.bin file as saved from the board.'
+   print ' * destination file is the new config file the updater will write'
+   print ' * config version is optional, if not specified the latest supported version'
+   print '   will be assumed, and is related to the config version, not the board version'
+   print '   as specified in the following table for DMRv3:'
+   print 
+   print ' RelayMaster <= 1.2.3            Version 6'
+   print ' RelayMaster == 1.2.4            Version 7'
+   print ' RelayMaster == 1.2.5            Version 7'
+   print ' RelayMaster == 1.2.6            Version 8'
+   print 
+   print 'Example: to update a config file from 1.2.2 to 1.2.6 you must save the config file'
+   print '(both complete config or I/O config are supported) from the old firmware version,'
+   print 'then you can launch:'
+   print '   ', sys.argv[0], 'oldconfig.bin newconfig.bin 8'
+   print 'The final 8 can be omitted as is the latest version actually supported, but needs'
+   print 'to be specified (as 7) if the target firmware version is 1.2.5'
+   print 
+   print 'after that, upgrade the firmware on the board, and then you can restore the config'
+   print 'using the "newconfig.bin" file.'
+   print 
+   print 'WARNING: from version 6 to version 7 and up there is a very important change: the '
+   print '         configurable HTTP port. The procedure suggested is to upgrade the complete'
+   print '         config and to perform a board reset with the resetconf script to default '
+   print '         after the upgrade!'
+   print
+   print '##################################################################################'
+   print 
+
+
+
+def main():
+   if not os.path.isfile(sys.argv[1]) or os.path.isfile(sys.argv[2]):
+      print 'Error: cannot read source or write destination'
+      print 
+      printhelp()
+      sys.exit(1)
+
+   shutil.copyfile(sys.argv[1], sys.argv[2])
+
+   f = open(sys.argv[2], 'r+b')
+   ctype = f.read(4)
+   if ctype=='DMCF':
+      webport = 12363
+   elif ctype=='DMCD':
+       webport = 11991
+   else:
+      print 'Error, config file not recognized!'
+      print
+      printhelp()
+      os.unlink(sys.argv[2])
+      sys.exit(1)
+
+   
+   tover = '\x08'
+   if len(sys.argv>3) and int(sys.argv[3]) <= 8 and int(sys.argv[3]) >=7:
+      tover = struct.pack('B', int(sys.argv[3]))
+   elif len(sys.argv>3):
+      print 'Error, target version not supported'
+      print
+      printhelp()
+      os.unlink(sys.argv[2])
+      sys.exit(1)
+
+   oldver=struct.unpack('B', f.read(1))[0]
+   if oldver < 6 or oldver > 7:
+      print 'Error, source version not supported'
+      print 
+      printhelp()
+      os.unlink(sys.argv[2])
+      sys.exit(1)
+
+   print ' [*] Converting file...'
+   f.seek(4)
+   f.write(tover)
+   if(oldver < 7):
+      f.seek(webport)
+      f.write("\x50\x00")
+   f.close()
+
+   print ' [*] File converted to version ', struct.unpack('B', tover)[0], 'on file', sys.argv[2]
+   print
+
+
+if __name__ == '__main__':
+   if len(sys.argv) < 3:
+      printhelp()
+   else:
+      main()
