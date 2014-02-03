@@ -25,7 +25,7 @@ def getMediaSourcePlugin(name, manufacturer='generic'):
       return None
    for p in getPlugins(imediasource.IMediaSource, mod ):
       qual = "%s.%s" % (p.__module__, p.__class__.__name__)
-      log.debug("Calling Board Module "+qual)
+      log.debug("Calling MediaSource Module "+qual)
       if p.__module__.split('.')[-1]==name:
          return p
    return None

@@ -968,6 +968,24 @@ class domotikaService(service.Service):
                ret=doQuery("SELECT active FROM timers WHERE id="+str(tid[0]), reverse)
             except:
                pass
+         elif len(tid)>0 and len(tid[0])>0:
+            try:
+               ret=doQuery("SELECT IF(SUM(active)>0,1,0) from timers WHERE DMDOMAIN(timer_name, '"+str(tid[0])+"')=1")
+            except:
+               pass
+      elif trigger.startswith("ACTIONSTATUS ") or trigger.startswith("ACTIONSTATUS:"):
+         aid=trigger[13:].split()
+         if len(aid)>0 and genutils.is_number(aid[0]):
+            try:
+               ret=doQuery("SELECT active FROM actions WHERE id="+str(aid[0]), reverse)
+            except:
+               pass
+         elif len(aid)>0 and len(aid[0])>0:
+            try:
+               ret=doQuery("SELECT IF(SUM(active)>0,1,0) from actions WHERE DMDOMAIN(action_name, '"+str(aid[0])+"')=1")
+            except:
+               pass
+
       elif trigger.startswith("BOARDSTATUS ") or trigger.startswith("BOARDSTATUS:"):
          bname=trigger[12:].split()
          if len(bname)>0:
@@ -989,6 +1007,14 @@ class domotikaService(service.Service):
                ret=doQuery("SELECT status FROM relstatus WHERE buttonid="+str(tid[0]), reverse)
             except:
                pass
+      elif trigger.startswith("ACTSTATUS ") or trigger.startswith("ACTSTATUS:"):
+         tid=trigger[10:].split()
+         if len(tid)>0 and genutils.is_number(tid[0]):
+            try:
+               ret=doQuery("SELECT status FROM actstatus WHERE buttonid="+str(tid[0]), reverse)
+            except:
+               pass
+
       elif trigger.startswith("AMPSTATUS ") or trigger.startswith("AMPSTATUS:"):
          if ':' in trigger:
             amp=trigger[10:].split(":")
@@ -1632,7 +1658,7 @@ class domotikaService(service.Service):
             ss.del_status(res.id)
             return
          ret=defer.succeed(False)
-         trigger=res.trigger
+         trigger=res.status_trigger
          self.parseStatusRequest(trigger, restype='string').addCallback(self.manageStatusAction, res)
 
    @defer.inlineCallbacks

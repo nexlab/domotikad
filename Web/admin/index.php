@@ -106,7 +106,7 @@
    {
       ?>
       <tr>
-         <td><?=$timer['timer_name']?></td>
+         <td><?=$timer['description']?></td>
          <? if($timer['active']>0) { ?>
          <td><button class="btn btn-success btn-small pull-right">Active</button></td>
          <? } else { ?>
