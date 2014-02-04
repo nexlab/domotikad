@@ -87,10 +87,20 @@ def statusParser(trigger, sun, restype='string'):
       return dmdb.Registry.DBPOOL.runQuery(sqlstring).addCallback(parseReturn, reverse)
 
 
+   oneatleast=False
    reverse=False
-   if trigger.startswith("REV ") or trigger.startswith("REV:") and restype!='string':
+   if ((trigger.startswith("REV ANY ") or trigger.startswith("REV:ANY:") or
+       trigger.startswith("ANY REV ") or trigger.startswith("ANY:REV:")) and
+       restype!='string'):
+      reverse=True
+      oneatleast=True
+      trigger=trigger[8:]
+   elif trigger.startswith("REV ") or trigger.startswith("REV:") and restype!='string':
       reverse=True
       trigger=trigger[4:]
+   elif trigger.startswith("ANY ") or trigger.startswith("ANY:") and restype!='string':
+      oneatleast=True
+      trigger=trigger[4:] 
 
    if not reverse:
       defres=False
@@ -101,13 +111,15 @@ def statusParser(trigger, sun, restype='string'):
       if restype=='int':
          defres=1
 
+
+
    ret=defer.succeed(defres)
    if trigger.startswith("FILE ") or trigger.startswith("FILE:"):
       if os.path.isfile(trigger[5:].split()[0]):
          f = open(trigger[5:].split()[0], "r")
          ret=defer.succeed(parseReturn(f.read(), reverse))
          f.close()
-   if trigger.startswith("FILEEXISTS ") or trigger.startswith("FILEEXISTS:"):
+   elif trigger.startswith("FILEEXISTS ") or trigger.startswith("FILEEXISTS:"):
       if os.path.isfile(trigger[11:].split()[0]):
          ret=defer.succeed(parseReturn('1', reverse))
       else:
@@ -137,7 +149,16 @@ def statusParser(trigger, sun, restype='string'):
             pass
       elif len(tid)>0 and len(tid[0])>0:
          try:
-            ret=doQuery("SELECT IF(SUM(active)>0,1,0) from timers WHERE DMDOMAIN(timer_name, '"+str(tid[0])+"')=1")
+            if not oneatleast:
+               if not reverse:
+                  ret=doQuery("SELECT MIN(active) from timers WHERE DMDOMAIN(timer_name, '"+str(tid[0])+"')=1") # All active?
+               else:
+                  ret=doQuery("SELECT MAX(active) from timers WHERE DMDOMAIN(timer_name, '"+str(tid[0])+"')=1", reverse=True) # all off?
+            else:
+               if not reverse:
+                  ret=doQuery("SELECT MAX(active) from timers WHERE DMDOMAIN(timer_name, '"+str(tid[0])+"')=1") # at least one active?         
+               else
+                  ret=doQuery("SELECT MIN(active) from timers WHERE DMDOMAIN(timer_name, '"+str(tid[0])+"')=1", reverse=True) # at least one off?
          except:
             pass
    elif trigger.startswith("ACTIONACTIVE ") or trigger.startswith("ACTIONACTIVE:"):
@@ -149,17 +170,43 @@ def statusParser(trigger, sun, restype='string'):
             pass
       elif len(aid)>0 and len(aid[0])>0:
          try:
-            ret=doQuery("SELECT IF(SUM(active)>0,1,0) from actions WHERE DMDOMAIN(action_name, '"+str(aid[0])+"')=1")
+            if not oneatleast:
+               if not reverse:
+                  ret=doQuery("SELECT MIN(active) from actions WHERE DMDOMAIN(action_name, '"+str(tid[0])+"')=1") # All active?
+               else:
+                  ret=doQuery("SELECT MAX(active) from actions WHERE DMDOMAIN(action_name, '"+str(tid[0])+"')=1", reverse=True) # all off?
+            else:
+               if not reverse:
+                  ret=doQuery("SELECT MAX(active) from actions WHERE DMDOMAIN(action_name, '"+str(tid[0])+"')=1") # at least one active?         
+               else
+                  ret=doQuery("SELECT MIN(active) from actions WHERE DMDOMAIN(action_name, '"+str(tid[0])+"')=1", reverse=True) # at least one off?
+
          except:
             pass
 
-   elif trigger.startswith("BOARDSTATUS ") or trigger.startswith("BOARDSTATUS:"):
+   elif (trigger.startswith("BOARDSTATUS ") or trigger.startswith("BOARDSTATUS:")        # DEPRECATED, USE BOARDACTIVE
+         trigger.startswith("BOARDACTIVE ") or trigger.startswith("BOARDACTIVE:")):
       bname=trigger[12:].split()
       if len(bname)>0:
          try:
             ret=doQuery("SELECT online FROM dmboards WHERE name='"+str(bname[0])+"'", reverse)
          except:
             pass
+      else:
+         try:
+            if not oneatleast:
+               if not reverse:
+                  ret=doQuery("SELECT MIN(online) FROM dmboards")
+               else:
+                  ret=doQuery("SELECT MAX(online) FROM dmboards", True)
+            else:
+               if not reverse:
+                  ret=doQuery("SELECT MAX(online) FROM dmboards")
+               else:
+                  ret=doQuery("SELECT MIN(online) FROM dmboards", True)
+         except:
+            pass
+
    elif trigger.startswith("INPSTATUS ") or trigger.startswith("INPSTATUS:"):
       tid=trigger[10:].split()
       if len(tid)>0 and genutils.is_number(tid[0]):
@@ -260,21 +307,57 @@ def statusParser(trigger, sun, restype='string'):
       if len(dmd)>1 and genutils.is_number(dmd[1]):
          dmctx=" AND relay.ctx='"+dmd[1]+"'"
       try:
-         if reverse:
-            ret=doQuery("""select IF(max(relstatus.status)>0,0,1) from relstatus,relay where 
-               relstatus.buttonid=relay.id AND DMDOMAIN(relay.domain,'"""+str(dmd[0])+"')=1"+dmctx, reverse=False)
+         if not oneatleast:
+            if not reverse:
+               ret=doQuery("""select min(relstatus.status) from relstatus,relay where 
+                  relstatus.buttonid=relay.id AND DMDOMAIN(relay.domain,'"""+str(dmd[0])+"')=1"+dmctx, reverse=False) # all closed
+            else:
+               ret=doQuery("""select max(relstatus.status) from relstatus,relay where 
+                  relstatus.buttonid=relay.id AND DMDOMAIN(relay.domain,'"""+str(dmd[0])+"')=1"+dmctx, reverse=True) # all open
          else:
-            ret=doQuery("""select min(relstatus.status) from relstatus,relay where 
-               relstatus.buttonid=relay.id AND DMDOMAIN(relay.domain,'"""+str(dmd[0])+"')=1"+dmctx, reverse=False);
+            if not reverse:
+               ret=doQuery("""select max(relstatus.status) from relstatus,relay where 
+                  relstatus.buttonid=relay.id AND DMDOMAIN(relay.domain,'"""+str(dmd[0])+"')=1"+dmctx, reverse=False) # at least one closed
+            else:
+               ret=doQuery("""select min(relstatus.status) from relstatus,relay where 
+                  relstatus.buttonid=relay.id AND DMDOMAIN(relay.domain,'"""+str(dmd[0])+"')=1"+dmctx, reverse=True) # at least one open
+      except:
+         pass
+   elif trigger.startswith("ACTDOMAIN ") or trigger.startswith("ACTDOMAIN:"):
+      if ':' in trigger:
+         dmd=trigger[10:].split(":")
+      else:
+         dmd=trigger[10:].split()
+      try:
+         if not oneatleast:
+            if not reverse:
+               ret=doQuery("""select min(actstatus.status) from actstatus,actions where 
+                  actstatus.buttonid=actions.id AND DMDOMAIN(actions.action_name,'"""+str(dmd[0])+"')=1", reverse=False) # all true
+            else:
+               ret=doQuery("""select max(actstatus.status) from actstatus,actions where
+                  actstatus.buttonid=actions.id AND DMDOMAIN(actions.action_name,'"""+str(dmd[0])+"')=1", reverse=True) # all false
+         else:
+            if not reverse:
+               ret=doQuery("""select max(actstatus.status) from actstatus,actions where
+                  actstatus.buttonid=actions.id AND DMDOMAIN(actions.action_name,'"""+str(dmd[0])+"')=1", reverse=False) # at least one true
+            else:
+               ret=doQuery("""select min(actstatus.status) from actstatus,actions where 
+                  actstatus.buttonid=actions.id AND DMDOMAIN(actions.action_name,'"""+str(dmd[0])+"')=1", reverse=True) # at least one false
       except:
          pass
    elif trigger.startswith("INPDOMAIN ") or trigger.startswith("INPDOMAIN:"):
       dmd=trigger[10:].split()
       try:
-         if reverse:
-            ret=doQuery("select IF(max(status)>0,0,1) FROM inpstatus WHERE DMDOMAIN(inpname, '"+str(dmd[0])+"')=1", reverse=False)
+         if not oneatleast:
+            if not reverse:
+               ret=doQuery("select MIN(status) FROM inpstatus WHERE DMDOMAIN(inpname, '"+str(dmd[0])+"')=1", reverse=False) # all close
+            else:
+               ret=doQuery("select MAX(status) FROM inpstatus WHERE DMDOMAIN(inpname, '"+str(dmd[0])+"')=1", reverse=True) # all open
          else:
-            ret=doQuery("select min(status) FROM inpstatus WHERE DMDOMAIN(inpname, '"+str(dmd[0])+"')=1", reverse=False)
+            if not reverse:
+               ret=doQuery("select MAX(status) FROM inpstatus WHERE DMDOMAIN(inpname, '"+str(dmd[0])+"')=1", reverse=False) # at least one close
+            else:
+               ret=doQuery("select MIN(status) FROM inpstatus WHERE DMDOMAIN(inpname, '"+str(dmd[0])+"')=1", reverse=True) # at least one open
       except:
          pass
    elif trigger.startswith("NETSTATUS"):
