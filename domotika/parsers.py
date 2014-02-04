@@ -157,7 +157,7 @@ def statusParser(trigger, sun, restype='string'):
             else:
                if not reverse:
                   ret=doQuery("SELECT MAX(active) from timers WHERE DMDOMAIN(timer_name, '"+str(tid[0])+"')=1") # at least one active?         
-               else
+               else:
                   ret=doQuery("SELECT MIN(active) from timers WHERE DMDOMAIN(timer_name, '"+str(tid[0])+"')=1", reverse=True) # at least one off?
          except:
             pass
@@ -178,13 +178,13 @@ def statusParser(trigger, sun, restype='string'):
             else:
                if not reverse:
                   ret=doQuery("SELECT MAX(active) from actions WHERE DMDOMAIN(action_name, '"+str(tid[0])+"')=1") # at least one active?         
-               else
+               else:
                   ret=doQuery("SELECT MIN(active) from actions WHERE DMDOMAIN(action_name, '"+str(tid[0])+"')=1", reverse=True) # at least one off?
 
          except:
             pass
 
-   elif (trigger.startswith("BOARDSTATUS ") or trigger.startswith("BOARDSTATUS:")        # DEPRECATED, USE BOARDACTIVE
+   elif (trigger.startswith("BOARDSTATUS ") or trigger.startswith("BOARDSTATUS:") or        # DEPRECATED, USE BOARDACTIVE
          trigger.startswith("BOARDACTIVE ") or trigger.startswith("BOARDACTIVE:")):
       bname=trigger[12:].split()
       if len(bname)>0:
