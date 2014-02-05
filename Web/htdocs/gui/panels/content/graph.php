@@ -42,7 +42,7 @@ if($panel && is_array($panel)) {
       //print_r($chart);
       $_SESSION['PANELS_CHARTS'][$chart['name']."-".$panel['id']]=$chart;
    ?>
-      <div id="<?=$chart['name']."-".$panel['id']?>" style="height:200px;width:550px"><?=$chart['name']?></div>
+      <div id="<?=$chart['name']."-".$panel['id']?>" style="height:200px;width:550px"></div>
    <?
    }?>
          </div>

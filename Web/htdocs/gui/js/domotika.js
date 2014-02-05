@@ -478,9 +478,45 @@
                );
                $("[data-domotika-anaid="+val[0]+"]").each(
                   function() {
-                    console.debug("anaid");
+                     if(val[1]<=$(this).attr('data-dmval-min')) {
+                        $(this).alterClass('btn-*', $(this).attr('data-dmcolor-min'));
+                     } else if(val[1]<=$(this).attr('data-dmval-low')) {
+                        $(this).alterClass('btn-*', $(this).attr('data-dmcolor-low'));
+                     } else if(val[1]<$(this).attr('data-dmval-high')) {
+                        $(this).alterClass('btn-*', $(this).attr('data-dmcolor-med'));
+                     } else if(val[1]>=$(this).attr('data-dmval-high')) {
+                        $(this).alterClass('btn-*', $(this).attr('data-dmcolor-high'));
+                     }
+
                   }
                );
+
+               $("[data-domotika-anaprog="+val[0]+"]").each(
+                  function() {
+                     if(val[1]<=$(this).attr('data-dmval-min')) {
+                        $(this).alterClass('progress-bar-*', $(this).attr('data-dmcolor-min'));
+                     } else if(val[1]<=$(this).attr('data-dmval-low')) {
+                        $(this).alterClass('progress-bar-*', $(this).attr('data-dmcolor-low'));
+                     } else if(val[1]<$(this).attr('data-dmval-high')) {
+                        $(this).alterClass('progress-bar-*', $(this).attr('data-dmcolor-med'));
+                     } else if(val[1]>=$(this).attr('data-dmval-high')) {
+                        $(this).alterClass('progress-bar-*', $(this).attr('data-dmcolor-high'));
+                     }
+                  }
+               );
+               $("[data-domotika-anat="+val[0]+"]").each(
+                  function() {
+                     v=val[1]/$(this).attr('data-dmval-divider');
+                     $(this).text(v);
+                  }
+               );
+               $("[data-domotika-anab="+val[0]+"]").each(
+                  function() {
+                     v=val[1]/$(this).attr('data-dmval-divider');
+                     $(this).text(v);
+                  }
+               );
+
 
                break;
             case 'action':

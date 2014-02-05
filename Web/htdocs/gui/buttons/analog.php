@@ -29,13 +29,14 @@ $perc=(floatval($button['status'])-floatval($button['minval']))*100/(floatval($b
             <h4 class="devlist-name"><?=$button['button_name']?></h4>
             <div class="progress">
                <div class="progress-bar <?=$anacol?>" role="progressbar" aria-valuenow="<?=floatval($button['status'])/$button['divider']?>" aria-valuemin="<?=$button['minval']?>" 
-                  aria-valuemax="<?=$button['maxval']?>" style="width: <?=$perc?>%;"
+                  aria-valuemax="<?=$button['maxval']?>" style="width: <?=$perc?>%;" 
                   data-dmcolor-min="<?=$pbcoln.$dmcolors[$button['color_min']]?>" data-dmcolor-low="<?=$pbcoln.$dmcolors[$button['color_low']]?>"
                   data-dmcolor-med="<?=$pbcoln.$dmcolors[$button['color_medium']]?>" data-dmcolor-high="<?=$pbcoln.$dmcolors[$button['color_high']]?>"
                   data-dmval-min="<?=floatval($button['minval'])?>" data-dmval-low="<?=floatval($button['lowval'])?>"
                   data-dmval-high="<?=floatval($button['highval'])?>" data-dmval-max="<?=floatval($button['maxval'])?>"
-                  data-dmval-divider="<?=floatval($button['divider'])?>" data-domotika-anaprog="<?=$button['id']?>">
-               <span class="sr-only"><?=floatval($button['status'])/$button['divider']?></span>
+                  data-domotika-anaprog="<?=$button['id']?>">
+               <span class="sr-only" data-domotika-anat="<?=$button['id']?>" 
+                  data-dmval-divider="<?=floatval($button['divider'])?>"><?=floatval($button['status'])/$button['divider']?></span>
             </div>
          </div>
       </div>
@@ -43,7 +44,10 @@ $perc=(floatval($button['status'])-floatval($button['minval']))*100/(floatval($b
          <button class="btn devlist-button <?=$btncol?>" data-domotika-anaid="<?=$button['id']?>" 
             data-dmcolor-min="btn-<?=$dmcolors[$button['color_min']]?>" data-dmcolor-low="btn-<?=$dmcolors[$button['color_low']]?>"
             data-dmcolor-med="btn-<?=$dmcolors[$button['color_medium']]?>" data-dmcolor-high="btn-<?=$dmcolors[$button['color_high']]?>"
-            ><span><?=$button['unit']?>:</span> <span><?=floatval($button['status'])/$button['divider']?></span></button>
+            data-dmval-min="<?=floatval($button['minval'])?>" data-dmval-low="<?=floatval($button['lowval'])?>"
+            data-dmval-high="<?=floatval($button['highval'])?>" data-dmval-max="<?=floatval($button['maxval'])?>"
+            ><span><?=$button['unit']?>:</span> <span data-dmval-divider="<?=floatval($button['divider'])?>"
+                                                       data-domotika-anab="<?=$button['id']?>" ><?=floatval($button['status'])/$button['divider']?></span></button>
       </div> <!-- devlist-rightpart-->
    </div> <!-- devlist-row -->
 </div> <!-- devlist item -->
