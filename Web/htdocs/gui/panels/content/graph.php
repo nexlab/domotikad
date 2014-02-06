@@ -4,7 +4,20 @@ $_SESSION['PANELS_CHARTS']=array();
 if($panel && is_array($panel)) { 
    $days = getLastNDays(7, 'Y-m-d' );
    $daysql = getLastNDays(7, 'Y-m-d');
-   $charts=DB::query("SELECT * FROM stats_charts WHERE active=1 AND DMDOMAIN(name, '".$panel['panel_content']."')=1 order by webposition");
+   if($panel['panel_websections']!="" && $panel['panel_websections']!="*") {
+      $ws=" AND (";
+      $wss=explode(",", $panel['panel_websections']);
+      $cws=count($wss);
+      $cwsc=1;
+      foreach($wss as $w) {
+         $ws.="websection='$w'";
+         if($cwsc<$cws)
+            $ws.=" OR ";
+         $cwsc++;
+      }
+      $ws.=")";
+   }
+   $charts=DB::query("SELECT * FROM stats_charts WHERE active=1 AND DMDOMAIN(name, '".$panel['panel_content']."')=1 $ws order by webposition");
    if(is_numeric($panel['panel_height'])) $panel['panel_height'].="px";
    $visible="";
    if($panel['panel_visible']!="all") $visible=$panel['panel_visible'];
@@ -40,10 +53,11 @@ if($panel && is_array($panel)) {
 <?
    foreach($charts as $chart) {
       //print_r($chart);
-      $_SESSION['PANELS_CHARTS'][$chart['name']."-".$panel['id']]=$chart;
+      $_SESSION['PANELS_CHARTS'][$chart['name']."-".$chart['id']]=$chart;
    ?>
-      <div id="<?=$chart['name']."-".$panel['id']?>" style="height:200px;width:550px"></div>
-   <?
+      <div id="<?=$chart['name']."-".$chart['id']?>" style="height:200px;width:550px"></div>
+      
+<?
    }?>
          </div>
       </div>

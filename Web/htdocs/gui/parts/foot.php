@@ -31,7 +31,8 @@
     <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.cursor.min.js"></script>
     <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
     <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
-
+    <script type="text/javascript" src="/resources/js/raphael.min.js"></script>
+    <script type="text/javascript" src="/resources/js/justgage.js"></script>
 
     <script src="<?=$BASEGUIPATH;?>/js/fastclick.js"></script>
     <script src="<?=$BASEGUIPATH;?>/js/speech.js"></script>

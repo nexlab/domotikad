@@ -30,6 +30,17 @@
    if('<?=$_DOMOTIKA["gui_theme"]?>'=='dmblack')
       notifyColor='#000';
 
+   var stringColors = {
+      'red': '#ff0000',
+      'green': '#5cb85c',
+      'gray': '#999999',
+      'orange': '#f0ad4e',
+      'blue': '#428bca',
+      'azure': '#5bc0de',
+      'black': '#000000',
+      'white': '#ffffff'
+   };
+
    //var scroller = new AppScroll({
    //   toolbar: $('#topbar')[0],
    //   scroller: $('#content')[0]
@@ -516,6 +527,11 @@
                      $(this).text(v);
                   }
                );
+               $("[data-domotika-gaugeid="+val[0]+"]").each(
+                  function() {
+                     $(this).data('gauge').refresh(val[1]/$(this).attr('data-dmval-divider'));
+                  }
+               );
 
 
                break;
@@ -533,6 +549,9 @@
                $("[data-domotika-act2col="+val[0]+"]").each(
                   function() {
                      if(val[2]>0) {
+                        console.debug($(this));
+                        console.debug($(this).attr('data-dmcolor-off'));
+                         console.debug($(this).attr('data-dmcolor-on'));
                         $(this).alterClass($(this).attr('data-dmcolor-off'), $(this).attr('data-dmcolor-on'));
                      } else {
                         $(this).alterClass($(this).attr('data-dmcolor-on'), $(this).attr('data-dmcolor-off'));

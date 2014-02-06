@@ -33,6 +33,8 @@ js/starthammer.js
 ../../resources/js/jqplot/plugins/jqplot.cursor.min.js
 ../../resources/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js
 ../../resources/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js
+../../resources/js/raphael.min.js
+../../resources/js/justgage.js
 js/fastclick.js
 js/speech.js
 js/domotika.js

@@ -3,7 +3,7 @@
 <?
 
 $panels=FALSE;
-if($GUISUBSECTION!="" && is_numeric($GUISUBSECTION))
+if($GUISUBSECTION!="")
 {
    $v=DB::query("SELECT * FROM stats_charts WHERE websection='$GUISUBSECTION' AND active=1 order by webposition,id");
    if(is_array($v) && count($v)>0) {

@@ -40,6 +40,10 @@
 
 }
 
+.badge-primary {
+   background-color: #428bca;
+}
+
 .navbar-title {
    font-size: 20px;
    font-weight: 500;
