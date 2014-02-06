@@ -78,6 +78,8 @@ for j in $JS
          echo "already minified..."
          cat $j >> js/combined.min.js
       fi
+      echo -n 'SIZE: ' 
+      du -chs js/combined.min.js
    done
    
 

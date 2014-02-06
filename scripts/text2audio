@@ -1,0 +1,18 @@
+#!/bin/bash
+
+
+phelp() 
+{
+   echo "USAGE: $0 <filename> <it|en> <\"string of text to be converted to audio\">"
+   exit 0 
+}
+
+if [[ "$#" < 3 ]] ; then
+   phelp
+fi
+
+if [ "$2" != "en" ] && [ "$2" != "it" ] ; then
+   phelp
+fi
+
+python `dirname $0`/../domotika/clouds/google/tts.py $@
