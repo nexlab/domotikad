@@ -563,7 +563,8 @@ def getSequence(seqname):
    return SequenceConf.find(where=['name=?', seqname], limit=1)
 
 def setNextStep(sname, st):
-   querystr="UPDATE sequence_data SET step_done=1 WHERE step<"+str(st)+" AND sequence_name='"+sname+"'"
+   #querystr="UPDATE sequence_data SET step_done=1 WHERE step<"+str(st)+" AND sequence_name='"+sname+"'"
+   querystr="UPDATE sequence_data SET step_done=IF(position<"+str(st)+",1,0) WHERE sequence_name='"+sname+"'"
    return Registry.DBPOOL.runOperation(querystr)
 
 def getRunningSequences():
