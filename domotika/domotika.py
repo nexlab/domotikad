@@ -1337,7 +1337,7 @@ class domotikaService(service.Service):
    @defer.inlineCallbacks
    def manageStatusAction(self, status, res):
       changed=False
-      if status:
+      if status or (type(status).__name__=='str' and status=''):
          # detect if changed
          oldstatus=yield dmdb.getStatusRealtime(res.status_name)
          # NOTE: we have a changed status only if oldstatus exists

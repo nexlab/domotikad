@@ -64,17 +64,31 @@ def statusParser(trigger, sun, restype='string'):
                   qr=str(qres)
                else:
                   qr=False
-      if qr:
+      if qr or restype=='string':
          if restype in ['int','bool']:
-            if qr in ["1",1,'true','y','si','yes']:
+            if qr in ["1",1,'true','y','si','yes',True]:
                if restype=='int':
                   if reverse: return 0
                   return 1
                else: # restype=='bool':
                   if reverse: return False
                   return True
+            else:
+               if restype=='int':
+                  try:
+                     return int(qr)
+                  except:
+                     return 0
+               else
+                  if qr in ['','false','0',0,'n','no',False,None]:
+                     return False
+                  return True
          else:
-            return qr
+            try:
+               return str(qr)
+            except:
+               return ''
+
       if restype=='int':
          if reverse: return 1
          return 0
