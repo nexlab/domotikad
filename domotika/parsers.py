@@ -79,7 +79,7 @@ def statusParser(trigger, sun, restype='string'):
                      return int(qr)
                   except:
                      return 0
-               else
+               else:
                   if qr in ['','false','0',0,'n','no',False,None]:
                      return False
                   return True
