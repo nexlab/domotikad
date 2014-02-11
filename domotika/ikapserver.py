@@ -38,6 +38,7 @@ from dmlib.utils.genutils import revlist, isTrue
 import copy
 from singleton import oldboards as oldb
 from singleton import Singleton
+from dmlib.utils import pwgen
 
 log = logging.getLogger( 'IKAPServer' )
 
@@ -90,7 +91,9 @@ class DomIkaBaseProtocol(object):
    def retriveMemKey(self):
       if len(self.core.configGet('protocol', 'netpwd'))>4:
          memkey=dmcrypt.DMHash256(self.core.configGet('protocol', 'netpwd'))
+         log.info("Protocol password is configured")
       else:
+         log.info("Protocol password is DEFAULT")
          memkey=copy.deepcopy(proto.DEFKEY)
       return memkey
  
@@ -106,6 +109,8 @@ class DomIkaBaseProtocol(object):
    def initializeProtocol(self):
       self.memiv=copy.deepcopy(proto.DEFIV)
       self.memkey=self.retriveMemKey()
+      if(self.memkey!=proto.DEFKEY):
+         self.memiv=pwgen.generateIV128(self.memkey)
 
       self.aes=AES256(struct.unpack('<8L', self.memkey), struct.unpack('<4L', self.memiv))
       self.aesdata=AES256(struct.unpack('<8L', self.memkey), struct.unpack('<4L', self.memiv))
@@ -120,7 +125,7 @@ class DomIkaBaseProtocol(object):
       pass
 
    def createIkapPacket(self, command, ctx=False, act=False, arg=False, msgtype=False, src="Q.SERVER"):
-      p=proto.IkaPacket()
+      p=proto.IkaPacket(memkey=self.memkey, memiv=self.memiv)
       p.setSrc(src)
       p.setDst(str(command))
       if(ctx):
@@ -152,41 +157,48 @@ class DomIkaBaseProtocol(object):
       log.debug("raw data: %r" % data)
       #print struct.unpack('B', data[0])
       now=int(time.time())
+      #NEXTIME
+      
       if(struct.unpack('B', data[0])[0]==C.IKAP_STARTBYTE):
          self.aes.setEncryptData(data[1:33])
-         self.ikahdr.formatHeader(self.aes.cleandata)
-         log.debug( 'HEADER %s' % self.ikahdr)
-         log.debug( 'CHECKSUM %s' % hex(self.ikahdr.chksum))
-         log.debug('CALCULATED CHECKSUM: %s' % hex(self.ikahdr.calculateCheckSum()))
-         log.debug('HEADER TIME: %d' % int(self.ikahdr.epoch))
-         totlen=self.ikahdr.srclen+self.ikahdr.dstlen+self.ikahdr.arglen
-         datalendiff=len(data[33:])-totlen
+         try:
+            self.ikahdr.formatHeader(self.aes.cleandata)
+            log.debug( 'HEADER %s' % self.ikahdr)
+            log.debug( 'CHECKSUM %s' % hex(self.ikahdr.chksum))
+            log.debug('CALCULATED CHECKSUM: %s' % hex(self.ikahdr.calculateCheckSum()))
+            log.debug('HEADER TIME: %d' % int(self.ikahdr.epoch))
+            totlen=self.ikahdr.srclen+self.ikahdr.dstlen+self.ikahdr.arglen
+            datalendiff=len(data[33:])-totlen
+            offset=0
+            self.aesdata.key=struct.unpack('<8L', self.memkey)
+            self.aesdata.iv=self.ikahdr.key
+            self.aesdata.setEncryptData(data[33:])
+            if(self.ikahdr.srclen>0):
+               log.info('SRC: %s' % self.aesdata.cleandata[offset:self.ikahdr.srclen])
 
-         offset=0
-         self.aesdata.key=struct.unpack('<8L', self.memkey)
-         self.aesdata.iv=self.ikahdr.key
-         self.aesdata.setEncryptData(data[33:])
-         if(self.ikahdr.srclen>0):
-            log.info('SRC: %s' % self.aesdata.cleandata[offset:self.ikahdr.srclen])
+            offset=self.ikahdr.srclen
+            dstend=offset+self.ikahdr.dstlen
+            src=""
+            if(self.ikahdr.srclen>0):
+               src=self.aesdata.cleandata[:self.ikahdr.srclen]
+            dst=""
+            if(self.ikahdr.dstlen>0):
+               dst=self.aesdata.cleandata[offset:dstend]
+            log.info('DST: %s' % dst)
 
-         offset=self.ikahdr.srclen
-         dstend=offset+self.ikahdr.dstlen
-         src=""
-         if(self.ikahdr.srclen>0):
-            src=self.aesdata.cleandata[:self.ikahdr.srclen]
-         dst=""
-         if(self.ikahdr.dstlen>0):
-            dst=self.aesdata.cleandata[offset:dstend]
-         log.info('DST: %s' % dst)
+            if src=='Q.RELAYPROTO':
+               return
 
-         if src=='Q.RELAYPROTO':
+            offset=dstend
+            argend=offset+self.ikahdr.arglen
+            epoch=struct.unpack('<L', self.aesdata.cleandata[argend:argend+4])[0]
+         except:
+            log.error("INVALID PACKET RECEIVED (CRYPTO) FROM "+str(host))
             return
 
-         offset=dstend
-         argend=offset+self.ikahdr.arglen
-         epoch=struct.unpack('<L', self.aesdata.cleandata[argend:argend+4])[0]
          log.debug("EPOCH: %s" %str(epoch))
          if(epoch!=self.ikahdr.epoch):
+            log.error("INVALID PACKET RECEIVED (CRYPTO) FROM "+str(host)+" (epoch doesn't match!)")
             return
          arg=False
          if(self.ikahdr.arglen>0):
