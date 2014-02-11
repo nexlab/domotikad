@@ -19,9 +19,9 @@ def printhelp():
    print ' RelayMaster <= 1.2.3            Version 6'
    print ' RelayMaster == 1.2.4            Version 7'
    print ' RelayMaster == 1.2.5            Version 7'
-   print ' RelayMaster == 1.2.6            Version 8'
+   print ' RelayMaster == 1.2.6 / 1.2.7    Version 8'
    print 
-   print 'Example: to update a config file from 1.2.2 to 1.2.6 you must save the config file'
+   print 'Example: to update a config file from 1.2.2 to 1.2.7 you must save the config file'
    print '(both complete config or I/O config are supported) from the old firmware version,'
    print 'then you can launch:'
    print '   ', sys.argv[0], 'oldconfig.bin newconfig.bin 8'
