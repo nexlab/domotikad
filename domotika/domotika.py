@@ -945,19 +945,20 @@ class domotikaService(service.Service):
                self._sendNotify(nsrc, ue.username, msg, expire)
      
       events.postEvent(events.ActionEvent(command))
-      if command.startswith("SYSTEM "):
+      if command.startswith("SYSTEM ") or command.startswith("SYSTEM:"):
          log.debug(command)
+         command=command[7:]
          subprocess.Popen(
-            command.replace("SYSTEM ","").replace("\r\n", " "), 
+            command.replace("\r\n", " "), 
             shell=True, preexec_fn = os.setsid)
-      elif command.startswith("NETSTATUS "):
-         try:
-            nst=command.split()[1]
-         except:
+      elif command.startswith("NETSTATUS ") or command.startswith("NETSTATUS:"):
+         command=command[10:]
+         nst=command.split()[0]
+         if not nst:
             nst="DEFAULT"
          dmdb.updateNetStatus(nst).addCallback(self.sendNetStatus, True)
-      elif command.startswith("EMAIL "):
-         mname=" ".join(command.split()[1:])
+      elif command.startswith("EMAIL ") or command.startswith("EMAIL:"):
+         mname=command[6:]
          email.sendEmailByName(mname)
 
       elif command.startswith("NOTIFY ") or command.startswith("NOTIFY:"):
@@ -1005,10 +1006,14 @@ class domotikaService(service.Service):
          if len(fc)>1:
             dmdb.updateStatusRealtime(fc[0], fc[1])
 
-      elif command.startswith("CRON "):
+      elif command.startswith("CRON ") or command.startswith("CRON:"):
          try:
-            cact=str(command.split()[1]).lower()
-            tid=int(command.split()[2])
+            if ':' in command:
+               fc=command[5:].split(':')
+            else:
+               fc=command[5:].split()
+            cact=str(fc[0]).lower()
+            tid=int(fc[1])
             if cact in ['enable','disable','change']:
                sqlstring="update timers set active="
                if cact=='change':
@@ -1021,17 +1026,54 @@ class domotikaService(service.Service):
             dmdb.runOperation(sqlstring)
          except:
             pass
-      elif command.startswith("PLUGIN "):
-         pname=command.replace("PLUGIN ","").split(":")[0]
-         preq=command.replace("PLUGIN ","").split(":")[1:]
+
+      elif command.startswith("CRONDOMAIN ") or command.startswith("CRONDOMAIN:"):
+         try:
+            if ':' in command:
+               fc=command[11:].split(':')
+            else:
+               fc=command[11:].split()
+            cact=str(fc[0]).lower()
+            tid=str(fc[1])
+            if cact in ['enable','disable','change']:
+               sqlstring="update timers set active="
+               if cact=='change':
+                  sqlstring+="IF(active=1, 0, 1)"
+               elif cact=='disable':
+                  sqlstring+="0"
+               elif cact=='enable':
+                  sqlstring+="1"
+            sqlstring+=" where DMDOMAIN('"+tid+"', timer_name)=1"
+            dmdb.runOperation(sqlstring)
+         except:
+            pass
+
+      elif command.startswith("PLUGIN ") or command.startswith("PLUGIN:"):
+         if ':' in command:
+            pc=command[7:].split(':')
+            sp=":"
+         else:
+            pc=command[7:].split(' ')
+            sp=" "
+
+         pname=pc[0]
+         preq=""
+         if len(pc) > 1:
+            preq=sp.join(pc[1:])
          self.plugins.push_request(pname, preq)
-      elif command.startswith("PHONECALL "):
-         command=command.replace("PHONECALL ","")
-         callfrom=command.split()[0]
-         callto=command.split()[1]
-         self.astmanager.startCall(callfrom, extensionto=callto)
-      elif command.startswith("PHONESAY "):
-         command=command.replace("PHONESAY ","")
+
+      elif command.startswith("PHONECALL ") or command.startswith("PHONECALL:"):
+         if ':' in command:
+            command=command[10:].split(':')
+         else:
+            command=command[10:].split()
+         if len(command)>1:
+            callfrom=command[0]
+            callto=command[1]
+            self.astmanager.startCall(callfrom, extensionto=callto)
+
+      elif command.startswith("PHONESAY ") or command.startswith("PHONESAY:"):
+         command=command[9:]
          ptext=command.split("] ")[0][1:]
          popts=command.split("] ")[1].split()[0]
          pretry=1
@@ -1058,8 +1100,8 @@ class domotikaService(service.Service):
          self.astmanager.phoneSay(ptext, pnumbers, retry=int(pretry),
                                    interval=int(pinterval), replay=int(preplay), engine=str(engine))
 
-      elif command.startswith("PHONEPLAY "):
-         command=command.replace("PHONEPLAY ","")
+      elif command.startswith("PHONEPLAY ") or command.startswith("PHONEPLAY:"):
+         command=command[10:]
          pfile=command.split()[0]
          popts=command.split()[1]
          pretry=1
