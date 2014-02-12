@@ -1261,7 +1261,7 @@ class domotikaService(service.Service):
          if genutils.isTrue(conval):
             if res.condition_act=='GOTOSTEP':
                if genutils.is_number(res.condition_actvalue):
-                  return dmdb.setNextStep(int(res.condition_actvalue)).addCallback(
+                  return dmdb.setNextStep(seqname, int(res.condition_actvalue)).addCallback(
                            doNextStep
                         )  
             elif res.condition_act=='GOTOSEQ':
