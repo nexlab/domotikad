@@ -65,9 +65,9 @@ def main():
 
    
    tover = '\x08'
-   if len(sys.argv>3) and int(sys.argv[3]) <= 8 and int(sys.argv[3]) >=7:
+   if len(sys.argv)>3 and int(sys.argv[3]) <= 8 and int(sys.argv[3]) >=7:
       tover = struct.pack('B', int(sys.argv[3]))
-   elif len(sys.argv>3):
+   elif len(sys.argv)>3:
       print 'Error, target version not supported'
       print
       printhelp()
