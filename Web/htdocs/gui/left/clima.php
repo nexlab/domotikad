@@ -1,19 +1,19 @@
 <? @include_once("../includes/common.php"); ?>
    <div class="left-drawer">
       <div id="websectionlist" class="panel drawer-container scrollable">
-         <a href="<?=$BASEGUIPATH."/cameras"?>" data-guisubsection='' class="btn btn-block btn-default">Telecamere Home</a>
+         <a href="<?=$BASEGUIPATH."/cameras"?>" data-guisubsection='' class="btn btn-block btn-default">Clima Home</a>
 <?
-   $v=DB::query("SELECT id,button_name,position FROM mediasources WHERE websection='camera' AND active=1 ORDER BY position,id");
+   $v=DB::query("SELECT id,name FROM thermostats WHERE active=1");
    $links=array();
-   foreach($v as $cam)
+   foreach($v as $the)
    {
-      $links[$cam['button_name']]=$cam['id'];
+      $links[$the['name']]=$the['id'];
    }
    ksort($links, SORT_NATURAL | SORT_FLAG_CASE);
    foreach($links as $k => $v)
    {
       ?>
-         <a href="<?=$BASEGUIPATH."/cameras/".$v?>" data-guisubsection='<?=$v?>' class="btn btn-block btn-default"><?=$k?></a>
+         <a href="<?=$BASEGUIPATH."/cameras/".$v?>" data-guisubsection='<?=$v?>' class="btn btn-block btn-default"><?=str_replace(".", " ", $k)?></a>
       <?
    }
 ?>
