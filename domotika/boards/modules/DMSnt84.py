@@ -86,11 +86,11 @@ class DMBoard(BaseBoard):
       return defer.succeed(True)   
 
    def _getBoardConfig(self, *a):
-      return wu.getPage("http://"+self.host+":"+str(self.port)+"/ajax.xml", http_user="system", http_password=self.pwd)
-
+      return self.requestPage("http://"+self.host+":"+str(self.port)+"/ajax.xml")
+      
    def _getIOConfig(self, *a):
-      return wu.getPage("http://"+self.host+":"+str(self.port)+"/ioconf.xml", http_user="system", http_password=self.pwd)
-
+      return self.requestPage("http://"+self.host+":"+str(self.port)+"/ioconf.xml")
+      
    def getAnalogsNames(self):
       return self.analist
 

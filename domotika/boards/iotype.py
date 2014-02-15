@@ -52,7 +52,11 @@ class BaseBoard(object):
    hasInputs = False
    hasPWMs = False
    hasRelays = False
+   pwd=False
+   user="system"
 
+   def requestPage(self, uri):
+      return wu.getPage(uri, http_user=self.user, http_password=self.pwd)
 
 class BoardAnalog(object):
    """ """
