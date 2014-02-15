@@ -49,7 +49,7 @@ class DMBoard(ANABoard, INPBoard, OUTBoard, BaseBoard):
 class Board(object):
    implements(IPlugin, iboards.IDMBoards)
 
-   def getBoard(self, core , host, port, pwd, lang):
-      return DMBoard(core, host, port, pwd, lang)
+   def getBoard(self, host, port, pwd, lang):
+      return DMBoard(self.core, host, port, pwd, lang)
 
 board=Board()
