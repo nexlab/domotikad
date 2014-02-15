@@ -23,7 +23,7 @@
 
 from twisted.application import service
 from twisted.internet import defer, reactor, task, protocol, threads
-from dmlib.utils.genutils import configFile, FakeObject
+from dmlib.utils.genutils import configFile, FakeObject, ConvenienceCaller
 from dmlib.utils import genutils
 from lang import lang
 import logging, sys, os
@@ -83,32 +83,6 @@ def converWday(wday):
       wday=0
    return wday
 
-class ConvenienceCaller(object):
-   """
-      This metaclass build and abstraction of an object instance so
-      that other objects can call it as it is a module, and permit
-      to the original object to setup a specific callback
-      to the caller so it can manage the calls originated by the caller
-      with local methods
-   """
-   def __init__(self, callerfunc):
-      """
-         @params callerfunc: function/method to be used as callback
-                             inside the original class of the abstract object
-
-      """
-      self.callerfunc=callerfunc
-
-   def __getattribute__(self, name):
-      """
-         This do the magic, transforming every called method in a call
-         to the callerfunction of the original object
-
-         This method isn't intended to be called directly!
-      """
-      callerfunc = object.__getattribute__(self, 'callerfunc')
-      return callerfunc(name)
-
 
 class domotikaService(service.Service):
 
@@ -147,7 +121,6 @@ class domotikaService(service.Service):
       dmdb.initialize(self.config)
 
    def isStarted(self):
-      
       self.isConfigured()
 
    def isConfigured(self):
@@ -310,7 +283,7 @@ class domotikaService(service.Service):
 
 
    def initializePlugins(self):
-      caller = ConvenienceCaller(self._cmdFromPlugin)
+      caller = ConvenienceCaller(lambda c: self._callback('plugin', c))
       self.plugins=plugins.Loader(caller)
 
    def initializeSequences(self):
@@ -1747,24 +1720,6 @@ class domotikaService(service.Service):
       except:
          raise AttributeError(" ".join([cmd, 'doesn\'t exists']))
 
-   def _cmdFromAmi(self, command):
-      return self._callback('ami', command)
-
-   def _cmdFromFastAGI(self, command):
-      return self._callback('fagi', command)
-
-   def _cmdFromPlugin(self, command):
-      return self._callback('plugin', command)
-
-   def _cmdFromWeb(self, command):
-      return self._callback('web', command)
-
-   def _cmdFromDomIka(self, command):
-      return self._callback('domika', command)
-
-   def _cmdFromUPNP(self, command):
-      return self._callback('upnp', command)
-
 
    def getProxy(self):
       return proxy.DomProxy
@@ -1773,13 +1728,13 @@ class domotikaService(service.Service):
       if str(self.config.get('upnp', 'enable')).lower() in ['yes', '1', 'y','true']:
          log.debug("starting UPNP Services")
          import upnp
-         caller = ConvenienceCaller(self._cmdFromUPNP)
+         caller = ConvenienceCaller(lambda c: self._callback('upnp', c))
          self.upnp=upnp.startServer(caller)
 
 
    def getAuthWebServer(self):
       from nevow import appserver
-      caller = ConvenienceCaller(self._cmdFromWeb)
+      caller = ConvenienceCaller(lambda c: self._callback('web', c))
       self.authsite =  web.getAuthResource(caller)
       return appserver.NevowSite(self.authsite)
 
@@ -1789,22 +1744,22 @@ class domotikaService(service.Service):
 
    def startAsteriskServices(self):
       if str(self.config.get('asterisk', 'manager_enable')).lower() in ['yes', '1', 'y','true']:
-         caller = ConvenienceCaller(self._cmdFromAmi)
+         caller = ConvenienceCaller(lambda c: self._callback('ami', c))
          self.astmanager = ami.UMAMIFactory(caller, self.config.get("asterisk", "manager_user"), self.config.get("asterisk", "manager_pass"))
          self.ami=self.astmanager.login(self.config.get("asterisk", "manager_ip"), int(self.config.get("asterisk", "manager_port")))
 
    def getFastAGI(self):
-      caller = ConvenienceCaller(self._cmdFromFastAGI)
+      caller = ConvenienceCaller(lambda c: self._callback('fagi', c))
       self.fagi = fagi.getFastAGI(caller)
       return self.fagi
 
    def getDomIkaUDP(self):
-      caller = ConvenienceCaller(self._cmdFromDomIka)
+      caller = ConvenienceCaller(lambda c: self._callback('domika', c))
       self.udp = ikapserver.DomIkaUDP(caller)
       return self.udp
 
    def getDomIkaTCP(self):
-      caller = ConvenienceCaller(self._cmdFromDomIka)
+      caller = ConvenienceCaller(lambda c: self._callback('domika', c))
       self.tcp = ikapserver.DomIkaServerFactory(caller)
       return self.tcp
 
