@@ -53,7 +53,7 @@ from asterisk import manager as ami
 from asterisk import fastagi as fagi
 from voiceui import voiceui as voice
 from boards import pluggable as pluggableBoards
-from boards.iotype import context2section
+from boards.boardtype import context2section
 from mediasources import pluggable as pluggableMediasouces
 import sky
 from clouds.openweathermap import weather 
@@ -796,7 +796,7 @@ class domotikaService(service.Service):
       log.debug(" ".join(["ADDBoard", str(name),  str(btype), str(fwver), str(ip)]))
       p=pluggableBoards.getBoardPlugin(btype)
       if p:
-         pboard = p.getBoard(ip, webport, self.boardsyspwd, str(self.config.get('general', 'language')))
+         pboard = p.getBoard(False, ip, webport, self.boardsyspwd, str(self.config.get('general', 'language')))
          log.info("Support module for "+str(btype)+" board LOADED")
          pboard.initialize().addCallback(self.askForBoardData, btype, fwver, name, ptype, port)
 

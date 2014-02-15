@@ -34,7 +34,7 @@ log = logging.getLogger( 'Core' )
 class IDMBoards(Interface):
    """ Base plugin Interface """
    
-   def getBoard(self, host, port, pwd):
+   def getBoard(self, host, port, pwd, lang):
       """
          Return a DMBoard object
       """

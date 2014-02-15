@@ -26,38 +26,6 @@ from dmlib import constants as C
 from zope.interface import implements
 import iboards
 
-log = logging.getLogger( 'Core' )
-
-
-
-def context2section(ctx):
-   if int(ctx) in C.SECTIONS.keys():
-      section=C.SECTIONS[int(ctx)]
-   else:
-      section="none"
-
-   return section
-
-
-class BaseBoard(object):
-   """ """
-   implements(iboards.IBoard)
-
-   analist = False
-   inplist = False
-   rellist = False
-   outlist = False
-   hasAnalogs = False
-   hasOutputs = False
-   hasInputs = False
-   hasPWMs = False
-   hasRelays = False
-   pwd=False
-   user="system"
-
-   def requestPage(self, uri):
-      return wu.getPage(uri, http_user=self.user, http_password=self.pwd)
-
 class BoardAnalog(object):
    """ """
    implements(iboards.IBoardAnalog)

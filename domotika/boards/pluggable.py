@@ -11,11 +11,12 @@ else:
    list(getPlugins(iboards.IDMBoards, modules)) # To refresh cache
 
 
-def getBoardPlugin(name):
+def getBoardPlugin(name, core=False):
    for p in getPlugins(iboards.IDMBoards, modules):
       qual = "%s.%s" % (p.__module__, p.__class__.__name__)
       log.info("Calling Board Module "+qual)
       if p.__module__.split('.')[-1]==name:
+         p.core = core
          return p
    return None
 
