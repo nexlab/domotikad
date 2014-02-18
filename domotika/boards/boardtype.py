@@ -31,7 +31,12 @@ from dmlib import constants as C
 from twisted.web import microdom as xml
 from domotika.lang import lang
 from iotype import BoardAnalog, BoardInput, BoardOutput, BoardRelay
-
+from twisted.web import error
+from dmlib.utils.pwgen import GeneratePwd
+from dmlib.utils import genutils
+from twisted.internet import reactor
+from domotika.db import dmdb
+import urllib
 
 log = logging.getLogger( 'Core' )
 
@@ -43,6 +48,41 @@ try:
 except:
    import md5
    import sha1
+
+
+# i_[idx]_[ananum+totinp]_[statusnum]_[act]
+ANAINDEX={
+   'status_name': ['09', '00'],
+   'enabled': ['05', '00'],
+   'anatype': ['11', '00'],
+   'mintime': ['06', '00'],
+   'minval': ['12', '00'],
+   'maxval': ['13', '00'],
+   'continuos_domain': ['02','01'],
+   'continuos_msg': ['07','01'],
+   'continuos_ctx': ['03','01'],
+   'continuos_act': ['01','01'],
+   'continuos_time': ['10','01'],
+   'continuos_opt': ['14','01'],
+   'continuos_optstring': ['15','01'],
+   'continuos_dst': ['04','01'],
+   'min_domain': ['02','02'],
+   'min_msg': ['07','02'],
+   'min_ctx': ['03','02'],
+   'min_act': ['01','02'],
+   'min_level': ['10','02'],
+   'min_opt': ['14','02'],
+   'min_optstring': ['15','02'],
+   'min_dst': ['04','02'],
+   'max_domain': ['02','03'],
+   'max_msg': ['07','03'],
+   'max_ctx': ['03','03'],
+   'max_act': ['01','03'],
+   'max_level': ['10','03'],
+   'max_opt': ['14','03'],
+   'max_optstring': ['15','03'],
+   'max_dst': ['04','03'],
+}
 
 
 def context2section(ctx):
@@ -74,7 +114,14 @@ class BaseBoard(object):
    numAna = 2
    numInp = 12
    numOut = 12
+   initialized = False
+   boardid = False 
 
+   analogLock = False
+   inputLock = False
+   outputLock = False
+   pwmLock = False
+  
    def __init__(self, core, host, port, pwd, lang):
       #self.fwtype = 'relaymaster'
       self.host = host
@@ -83,13 +130,35 @@ class BaseBoard(object):
       self.lang = lang
       self.core = core
 
+   def endinit(self, res):
+      self.initialized=True
+      return res
+
    def initialize(self):
       d=self._getBoardConfig()
       d.addCallback(self._setBoardConfig)
       d.addCallback(self._getIOConfig) 
       d.addCallback(self._setIOConfig) 
       d.addCallback(self._configComplete)
-      return d
+      return d.addCallback(self.endinit)
+
+
+   def sendUnLock(self):
+      def _send(res):
+         if res:
+            return self.core.boardOK(res.id)
+      if (not self.analogLock
+         and not self.inputLock
+         and not self.outputLock
+         and not self.pwmLock):
+
+         boardname=str(xml.getElementsByTagName(self.boardXML, 'cfg_hostname')[0].firstChild().toxml())
+         boardip=str(xml.getElementsByTagName(self.boardXML, 'cfg_ip')[0].firstChild().toxml())
+         log.info("Unlocking board module "+str(boardname)+" at "+str(boardip))
+
+         if not self.boardid:
+            return dmdb.DMBoards.find(where=["name='%s' and ip='%s'" %(boardname, boardip)], limit=1).addCallback(_send)
+         return self.core.boardOK(boardid)      
 
    def _configComplete(self, *a):
       return defer.succeed(self)
@@ -111,8 +180,34 @@ class BaseBoard(object):
    def _getIOConfig(self, *a):
       return self.requestPage("http://"+self.host+":"+str(self.port)+"/ioconf.xml")
 
-   def requestPage(self, uri):
-      return wu.getPage(uri, http_user=self.user, http_password=self.pwd)
+   def _requestPageErr(self, err, uri=False, method='GET', postdata=None, nolocation=False, second=False):
+      if err.getErrorMessage().split()[0] == '401' and not second:
+         log.info('Board '+str(self.host)+' doesn\'t appears to support SETOTP command for uri '+str(uri))
+         return wu.getPage(uri, http_user=self.user, http_password=self.pwd, 
+            method=method, postdata=postdata).addErrback(self._requestPageErr, uri, nolocation=nolocation, second=True)
+      log.error("Page "+str(uri)+"can't be accessed! ("+err.getErrorMessage()+")")
+      raise error.Error(err.getErrorMessage().split()[0], err.getErrorMessage())
+
+   def _requestPageOk(self, res, uri):
+      log.info('Board '+str(self.host)+' OTP Request OK for uri '+str(uri))
+      return res
+
+   def _requestOTPPage(self, uri, pwd, method='GET', postdata=None, nolocation=False):
+      log.info("Send OTP Request for "+str(uri)+" with pwd "+str(pwd))
+      return wu.getPage(uri, http_user='otp', http_password=str(pwd), method=method, postdata=postdata, nolocation=nolocation
+         ).addCallback(self._requestPageOk, uri
+         ).addErrback(self._requestPageErr, uri, method, postdata, nolocation)
+
+   def _requestPage(self, res, uri, pwd, method='GET', postdata=None, nolocation=False):
+      return self._requestOTPPage(uri, pwd, method, postdata, nolocation)
+
+   def requestPage(self, uri, method='GET', postdata=None, nolocation=False):
+      pwd=GeneratePwd(leng=16)
+      self.core.setOTP(pwd, self.host)
+      d=defer.Deferred()
+      d.addCallback(self._requestPage, uri, pwd, method, postdata, nolocation)
+      reactor.callLater(.5, d.callback, True)
+      return d
 
    def getAnalogsNames(self):
       return {}
@@ -145,8 +240,138 @@ class ANABoard(object):
          return ret
       return self.analist
 
+   def syncAnalogs(self):
+      if self.analogLock:
+         return
+      self.analogLock=True
+      if not self.initialized:
+         self.initialize().addCallback(
+            self._ioAnalogsDelete).addCallback(
+            self._syncAnalogs)
+      else:
+         self._ioAnalogsDelete().addCallback(
+         self._syncAnalogs)
+
+   def _ioAnalogsDelete(self, res=None):
+      boardname=str(xml.getElementsByTagName(self.boardXML, 'cfg_hostname')[0].firstChild().toxml())
+      boardip=str(xml.getElementsByTagName(self.boardXML, 'cfg_ip')[0].firstChild().toxml())
+      return dmdb.runOperation("DELETE FROM ioconf_analogs WHERE boardname='%s' AND boardip='%s'" %(str(boardname), str(boardip)))
+
+   def _syncAnalogs(self, res=None):
+      boardname=str(xml.getElementsByTagName(self.boardXML, 'cfg_hostname')[0].firstChild().toxml())
+      boardip=str(xml.getElementsByTagName(self.boardXML, 'cfg_ip')[0].firstChild().toxml())
+      log.info("Syncing board "+str(boardname)+" at "+str(boardip))
+      for i in [self.firstAna, self.firstAna+self.numAna-1]:
+         aname=xml.getElementsByTagName(self.ioXML, 'i'+str(i))[0].firstChild().toxml()
+         for n in xrange(1, 5):
+            sconf=str(xml.getElementsByTagName(self.ioXML, 'i'+str(i)+'s'+str(n))[0].firstChild().toxml()).split(';')
+            d=dmdb.IOConfAnalogs()
+            d.boardname=boardname
+            d.boardip=boardip
+            d.ananum=i-self.firstAna+1
+            d.status_num=n
+            d.status_name=sconf[0]
+            d.enabled='yes' if sconf[2]=='1' else 'no'
+            d.anatype=int(sconf[3])
+            d.mintime=int(sconf[1])
+            d.minval=int(sconf[28])
+            d.maxval=int(sconf[29])
+            d.continuos_domain=str(sconf[4])
+            d.continuos_msg=int(sconf[8])
+            d.continuos_ctx=int(sconf[7])
+            d.continuos_act=int(sconf[9])
+            d.continuos_time=int(sconf[6])
+            d.continuos_opt=int(sconf[10])
+            d.continuos_optstring=str(sconf[11])
+            d.continuos_dst=str(sconf[5])
+            d.min_domain=str(sconf[12])
+            d.min_msg=int(sconf[16])
+            d.min_ctx=int(sconf[15])
+            d.min_act=int(sconf[17])
+            d.min_level=int(sconf[14])
+            d.min_opt=int(sconf[18])
+            d.min_optstring=str(sconf[19])
+            d.min_dst=str(sconf[13])
+            d.max_domain=str(sconf[20])
+            d.max_msg=int(sconf[24])
+            d.max_ctx=int(sconf[23])
+            d.max_act=int(sconf[25])
+            d.max_level=int(sconf[22])
+            d.max_opt=int(sconf[26])
+            d.max_optstring=str(sconf[27])
+            d.max_dst=str(sconf[21])
+            d.save() 
+
+      self.analogLock=False
+      self.sendUnLock()
+
+   def pushAnalogs(self, ananum=False, status='*', dataonly=False, bname=False):
+      if self.analogLock:
+         return
+      if genutils.is_number(status) and int(status) in [1,2,3,4]:
+         s=int(status)
+      else:
+         s=str(status)
+      if not ananum or ananum=='*':
+         self._pushAnalog(1, s, dataonly, bname).addCallback(lambda x: self._pushAnalog(2, s, dataonly, bname))
+      else:
+         if genutils.is_number(ananum) and int(ananum) in [1,2]:
+            self._pushAnalog(int(ananum), s, dataonly, bname)
+
+   def _sendAnalogIOConf(self, res, dataonly=False):
+      def endPush(res):
+         log.info("Push for "+str(uri)+" finished")
+         self.analogLock=False
+         self.sendUnLock()
+         return defer.succeed(True)
+
+      def normalize(v):
+         if v in ['yes','no']:
+            return '1' if v=='yes' else '0'
+         return urllib.quote(str(a[k]))
+
+      postdata=""
+      for ana in res:
+         if dataonly:
+            if type(dataonly).__name__!='list':
+               dataonly=str(dataonly).replace(" ","").split(",")
+         else:
+            dataonly=ANAINDEX.keys()
+         a=ana.__dict__
+         for k in dataonly:
+            if k in a.keys():
+               if len(postdata)>0:
+                  postdata+="&"
+               postdata+="i_"+ANAINDEX[k][0]+"_"+str(a['ananum']+self.firstAna-1).zfill(2)+"_"
+               postdata+=str(a['status_num']).zfill(2)+"_"+ANAINDEX[k][1]+"="
+               postdata+=normalize(a[k])
+      uri="http://"+self.host+":"+str(self.port)+"/ioconf.xml"
+      log.info("Posting Analog config to "+str(uri))
+      return self.requestPage(uri, method='POST', postdata=postdata, nolocation=True).addCallbacks(endPush, endPush)
+
+
+   def _getAnalogIOConf(self, res, num, status, dataonly=False, bname=False):
+      boardname=bname
+      boardip=self.host
+      if not bname:
+         boardname=str(xml.getElementsByTagName(self.boardXML, 'cfg_hostname')[0].firstChild().toxml())
+      #sqlstring="SELECT * FROM ioconf_analogs WHERE boardname='%s' AND boardip='%s'" % (boardname, boardip)
+      sqlstring="boardname='%s' AND boardip='%s'" % (boardname, boardip)
+      if genutils.is_number(status) and status != '*':
+         sqlstring+=" AND status_num='%s'" % str(status)
+      elif status!='*':
+         sqlstring+=" AND DMDOMAIN(status, '%s')=1"
+      #dmdb.runQuery(sqlstring).addCallback(self._sendAnalogIOConf, dataonly)
+      return dmdb.IOConfAnalogs.find(where=[sqlstring]).addCallback(self._sendAnalogIOConf, dataonly)
+
+   def _pushAnalog(self, num, status, dataonly=False, bname=False):
+      self.analogLock=True
+      if not bname and not self.initialized:
+         return self.initialize().addCallback(self._getAnalogIOConf, num, status, dataonly, bname)
+      return self._getAnalogIOConf(True, num, status, dataonly, bname)
 
 class INPBoard(object):
+
 
    def getInputsNames(self):
       if not self.inplist:
@@ -164,6 +389,12 @@ class INPBoard(object):
          return ret
       return self.inplist
 
+   def syncInputs(self):
+      pass
+
+
+   def pushInputs(self, inpnum=False, status=1):
+      pass
 
 class OUTBoard(object):
 
@@ -295,3 +526,8 @@ class OUTBoard(object):
          self.outlist = ret
       return self.outlist
 
+   def syncOutputs(self):
+      pass
+
+   def pushOutputs(self, numout=False):
+      pass

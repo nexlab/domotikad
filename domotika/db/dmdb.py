@@ -106,6 +106,18 @@ def dbset():
    global store
    Registry.DBPOOL = store
 
+class IOConfInputs(DBObject):
+   TABLENAME="ioconf_inputs"
+
+class IOConfAnalogs(DBObject):
+   TABLENAME="ioconf_analogs"
+
+class IOConfOutput(DBObject):
+   TABLENAME="ioconf_outputs"
+
+class IOConfPwm(DBObject):
+   TABLENAME="ioconf_pwm"
+
 class Analog(DBObject):
    TABLENAME="analog"
 
@@ -223,6 +235,8 @@ class StatsData(DBObject):
 
 class StatsHistory(DBObject):
    TABLENAME="stats_history"
+
+
 
 def cleanFlags():
    Registry.getConfig().delete("flags", where=["expire<="+str(time.time())])

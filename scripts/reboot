@@ -1,2 +1,4 @@
+#!/bin/bash
+cd `dirname $0`
 ./boardcmd.py $1 BOOTLOAD 0.0.0.0 eth0
 

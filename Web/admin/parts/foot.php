@@ -24,7 +24,37 @@
 
    }
 
+   var unlockBoards = function(event) {
+      var data=$.parseJSON(event.data);
+      $("[data-dmact=sync][data-boardid="+data.data+"],[data-dmact=push][data-boardid="+data.data+"]").each(
+         function() {
+            $(this).attr("disabled", false);
+         }
+      );
+      $("[data-dmboardload="+data.data+"]").each(
+         function(){
+            $(this).css("display","none");
+         }
+      );
+      var loaders=false;
+      $("[data-dmboardload]").each(
+         function(){
+            if($(this).css("display")=="block")
+               loaders=true;
+         }
+      );
+      if(loaders==false)
+      {
+         $("[data-dmboard=lock]").each(
+            function(){
+               $(this).attr("disabled",false);
+            }
+         );
+      }   
+   }
+
    es.addEventListener("daemonstatus", setDaemonStatus);
+   es.addEventListener("boardOK", unlockBoards);
 
    es.onerror = function(event){
      if(es.readystate=='CLOSED')

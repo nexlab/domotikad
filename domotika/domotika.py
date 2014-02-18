@@ -467,6 +467,41 @@ class domotikaService(service.Service):
       self.upnp_detected_ips=[]
       return dmdb.resetDynMediaSources()
 
+   def _syncBoards(self, res): # XXX Make which i/o/a is synced selectively
+      if res:
+         for b in res:
+            p=pluggableBoards.getBoardPlugin(b.type, ConvenienceCaller(lambda c: self._callback('board', c)))
+            if b:
+               pboard = p.getBoard(b.ip, b.webport, self.boardsyspwd, str(self.config.get('general', 'language')))
+               pboard.syncAnalogs()
+               pboard.syncInputs()
+               pboard.syncOutputs()
+               #pboard.syncPwm()
+      return True
+
+   def syncBoards(self, bid=False, *a, **kw):
+      if not bid:
+         return dmdb.DMBoards.find(where=['online=1']).addCallback(self._syncBoards)
+      return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._syncBoards)
+      
+   def _pushBoards(self, res): # XXX Make which i/o/a is pushed selectively
+      if res:
+         for b in res:
+            p=pluggableBoards.getBoardPlugin(b.type, ConvenienceCaller(lambda c: self._callback('board', c)))
+            if b:
+               pboard = p.getBoard(b.ip, b.webport, self.boardsyspwd, str(self.config.get('general', 'language')))
+               pboard.pushAnalogs()
+               pboard.pushInputs()
+               pboard.pushOutputs()
+               #pboard.pushPwm()
+
+      return True
+
+   def pushBoards(self, bid=False, *a, **kw):
+      if not bid:
+         return dmdb.DMBoards.find(where=['online=1']).addCallback(self._pushBoards)
+      return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._pushBoards)
+
    def autoDetectBoards(self, *a, **kw):
       log.info("Start building boardlist")
 
@@ -592,12 +627,15 @@ class domotikaService(service.Service):
             dmdb.Analog.find(where=["""ananum=? AND board_name=? """, a.num, name ]).addCallback(self.insertAnalog,
                a, name, fwver
             )
+         bplugin.syncAnalogs()
        
       if bplugin.hasInputs:
          for i in bplugin.getInputsNames().values():
             dmdb.Input.find(where=["""inpnum=? AND board_name=? """, i.num, name]).addCallback(self.insertInput,
                i, name, fwver
             )
+         bplugin.syncInputs()
+
       if bplugin.hasOutputs:
          for o in bplugin.getOutputsConfs().values():
             # OUTPUT NOTE: is based on output not on relay! an output can have more than 1 relay...
@@ -607,6 +645,7 @@ class domotikaService(service.Service):
             dmdb.Output.find(where=["""outnum=? AND board_name=? """, i, name]).addCallback(self.insertOutput,
                o, name, fwver
             )
+         bplugin.syncOutputs()
 
    def insertOutput(self, res, out, name, fwver):
 
@@ -767,7 +806,7 @@ class domotikaService(service.Service):
 
    def addBoard(self, btype, fwver, name, ip, webport=80, ptype='UDP4', port=6654):
       log.debug(" ".join(["ADDBoard", str(name),  str(btype), str(fwver), str(ip)]))
-      p=pluggableBoards.getBoardPlugin(btype)
+      p=pluggableBoards.getBoardPlugin(btype, ConvenienceCaller(lambda c: self._callback('board', c)))
       if p:
          pboard = p.getBoard(ip, webport, self.boardsyspwd, str(self.config.get('general', 'language')))
          log.info("Support module for "+str(btype)+" board LOADED")
@@ -911,6 +950,21 @@ class domotikaService(service.Service):
          except:
             pass
      
+   def ioConfig(what, act, who, **args):
+      what = what.lower()
+      act = act.lower()
+      if what=='analog':
+         if act=='setlimits':
+            maxval=False
+            minval=False
+            status='DEFAULT'
+            if 'max' in args.keys() and genutils.is_number(args['max']):
+               maxval=int(args['max'])
+            if 'min' in args.keys() and genutils.is_number(args['min']):
+               minval=int(args['min'])
+            if 'status' in args.keys():
+               status=args['status']
+
    def executeAction(self, command):
       def multipleInsertNotify(dbres, nsrc, expire, msg):
          if dbres:
@@ -924,6 +978,20 @@ class domotikaService(service.Service):
          subprocess.Popen(
             command.replace("\r\n", " "), 
             shell=True, preexec_fn = os.setsid)
+      elif command.startswith("IOCONF ") or command.startswith("IOCONF:"):
+         command=command[7:]
+         if ':' in command:
+            cl=command.split(':')
+         else:
+            cl=command.split()
+         if len(cl)>=3:
+            what=cl[0]
+            act=cl[1]
+            who=cl[2]
+            if len(cl)>3:
+               self.ioConfig(what, act, who, **dict([i.split('=') for i in cl[3:] if '=' in i and len(i.split('='))>1 and i.split('=')[1]]))
+            else:
+               self.ioConfig(what, act, who)
       elif command.startswith("NETSTATUS ") or command.startswith("NETSTATUS:"):
          command=command[10:]
          nst=command.split()[0]
@@ -2113,6 +2181,12 @@ class domotikaService(service.Service):
       self.autoDetectBoards()
       return self.daemonstatus
 
+   def web_on_startSync(self, bid=False):
+      return self.syncBoards(bid=bid)
+
+   def web_on_startPush(self, bid=False):
+      return self.pushBoards(bid=bid)
+
    def web_on_getAuth(self, usr, pwd):
       return dmdb.Users.find(where=["username='%s' AND passwd='%s' AND active=1" % ( usr, pwd)])
 
@@ -2415,4 +2489,10 @@ class domotikaService(service.Service):
    def fagi_on_voiceReceived(self, txt, confidence=0.0, lang="it"):
       return self.voiceRecognized(txt,confidence,lang,voicesrc='VoIP')
 
+   def board_on_setOTP(self, pwd, ipdst):
+      log.info('SETOTP for '+str(ipdst)+' ('+str(pwd)+')')
+      self.sendCommand('SETOTP'+str(pwd), msgtype=C.IKAP_MSG_ACTION, ctx=C.IKAP_CTX_SYSTEM, act=C.IKAP_ACT_BOARD, ipdst=ipdst)
+      return defer.succeed(True)
 
+   def board_on_boardOK(self, bid):
+      self.clientSend('boardOK', bid)

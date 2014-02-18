@@ -30,7 +30,10 @@
 
     <div class="panel col-lg-4">
       <div class="panel-heading">
-         <h3 class="panel-title">Boards  <a data-toggle="modal" href="#AutoDetect" class="btn btn-danger btn-small pull-right" style="padding:3px;">Autodetect</a></h3>
+         <h3 class="panel-title">Boards  
+            <a data-toggle="modal" data-dmboard="lock" href="#AutoDetect" class="btn btn-danger btn-small pull-right" style="padding:3px;margin-left:5px;">Autodetect</a>
+            <a data-toggle="modal" data-dmboard="lock" href="#Sync" class="btn btn-danger btn-small pull-right" style="padding:3px;">Sync I/O Config</a>
+            </h3>
       </div>
          <div class="home-panel">
          <table class="table table-condensed">
@@ -55,6 +58,14 @@
                <td><?=$board['type']?></td>
                <td><?=$board['fwversion']?></td>
                <td><?=$board['fwtype']?></td>
+               <td>
+                  <!--
+                  <button style="margin-left:5px;" type="button" class="btn btn-success btn-small pull-right">Edit</button>
+                  -->
+                  <button style="margin-left:5px;" type="button" data-dmact="sync" data-boardid="<?=$board['id']?>" class="btn btn-danger btn-small pull-right">Sync</button>
+                  <button style="margin-left:5px;" type="button" data-dmact="push" data-boardid="<?=$board['id']?>" class="btn btn-info btn-small pull-right">Push</button>
+                  <img src="/resources/preloader/images/animated.gif" data-dmboardload="<?=$board['id']?>" style="height:30px;width:30px;display:none" class="pull-right"></img>
+               </td>
             </tr>
          <?
       }
@@ -81,6 +92,27 @@
             <button type="button" class="btn btn-default pull-left" data-dismiss="modal" >Discard</button>
             <input type="checkbox" id="forcedetect">Force detection </input>
             <button type="button" class="btn btn-danger" data-dismiss="modal" id="startdetection">Start Autodetection</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="Sync" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Board IOConf Sync</h4>
+          </div>
+          <div class="modal-body">
+            <b>WARNING: </b>you are starting Domotika Boards I/O Sync procedure. This will
+                            delete any saved board I/O Config in the Domotika database and then
+                            they will be re-loaded from the Domotika boards.
+                            Any change will be losed.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default pull-left" data-dismiss="modal" >Discard</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal" id="startsync">Start Syncing</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
@@ -213,6 +245,39 @@
    </div> <!-- container -->
    <?include("parts/foot.php");?>
    <script type="text/javascript">
+
+      function lockGlobalBoards()
+      {
+         $("[data-dmboard=lock]").each(
+            function(){
+               $(this).attr("disabled","true");
+            }
+         );
+      }
+
+
+      function lockAllBoards()
+      {
+         $("[data-dmact=sync]").each(
+            function(){
+               $(this).attr("disabled","true");
+            }
+         );
+         $("[data-dmact=push]").each(
+            function(){
+               $(this).attr("disabled","true");
+            }
+         );
+         $("[data-dmboardload]").each(
+           function(){
+               $(this).css("display","block");
+            }
+         );
+         lockGlobalBoards();
+      }
+
+
+
       $("#startdetection").click(
          function() {
             if($('#forcedetect').is(":checked"))
@@ -221,6 +286,49 @@
                $.get("/rest/v1.2/boards/autodetect/json");
          }
       );
+      $("#startsync").click(
+         function() {
+            lockAllBoards();
+            $.get("/rest/v1.2/boards/syncall/json");
+         }
+      );
+
+      $("[data-dmact=push]").click(
+         function() {
+            $("[data-dmboardload="+$(this).attr('data-boardid')+"]").each(
+               function(){
+                  $(this).css("display","block");
+               }
+            );
+            $(this).attr('disabled', true);
+            $("[data-dmact=sync][data-boardid="+$(this).attr('data-boardid')+"]").each(
+               function() {
+                  $(this).attr('disabled', true);
+               }
+            );
+            lockGlobalBoards();
+            $.get("/rest/v1.2/boards/pushboardbyid/"+$(this).attr('data-boardid')+"/json");
+         }
+      )
+      $("[data-dmact=sync]").click(
+         function() {
+            $("[data-dmboardload="+$(this).attr('data-boardid')+"]").each(
+               function(){
+                  $(this).css("display","block");
+               }
+            );
+            $(this).attr('disabled', true);
+            $("[data-dmact=push][data-boardid="+$(this).attr('data-boardid')+"]").each(
+               function() {
+                  $(this).attr('disabled', true);
+               }
+            );
+            lockGlobalBoards();
+            $.get("/rest/v1.2/boards/syncboardbyid/"+$(this).attr('data-boardid')+"/json");
+         }
+      )
+
+
    </script>
   </body>
 </html>
