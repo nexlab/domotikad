@@ -13,7 +13,7 @@
    foreach($links as $k => $v)
    {
       ?>
-         <a href="<?=$BASEGUIPATH."/cameras/".$v?>" data-guisubsection='<?=$v?>' class="btn btn-block btn-default"><?=str_replace(".", " ", $k)?></a>
+         <a href="<?=$BASEGUIPATH."/clima/".$k?>" data-guisubsection='<?=$v?>' class="btn btn-block btn-default"><?=str_replace(".", " ", $k)?></a>
       <?
    }
 ?>

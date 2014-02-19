@@ -5,7 +5,7 @@
 $panels=FALSE;
 if($GUISUBSECTION!="")
 {
-   $v=DB::query("SELECT * FROM stats_charts WHERE websection='$GUISUBSECTION' AND active=1 order by webposition,id");
+   $v=DB::query("SELECT * FROM stats_charts WHERE websection=%s AND active=1 order by webposition,id", $GUISUBSECTION);
    if(is_array($v) && count($v)>0) {
       $panels=array();
       $pos=1;
@@ -21,7 +21,7 @@ $DEFPANELS = array();
 $DEFPANELS[]=array('panel_title'=>'Default stats','panel_type'=>'graph','panel_content'=>'*','panel_websections'=>'home','panel_cols'=>'12','panel_height'=>'100%')+$PANELDEFAULTS;
 
 if(!$panels)
-   $panels=DB::query("SELECT * FROM user_gui_panels WHERE user='$_DOMOTIKA[username]' AND page='stats' ORDER by panel_position,id");
+   $panels=DB::query("SELECT * FROM user_gui_panels WHERE user=%s AND page='stats' ORDER by panel_position,id", $_DOMOTIKA[username]);
 
 if(!$panels or count($panels)<1) {
    

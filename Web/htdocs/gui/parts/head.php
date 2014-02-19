@@ -19,6 +19,7 @@
     <link href="/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="/resources/glyphicons/css/bootstrap-glyphicons.css" rel="stylesheet" media="screen">
     <link href="/resources/full-glyphicons/css/glyphicons.css" rel="stylesheet" media="screen">
+    <link href="/resources/noUiSlider/jquery.nouislider.css" rel="stylesheet" media="screen">
     <link href="/resources/bootstrap-switch/static/stylesheets/bootstrap-switch.css" rel="stylesheet" media="screen">
     <link rel="stylesheet" type="text/css" href="/resources/js/jqplot/jquery.jqplot.min.css" media="screen" />
     <link href="<?=$BASEGUIPATH;?>/css/style.css" rel="stylesheet" media="screen" />

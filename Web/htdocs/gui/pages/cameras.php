@@ -11,7 +11,7 @@ $panels=FALSE;
 if($GUISUBSECTION!="" && is_numeric($GUISUBSECTION))
 {
    $pos=1;
-   $v=DB::query("SELECT id,button_name,position,videostream,force_input_codec FROM mediasources WHERE websection='camera' AND active=1 AND id='".$GUISUBSECTION."'");
+   $v=DB::query("SELECT id,button_name,position,videostream,force_input_codec FROM mediasources WHERE websection='camera' AND active=1 AND id=%i", intval($GUISUBSECTION));
    if(is_array($v) && count($v)>0) {
       $panels=array();
       foreach($v as $cam) {
@@ -27,7 +27,7 @@ if($GUISUBSECTION!="" && is_numeric($GUISUBSECTION))
 } 
 
 if(!$panels)
-   $panels=DB::query("SELECT * FROM user_gui_panels WHERE user='$_DOMOTIKA[username]' AND page='cameras' ORDER by panel_position,id");
+   $panels=DB::query("SELECT * FROM user_gui_panels WHERE user=%s AND page='cameras' ORDER by panel_position,id", $_DOMOTIKA['username']);
 
 
 if(!is_array($panels) or count($panels)<1) {

@@ -9,6 +9,7 @@ CSS="../../resources/bootstrap/css/bootstrap.min.css
 ../../resources/full-glyphicons/css/glyphicons.css
 ../../resources/bootstrap-switch/static/stylesheets/bootstrap-switch.css
 ../../resources/js/jqplot/jquery.jqplot.min.css
+../../resources/noUiSlider/jquery.nouislider.css
 css/style.css
 "
 
@@ -27,6 +28,7 @@ js/starthammer.js
 ../../resources/EventSource/eventsource.js
 ../../resources/js/jquery.easing.1.3.min.js
 ../../resources/js/jquery.alterclass.js
+../../resources/noUiSlider/jquery.nouislider.js
 ../../resources/js/jqplot/jquery.jqplot.min.js
 ../../resources/js/jqplot/plugins/jqplot.dateAxisRenderer.min.js
 ../../resources/js/jqplot/plugins/jqplot.highlighter.min.js

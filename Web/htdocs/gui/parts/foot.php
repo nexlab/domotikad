@@ -33,7 +33,7 @@
     <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
     <script type="text/javascript" src="/resources/js/raphael.min.js"></script>
     <script type="text/javascript" src="/resources/js/justgage.js"></script>
-
+    <script type="text/javascript" src="/resources/noUiSlider/jquery.nouislider.js"></script>
     <script src="<?=$BASEGUIPATH;?>/js/fastclick.js"></script>
     <script src="<?=$BASEGUIPATH;?>/js/speech.js"></script>
     <script src="<?=$BASEGUIPATH;?>/js/domotika.js"></script>
