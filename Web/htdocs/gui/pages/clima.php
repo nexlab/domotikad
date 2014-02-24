@@ -23,14 +23,14 @@ if($GUISUBSECTION=="")
                   'panel_websections'=>'clima','panel_cols'=>4, 'panel_height'=>'100%')+$PANELDEFAULTS+$paneldimensions;
 } else {
 
-   $thermostats=DB::query("SELECT * from thermostats WHERE name=%s", $GUISUBSECTION);
+   $thermostats=DB::query("SELECT * from thermostats WHERE name=%s AND active='yes'", $GUISUBSECTION);
    foreach($thermostats as $t)
    {
-      $ptype='standard';
-      $pname=str_replace(".", " ", $t['name']);
-      if($t['sensor_type']=='analog') $ptype='gauge';
-      $panels[]=array('panel_title'=>$pname,'panel_sections'=>$t['sensor_type'], 'panel_websections'=>'clima', 
-                      'panel_type'=>$ptype, 'panel_content'=>$t['sensor_domain'],'panel_cols'=>4, 'panel_height'=>'50%')+$PANELDEFAULTS;   
+      $panels[]=array('panel_title'=>$t['button_name'],'panel_sections'=>$t['sensor_type'], 'panel_websections'=>'clima', 
+                      'panel_type'=>'thermostat', 'panel_content'=>$t['sensor_domain'],'panel_cols'=>5, 'panel_height'=>'80%')+$PANELDEFAULTS;   
+      $panels[]=array('panel_title'=>'programmazione '.$t['button_name'],'panel_sections'=>$t['sensor_type'], 'panel_websections'=>'clima',
+                      'panel_type'=>'thermostat_program', 'panel_content'=>$t['name'],'panel_cols'=>5, 'panel_height'=>'80%')+$PANELDEFAULTS;
+
    }
 }
 include($FSPATH."/panels/include.php");

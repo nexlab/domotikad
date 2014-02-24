@@ -9,6 +9,8 @@ if($panel && is_array($panel)) {
    if(count($buttonar)<=0) {
       $visible.=" hidden-xs hidden-sm";
    }
+   if(!array_key_exists('id', $panel))
+      $panel['id']=mt_rand();
 ?>
       <div class="panel panel-theme-<?=$_DOMOTIKA['gui_theme']?> col-lg-<?=$panel['panel_cols']?> panel-media-low <?=$visible?>" style="height:<?=$panel['panel_height'];?>;">
 <?
@@ -40,9 +42,9 @@ if($panel && is_array($panel)) {
             <?
             foreach($buttonar as $button) {
                if($button['devtype']=='analog') {
-                  //$_SESSION['PANELS_CHARTS'][$chart['name']."-".$panel['id']]=$chart;
             ?>
-               <div id="gauge-<?=$button['id']."-".$panel['id']?>" data-domotika-type="gauge" 
+               <div style="width:100%;">
+                  <div id="gauge-<?=$button['id']."-".$panel['id']?>" data-domotika-type="gauge" 
                      data-dmval-min="<?=floatval($button['minval'])?>"
                      data-dmval-max="<?=floatval($button['maxval'])?>"
                      data-dmval-low="<?=floatval($button['lowval'])?>"
@@ -55,7 +57,9 @@ if($panel && is_array($panel)) {
                      data-domotika-name="<?=$button['button_name']?>"
                      data-dmval="<?=floatval($button['status'])?>"
                      data-domotika-label="<?=$button['unit']?>"
-                     data-domotika-gaugeid="<?=$button['id']?>" style="height:200px;width:550px"></div>
+                     data-domotika-gaugeid="<?=$button['id']?>" style="height:200px;width:250px;margin:0 auto;text-align: center;">
+                  </div>
+               </div>
             <?
                }
             }?>

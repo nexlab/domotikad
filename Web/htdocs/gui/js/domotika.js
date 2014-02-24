@@ -408,13 +408,11 @@
 
    $('#speech').bind('webkitspeechchange',function(event) {
       event.preventDefault();
-      console.debug("AAAA");
       sendSpeech($("#speech"));
    });
 
    $('#speechsm').bind('webkitspeechchange',function(event) {
       event.preventDefault();
-      console.debug("BBBBB");
       sendSpeech($("#speechsm"));
    });
 
@@ -422,8 +420,6 @@
       var keycode = (event.keyCode ? event.keyCode : event.which);
       if(keycode == 13) {
          event.preventDefault();
-         console.debug("CCCC");
-         console.debug($("#speech"));
          sendSpeech($("#speech"));
       }
    });
@@ -462,7 +458,6 @@
                   lo: $(this).attr('data-dmval-high')/$(this).attr('data-dmval-divider'), 
                   hi: $(this).attr('data-dmval-max')/$(this).attr('data-dmval-divider')}
             ];
-            console.debug(customS);
          } else {
             var customS=false;
             var levelC=new Array(
@@ -483,12 +478,14 @@
                                           labelFontColor: "#999999",
                                           label: $(this).attr('data-domotika-label'),
                                           customSectors: customS,
+                                          shadowSize: 10,
+                                          showinnerShadow: true, 
+                                          shadowOpacity: 1
                                       });
          gaugeArray[$(this).attr('id')].refresh($(this).attr('data-dmval')/$(this).attr('data-dmval-divider'));
          $(this).data('gauge', gaugeArray[$(this).attr('id')]);
       }
    );
-   
 
    var es = new EventSource("/sse");
 

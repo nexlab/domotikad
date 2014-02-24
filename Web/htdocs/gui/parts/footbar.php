@@ -27,7 +27,10 @@ if($_DOMOTIKA['gui_theme']=='dmblack')
   <div id="notifypanel" class="panel panel-theme-<?=$_DOMOTIKA['gui_theme']?> notifypanel text-on-white-theme-<?=$_DOMOTIKA['gui_theme']?>">
     <div class="panel-heading panel-head-theme-<?=$_DOMOTIKA['gui_theme']?>"><h4>Notifications<i class="glyphicon glyphicon-remove pull-right" id="notify-removeall"></i></h4></div>
     <div class="notifylist">
-      <div id="notifications" class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>" data-snap-ignore="true">
+      <div class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>" data-snap-ignore="true">
+         <div class="list-group-item">
+            AAAA
+         </div>
       </div>
     </div>
   </div>

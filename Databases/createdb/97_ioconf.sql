@@ -128,3 +128,5 @@ CREATE TABLE IF NOT EXISTS `ioconf_pwm` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE  `user_gui_panels` CHANGE  `panel_type`  `panel_type` ENUM(  'standard',  'gauge',  'thermostat',  'graph',  'macrobuttons',  'bookmarks',  'cameras',  'video',  'gxv3175_left',  'gxv3175_center',  'gxv3175_right' ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT  'standard';

@@ -24,6 +24,8 @@
     <!-- jquery easing plugin -->
     <script src="/resources/js/jquery.easing.1.3.min.js"></script>
     <script src="/resources/js/jquery.alterclass.js"></script>
+    <script src="/resources/js/jquery.continouoshold.js"></script>
+    <script src="/resources/js/jquery.mousewheel.js"></script>
     <!-- jqplot -->
     <script src="/resources/js/jqplot/jquery.jqplot.min.js" ></script>
     <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
@@ -31,6 +33,10 @@
     <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.cursor.min.js"></script>
     <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
     <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+    <!-- <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+    <script type="text/javascript" src="/resources/js/jqplot/plugins/jqplot.barRenderer.min.js"></script> -->
+    <script type="text/javascript" src="/resources/js/ResizeSensor.js"></script>
+    <script type="text/javascript" src="/resources/css-element-queries/src/ElementQueries.js"></script>
     <script type="text/javascript" src="/resources/js/raphael.min.js"></script>
     <script type="text/javascript" src="/resources/js/justgage.js"></script>
     <script type="text/javascript" src="/resources/noUiSlider/jquery.nouislider.js"></script>

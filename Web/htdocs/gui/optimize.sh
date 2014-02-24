@@ -28,6 +28,8 @@ js/starthammer.js
 ../../resources/EventSource/eventsource.js
 ../../resources/js/jquery.easing.1.3.min.js
 ../../resources/js/jquery.alterclass.js
+../../resources/js/jquery.continouoshold.js
+../../resources/js/jquery.mousewheel.js
 ../../resources/noUiSlider/jquery.nouislider.js
 ../../resources/js/jqplot/jquery.jqplot.min.js
 ../../resources/js/jqplot/plugins/jqplot.dateAxisRenderer.min.js
@@ -37,6 +39,8 @@ js/starthammer.js
 ../../resources/js/jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js
 ../../resources/js/raphael.min.js
 ../../resources/js/justgage.js
+../../resources/js/ResizeSensor.js
+../../resources/css-element-queries/src/ElementQueries.js
 js/fastclick.js
 js/speech.js
 js/domotika.js
