@@ -27,7 +27,7 @@ if($GUISUBSECTION=="")
    foreach($thermostats as $t)
    {
       $panels[]=array('panel_title'=>$t['button_name'],'panel_sections'=>$t['sensor_type'], 'panel_websections'=>'clima', 
-                      'panel_type'=>'thermostat', 'panel_content'=>$t['sensor_domain'],'panel_cols'=>5, 'panel_height'=>'80%')+$PANELDEFAULTS;   
+                      'panel_type'=>'thermostat', 'panel_content'=>$t['name'],'panel_cols'=>5, 'panel_height'=>'80%')+$PANELDEFAULTS;   
       $panels[]=array('panel_title'=>'programmazione '.$t['button_name'],'panel_sections'=>$t['sensor_type'], 'panel_websections'=>'clima',
                       'panel_type'=>'thermostat_program', 'panel_content'=>$t['name'],'panel_cols'=>5, 'panel_height'=>'80%')+$PANELDEFAULTS;
 

@@ -1,6 +1,6 @@
 <?
-//$GUIDEBUG=FALSE;
-$GUIDEBUG=TRUE;
+$GUIDEBUG=FALSE;
+//$GUIDEBUG=TRUE;
 
 
 function getBaseGuiPath()

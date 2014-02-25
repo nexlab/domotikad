@@ -46,6 +46,10 @@
    //   scroller: $('#content')[0]
    //})
 
+   if (!Date.now) {
+      Date.now = function() { return new Date().getTime(); };
+   }
+
    var audioTagSupport = !!(document.createElement('audio').canPlayType);
    /*  
    function DoFullScreen() {

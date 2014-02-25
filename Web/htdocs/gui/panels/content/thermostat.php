@@ -1,7 +1,9 @@
 <? @include_once("../../includes/common.php"); ?>
 <? 
 if($panel && is_array($panel)) { 
-   $buttonar=getPanelButtons($_DOMOTIKA['username'],$panel['panel_content'],$panel['panel_sections'],$panel['panel_websections'],$panel['panel_selector'],true);
+   $thermo=DB::queryFirstRow("SELECT * from thermostats WHERE name=%s AND active='yes'", $panel['panel_content']);
+   $buttonar=getPanelButtons($_DOMOTIKA['username'],$thermo['sensor_domain'],$panel['panel_sections'],$panel['panel_websections'],$panel['panel_selector'],true);
+
    $climastatus=DB::queryOneField("value", "SELECT * FROM uniques WHERE name='climastatus'");
    if(!$climastatus) { 
       DB::insert('uniques', array('name'=>'climastatus','value'=>'WINTER'));
@@ -77,13 +79,13 @@ if($panel && is_array($panel)) {
                      <div id="gauge-<?=$button['id']."-".$panel['id']?>" data-domotika-type="gauge" 
                         data-dmval-min="<?=floatval($button['minval'])?>"
                         data-dmval-max="<?=floatval($button['maxval'])?>"
-                        data-dmval-low="<?=floatval($button['lowval'])?>"
-                        data-dmval-high="<?=floatval($button['highval'])?>"
+                        data-dmval-low="0.0"
+                        data-dmval-high="<?=floatval($thermo['setval'])*floatval($button['divider'])?>"
                         data-dmval-divider="<?=floatval($button['divider'])?>"
-                        data-dmcolor-min="<?=$button['color_min']?>"
-                        data-dmcolor-low="<?=$button['color_low']?>"
-                        data-dmcolor-medium="<?=$button['color_medium']?>"
-                        data-dmcolor-high="<?=$button['color_high']?>"
+                        data-dmcolor-min="blue"
+                        data-dmcolor-low="blue"
+                        data-dmcolor-medium="blue"
+                        data-dmcolor-high="red"
                         data-domotika-name="<?=$button['button_name']?>"
                         data-dmval="<?=floatval($button['status'])?>"
                         data-domotika-label="<?=$button['unit']?>"
@@ -92,17 +94,34 @@ if($panel && is_array($panel)) {
                    </div>
                    <div style="display:inline-block;width:20%;min-width:68px;height:250px;margin:0 auto;text-align:center;">
                       <div><button type="button" id="thermo-showset-<?=$button['id']."-".$panel['id']?>" class="btn btn-gray">--.-</button></div>
-                      <div style="margin:0 auto;text-align:center;height:150px;margin-top:25px;margin-bottom:25px;" 
+                      <div style="margin:0 auto;text-align:center;height:150px;margin-top:25px;margin-bottom:25px;"
+                           data-domotika-maxval="<?=$thermo['maxslide']?>"
+                           data-domotika-minval="<?=$thermo['minslide']?>" 
+                           data-domotika-setval="<?=$thermo['setval']?>"
                            id="thermo-level-<?=$button['id']."-".$panel['id']?>" data-domotika-type="thermo-level">
                       </div>
                       <div class="btn-group">
-                        <button type="button" class="btn btn-primary btn-small"><i class="glyphicon glyphicon-chevron-down"></i></button>
-                        <button type="button" class="btn btn-danger btn-small"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                        <button type="button" class="btn btn-primary btn-small"
+                              id="thermo-minus-<?=$button['id']."-".$panel['id']?>">
+                              <i class="glyphicon glyphicon-chevron-down"></i></button>
+                        <button type="button" class="btn btn-danger btn-small"
+                              id="thermo-plus-<?=$button['id']."-".$panel['id']?>">
+                              <i class="glyphicon glyphicon-chevron-up"></i></button>
                      </div>
                    </div>
                   <div style="margin-top:45px;">
-                     <button type="button" class="btn btn-gray " style="width:150px;height:40px;"><b>Manual</b></button>
-                     <button type="button" class="btn btn-primary " style="width:150px;height:40px;"><b>Program</b></button>
+                     <button type="button" class="btn btn-gray " 
+                        id="thermo-btnmanual-<?=$button['id']."-".$panel['id']?>"
+                        data-dmcolor-on="btn-primary"
+                        data-dmcolor-off="btn-gray"
+                        data-domotika-type="btnmanual"
+                        style="width:150px;height:40px;"><b>Manual</b></button>
+                     <button type="button" class="btn btn-primary " 
+                        id="thermo-btnprogram-<?=$button['id']."-".$panel['id']?>"
+                        data-dmcolor-on="btn-primary"
+                        data-dmcolor-off="btn-gray"
+                        data-domotika-type="btnprogram"
+                        style="width:150px;height:40px;"><b>Program</b></button>
                   </div>
                </div>
             <?
