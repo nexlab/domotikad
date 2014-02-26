@@ -524,6 +524,32 @@ class ChartRest(RestCore):
       return self.callbackResponse(self.core.getChartData(chartname), request)
 
 
+class ClimaRest(RestCore):
+
+   path="clima"
+
+   @route("/status",(Http.GET))
+   @wrapResponse
+   def getStatus(self, request, *a, **kw):
+      return self.callbackResponse(self.core.getClimaStatus(), request)
+
+   @route("/status",(Http.PUT,Http.POST))
+   @wrapResponse
+   def setStatus(self, request, *a, **kw):
+      r = self._getRequestArgs(request)
+      if 'status' in r.keys():
+         statusname=r['status']  
+         return self.callbackResponse(self.core.setClimaStatus(statusname), request)
+      return ResponseConversion(request, code=500, entity="No status in request")
+
+   @route("/thermostat/<thermostat>",(Http.GET))
+   @wrapResponse
+   def getThermostatStatus(self, request, thermostat, *a, **kw):
+      return self.callbackResponse(self.core.getThermostat(thermostat), request)
+
+   
+
+
 RESTv12LIST=(
    UserRest,
    CronRest,
@@ -533,6 +559,7 @@ RESTv12LIST=(
    NotifyRest,
    RelayRest,
    ChartRest,
+   ClimaRest,
 )
 
 

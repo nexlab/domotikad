@@ -2322,6 +2322,15 @@ class domotikaService(service.Service):
          return 'TRUE'
       return 'FALSE'
 
+   def web_on_getClimaStatus(self):
+      return dmdb.getClimaStatus()
+
+   def web_on_setClimaStatus(self, newstatus):
+      return dmdb.setUnique('climastatus', newstatus);
+
+   def web_on_getThermostat(self, thermostat):
+      return dmdb.Thermostats.find(where=["name='%s'" % thermostat],limit=1)
+
    def web_on_voiceReceived(self, txt, confidence=0.0, lang="it"):
       return self.voiceRecognized(txt, confidence, lang, voicesrc='RestAPI')
 

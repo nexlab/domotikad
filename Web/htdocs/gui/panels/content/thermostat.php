@@ -65,13 +65,13 @@ if($panel && is_array($panel)) {
                       class="panel panel-theme-<?=$_DOMOTIKA['gui_theme']?> thermo-statuspanel text-on-white-theme-<?=$_DOMOTIKA['gui_theme']?>">
                       <div class="notifylist">
                          <div class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>" data-snap-ignore="true">
-                            <? foreach($climastatuses as $cs) { if($cs['clima_status']!=$climastatus) { ?>
+                            <? foreach($climastatuses as $cs) { ?>
                                <button type="button" style="width:100%;margin-top:5px;"
                                        data-domotika-statusselect="<?=$cs['clima_status']?>"
-                                       data-domotika-type="statuschoose"
+                                       data-domotika-type="statusselect"
                                        data-domotika-panel="thermo-statuschooselist-<?=$button['id']."-".$panel['id']?>"
                                        class="btn btn-success"><?=$cs['clima_status']?></button>
-                            <? }} ?>
+                            <? } ?>
                          </div>
                       </div>
                    </div>

@@ -14,6 +14,39 @@ function thermoResetGaugeLevel(g,l) {
 
 }
 
+function changeClimaStatus(newstatus, request){
+   $("[data-domotika-type=btn-choosestatuses]").each(
+      function(){
+         $(this).html("<b>"+newstatus+'<b> <i class="glyphicon glyphicon-chevron-down"></i>')
+      }
+   );
+   $("[data-domotika-type=statusselect]").each(
+      function(){
+         if($(this).attr('data-domotika-statusselect')==newstatus)
+            $(this).hide();
+         else
+            $(this).show();
+      }
+   );
+   if(typeof(request)!='undefined') {
+      console.debug("Change status to "+newstatus);
+      $.post("/rest/v1.2/clima/status/json", 'status='+newstatus);
+   }
+}
+
+function changeThermostatStatus(newstatus, parts2, parts3)
+{
+   var program=$("#thermo-btnprogram-"+parts2+'-'+parts3);
+   var manual=$("#thermo-btnmanual-"+parts2+'-'+parts3);
+   if(newstatus=='manual'){
+      program.alterClass(program.attr('data-dmcolor-on'), program.attr('data-dmcolor-off'));
+      manual.alterClass(manual.attr('data-dmcolor-off'), manual.attr('data-dmcolor-on'));
+   } else {
+      program.alterClass(program.attr('data-dmcolor-off'), program.attr('data-dmcolor-on'));
+      manual.alterClass(manual.attr('data-dmcolor-on'), manual.attr('data-dmcolor-off'));
+   }
+}
+
 function checkSliderSet(slider){
    if(slider.data('lastchanged'))
    {
@@ -47,16 +80,8 @@ $("[data-domotika-type=thermo-level]").each(
                   var parts=$(this).attr('id').split("-");
                   $("#thermo-showset-"+parts[2]+'-'+parts[3]).text(parseFloat($(this).val()).toFixed(1));
                   thermoResetGaugeLevel('gauge-'+parts[2]+'-'+parts[3], parseFloat($(this).val()));
-                  var program=$("#thermo-btnprogram-"+parts[2]+'-'+parts[3]);
-                  var manual=$("#thermo-btnmanual-"+parts[2]+'-'+parts[3]);
-                  program.alterClass(program.attr('data-dmcolor-on'), program.attr('data-dmcolor-off'));
-                  manual.alterClass(manual.attr('data-dmcolor-off'), manual.attr('data-dmcolor-on'));
+                  changeThermostatStatus('manual', parts[2], parts[3]);
                },
-         /*
-         set: function() {
-                  $(this).data('lastchanged', Date.now());
-               }
-         */
       });
       $(this).data('oldval', $(this).val());
       $(this).data('lastchanged', false);
@@ -76,11 +101,7 @@ $("[data-domotika-type=thermo-level]").each(
          {
             $('#'+$(this).attr('id').replace('thermo-level-','thermo-showset-')).text(parseFloat($(this).val()).toFixed(1));
             thermoResetGaugeLevel('gauge-'+parts[2]+'-'+parts[3], parseFloat($(this).val()));
-            var program=$("#thermo-btnprogram-"+parts[2]+'-'+parts[3]);
-            var manual=$("#thermo-btnmanual-"+parts[2]+'-'+parts[3]);
-            program.alterClass(program.attr('data-dmcolor-on'), program.attr('data-dmcolor-off'));
-            manual.alterClass(manual.attr('data-dmcolor-off'), manual.attr('data-dmcolor-on'));
-            //$(this).data('lastchanged', Date.now());
+            changeThermostatStatus('manual', parts[2], parts[3]);
          }
       });
 
@@ -92,11 +113,7 @@ $("[data-domotika-type=thermo-level]").each(
          slide.val(parseFloat(slide.val())-0.5);
          $('#'+$(this).attr('id').replace('thermo-minus-','thermo-showset-')).text(parseFloat(slide.val()).toFixed(1));
          var parts=$(this).attr('id').split("-");
-         var program=$("#thermo-btnprogram-"+parts[2]+'-'+parts[3]);
-         var manual=$("#thermo-btnmanual-"+parts[2]+'-'+parts[3]);
-         program.alterClass(program.attr('data-dmcolor-on'), program.attr('data-dmcolor-off'));
-         manual.alterClass(manual.attr('data-dmcolor-off'), manual.attr('data-dmcolor-on'));
-         //slide.data('lastchanged', Date.now());
+         changeThermostatStatus('manual', parts[2], parts[3]);
       }, 200, 700, true);
 
       plus.continouoshold(function(){
@@ -104,11 +121,7 @@ $("[data-domotika-type=thermo-level]").each(
          slide.val(parseFloat(slide.val())+0.5);
          $('#'+$(this).attr('id').replace('thermo-plus-','thermo-showset-')).text(parseFloat(slide.val()).toFixed(1));
          var parts=$(this).attr('id').split("-");
-         var program=$("#thermo-btnprogram-"+parts[2]+'-'+parts[3]);
-         var manual=$("#thermo-btnmanual-"+parts[2]+'-'+parts[3]);
-         program.alterClass(program.attr('data-dmcolor-on'), program.attr('data-dmcolor-off'));
-         manual.alterClass(manual.attr('data-dmcolor-off'), manual.attr('data-dmcolor-on'));
-         //slide.data('lastchanged', Date.now());
+         changeThermostatStatus('manual', parts[2], parts[3]);
       }, 200, 700, true);
 
    }
@@ -134,6 +147,8 @@ $("[data-domotika-type=statusselect]").each(
       $(this).fastClick(function(){
          var panel="#"+$(this).attr('data-domotika-panel');
          $(panel).hide(150);
+         var newstatus=$(this).attr('data-domotika-statusselect');
+         changeClimaStatus(newstatus, true);
       });
    }
 );
@@ -143,8 +158,7 @@ $("[data-domotika-type=btnprogram]").each(
       function() {
          var parts=$(this).attr('id').split("-");
          var other=$("#thermo-btnmanual-"+parts[2]+'-'+parts[3]);
-         other.alterClass(other.attr('data-dmcolor-on'), other.attr('data-dmcolor-off'));
-         $(this).alterClass($(this).attr('data-dmcolor-off'), $(this).attr('data-dmcolor-on'));
+         changeThermostatStatus('program', parts[2], parts[3]);
       });
    }
 );
@@ -153,9 +167,7 @@ $("[data-domotika-type=btnmanual]").each(
    function(){$(this).fastClick(
       function() {
          var parts=$(this).attr('id').split("-");
-         var other=$("#thermo-btnprogram-"+parts[2]+'-'+parts[3]);
-         other.alterClass(other.attr('data-dmcolor-on'), other.attr('data-dmcolor-off'));
-         $(this).alterClass($(this).attr('data-dmcolor-off'), $(this).attr('data-dmcolor-on'));
+         changeThermostatStatus('manual', parts[2], parts[3]);
       });
    }
 );

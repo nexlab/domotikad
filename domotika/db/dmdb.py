@@ -236,6 +236,11 @@ class StatsData(DBObject):
 class StatsHistory(DBObject):
    TABLENAME="stats_history"
 
+class Thermostats(DBObject):
+   TABLENAME="thermostats"
+
+class ThermostatsProgs(DBObject):
+   TABLENAME="thermostats_progs"
 
 
 def cleanFlags():
@@ -268,6 +273,9 @@ def _retValueQuery(res, defval='DEFAULT'):
 
 def getNetStatus():
    return Uniques.find(where=["name='netstatus'"],limit=1).addCallback(_retValueQuery, 'DEFAULT')
+
+def getClimaStatus():
+   return Uniques.find(where=["name='climastatus'"],limit=1).addCallback(_retValueQuery, 'OFF')
 
 def getStatusRealtime(stname):
    return StatusRealtime.find(where=["status_name=?", stname],limit=1).addCallback(_retValueQuery, False)
