@@ -484,23 +484,56 @@ class domotikaService(service.Service):
          return dmdb.DMBoards.find(where=['online=1']).addCallback(self._syncBoards)
       return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._syncBoards)
       
-   def _pushBoards(self, res): # XXX Make which i/o/a is pushed selectively
+   def _pushBoards(self, res, analogs=False, inputs=False, outputs=False, pwms=False): # XXX Make which i/o/a is pushed selectively
       if res:
          for b in res:
             p=pluggableBoards.getBoardPlugin(b.type, ConvenienceCaller(lambda c: self._callback('board', c)))
             if b:
                pboard = p.getBoard(b.ip, b.webport, self.boardsyspwd, str(self.config.get('general', 'language')))
-               pboard.pushAnalogs()
-               pboard.pushInputs()
-               pboard.pushOutputs()
-               #pboard.pushPwm()
+
+               if analogs and analogs=='*':
+                  pboard.pushAnalogs()
+               elif type(analogs).__name__ in ['list','tuple']:
+                  for an in analogs:
+                     if type(an).__name__ == 'dict':
+                        if 'num' in an.keys() and 'status' in an.keys():
+                            pboard.pushAnalogs(ananum=an['num'], status=an['status'])
+                     elif genutils.is_number(an):
+                        pboard.pushAnalogs(ananum=int(an))
+               elif type(analogs).__name__ in ['int','str']:
+                  pboard.pushAnalogs(ananum=analogs)
+
+               if inputs and inputs=='*':
+                  pboard.pushInputs()
+               elif type(inputs).__name__ in ['list','tuple']:
+                  for inp in inputs:
+                     if type(inp).__name__ == 'dict':
+                        if 'num' in inp.keys() and 'status' in inp.keys():
+                           pboard.pushInputs(inpnum=inp['num'], status=inp['status'])
+                     elif genutils.is_number(inp):
+                        pboard.pushInputs(inpnum=int(inp))
+               elif type(inputs).__name__ in ['int','str']:
+                  pboard.pushInputs(inpnum=inputs)
+
+
+               if outputs and outputs=='*':
+                  pboard.pushOutputs()
+               elif type(outputs).__name__ in ['list','tuple']:
+                  for out in outputs:
+                     if genutils.is_number(out):
+                        pboard.pushOutputs(outnum=int(out))
+               elif type(outputs).__name__ in ['int','str']:
+                  pboard.pushOutputs(outnum=outputs)
+
+               #if not pwms:
+               #  pboard.pushPwm()
 
       return True
 
-   def pushBoards(self, bid=False, *a, **kw):
+   def pushBoards(self, bid=False, analogs=False, inputs=False, outputs=False, pwms=False, *a, **kw):
       if not bid:
-         return dmdb.DMBoards.find(where=['online=1']).addCallback(self._pushBoards)
-      return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._pushBoards)
+         return dmdb.DMBoards.find(where=['online=1']).addCallback(self._pushBoards, analogs, inputs, outputs, pwms)
+      return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._pushBoards, analogs, inputs, outputs, pwms)
 
    def autoDetectBoards(self, *a, **kw):
       log.info("Start building boardlist")
@@ -2185,7 +2218,7 @@ class domotikaService(service.Service):
       return self.syncBoards(bid=bid)
 
    def web_on_startPush(self, bid=False):
-      return self.pushBoards(bid=bid)
+      return self.pushBoards(bid=bid, analogs='*',inputs='*',outputs='*',pwms='*')
 
    def web_on_getAuth(self, usr, pwd):
       return dmdb.Users.find(where=["username='%s' AND passwd='%s' AND active=1" % ( usr, pwd)])
