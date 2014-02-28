@@ -243,51 +243,6 @@ class ThermostatsProgs(DBObject):
    TABLENAME="thermostats_progs"
 
 
-def cleanFlags():
-   Registry.getConfig().delete("flags", where=["expire<="+str(time.time())])
-
-def insertFlag(name, expire=None):
-   if expire:
-      expire="'"+str(expire)+"'"
-   else:
-      expire="NULL"
-   qstr="INSERT INTO flags (name,expire) VALUES ('"+name+"',"+expire
-   qstr+=") ON DUPLICATE KEY UPDATE expire="+expire
-   return Registry.DBPOOL.runOperation(qstr)
-   
-
-def setUnique(name, value):
-   t=time.time()
-   querystr="""INSERT INTO uniques (name,value,lastupdate) VALUES ('%s', '%s', '%s') 
-               ON DUPLICATE KEY UPDATE value='%s',lastupdate='%s' """ % (str(name), str(value),str(t), str(value),str(t))
-   return Registry.DBPOOL.runOperation(querystr)
-
-def updateNetStatus(nst):
-   return setUnique('netstatus',nst)
-
-def _retValueQuery(res, defval='DEFAULT'):
-   if res:
-      return res.value
-   else:
-      return defval
-
-def getNetStatus():
-   return Uniques.find(where=["name='netstatus'"],limit=1).addCallback(_retValueQuery, 'DEFAULT')
-
-def getClimaStatus():
-   return Uniques.find(where=["name='climastatus'"],limit=1).addCallback(_retValueQuery, 'OFF')
-
-def getStatusRealtime(stname):
-   return StatusRealtime.find(where=["status_name=?", stname],limit=1).addCallback(_retValueQuery, False)
-
-def _getStatusAction(res):
-   if res:
-      return res
-   return []
-
-def getStatusAction(stname):
-   return StatusActions.find(where=["status_name=? AND active=1", stname]).addCallback(_getStatusAction)
-
 def updateStatusRealtime(stname, status, changed=False):
    querystr="INSERT INTO statusrealtime (status_name,value,lastupdate"
    if changed:
@@ -654,6 +609,96 @@ def getLongestUpdatedBoard(num=1):
 def getBoardById(bid=0):
    return DMBoards.find(where=["id=?", bid], limit=1)
 
+def cleanFlags():
+   Registry.getConfig().delete("flags", where=["expire<="+str(time.time())])
+
+def insertFlag(name, expire=None):
+   if expire:
+      expire="'"+str(expire)+"'"
+   else:
+      expire="NULL"
+   qstr="INSERT INTO flags (name,expire) VALUES ('"+name+"',"+expire
+   qstr+=") ON DUPLICATE KEY UPDATE expire="+expire
+   return Registry.DBPOOL.runOperation(qstr)
+
+
+def setUnique(name, value):
+   t=time.time()
+   querystr="""INSERT INTO uniques (name,value,lastupdate) VALUES ('%s', '%s', '%s') 
+               ON DUPLICATE KEY UPDATE value='%s',lastupdate='%s' """ % (str(name), str(value),str(t), str(value),str(t))
+   return Registry.DBPOOL.runOperation(querystr)
+
+def updateNetStatus(nst):
+   return setUnique('netstatus',nst)
+   
+def _retValueQuery(res, defval='DEFAULT'):
+   if res:
+      return res.value
+   else:
+      return defval
+      
+def getNetStatus():
+   return Uniques.find(where=["name='netstatus'"],limit=1).addCallback(_retValueQuery, 'DEFAULT')
+   
+def getClimaStatus():
+   return Uniques.find(where=["name='climastatus'"],limit=1).addCallback(_retValueQuery, 'OFF')
+   
+def getStatusRealtime(stname):
+   return StatusRealtime.find(where=["status_name=?", stname],limit=1).addCallback(_retValueQuery, False)
+
+def _getStatusAction(res):
+   if res:
+      return res
+   return [] 
+   
+def getStatusAction(stname):
+   return StatusActions.find(where=["status_name=? AND active=1", stname]).addCallback(_getStatusAction)
+   
+def _setThermostat(res, thermostat, func, setval):
+   if res:
+      if func and func in ['manual','program']:
+         res.function=func
+      if setval:
+         res.setval=float(setval)
+      res.save()
+      return res
+   return False
+
+def setThermostat(thermostat, func=False, setval=False):
+   return Thermostats.find(where=['name=?', thermostat],limit=1).addCallback(_setThermostat, thermostat, func, setval)
+   
+   
+def _setThermostatProgsDict(res, thermostat, climastatus, r):
+   ret=False
+   if res:
+      for d in ['mon','tue','wed','thu','fri','sat','sun']:
+         if d in r.keys() and type(r[d]).__name__=='dict':
+            sql="UPDATE thermostats_progs SET "
+            doit=False
+            for h in range(1, 25):
+               hour='h'+str(h).zfill(2)
+               if hour in r[d].keys() and genutils.is_number(r[d][hour]):
+                  if float(r[d][hour]) >= float(res.minslide) and float(r[d][hour]) <= float(res.maxslide):
+                     ret=True
+                     if doit:
+                        sql+=","
+                     sql+=hour+"="+str(r[d][hour])
+                     doit=True
+            if doit:
+               where=" WHERE thermostat_name='%s' AND clima_status='%s' AND day='%s'" %(str(thermostat),str(climastatus),str(d))
+               runQuery(sql+where)
+               ret=True
+   if ret:
+      return defer.succeed(True)
+   else:
+      return defer.fail(False)
+
+
+def setThermostatProgsDict(thermostat, climastatus, r):
+   return Thermostats.find(where=['name=?', thermostat], limit=1).addCallback(
+      _setThermostatProgsDict, thermostat, climastatus, r)
+      
+
 
 def checkMotionDetectionEvent(camera, zone, estatus, etype):
    qstr="""active>0 AND (event_status=%d OR event_status=255)
@@ -849,3 +894,5 @@ def getChartData(chartname):
 def getChartSeries(chartname):
    log.debug("SELECT * FROM stats_charts_series WHERE active=1 AND name='%s'" % str(chartname))
    return StatsChartsSeries.find(where=["name='%s'" % str(chartname)])
+
+

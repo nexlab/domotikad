@@ -199,7 +199,7 @@ class RootPage(rend.Page):
             if dbres and len(dbres)>0:
                session.dmpermissions[request.path]=dbres[0][0]
             if neededPermission(request.method) in session.dmpermissions[request.path]:
-               log.info("PERMISSION DB OK, USER: "+session.mind.perms.username+" SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
+               log.info("PERMISSION DB OK, USER: "+session.mind.perms.username+" SESSION: "+str(session.uid)) #+" ARGS: "+str(request.args)+" REQ "+str(request))
                self.core.updateSession(session.uid, session, self)
                return rend.Page.locateChild(self, ctx, name)
          except:
@@ -228,11 +228,11 @@ class RootPage(rend.Page):
       if not 'dmpermissions' in dir(session):
          session.dmpermissions={}
       if request.path in WEB_SYSTEM_PATHS:
-         log.info("WEB_SYSTEM_PATH: USER: "+uname+" SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
+         log.info("WEB_SYSTEM_PATH: USER: "+uname+" SESSION: "+str(session.uid)) #+" ARGS: "+str(request.args)+" REQ "+str(request))
          return rend.Page.locateChild(self, ctx, name)
       if request.path in session.dmpermissions.keys():
          if neededPermission(request.method) in session.dmpermissions[request.path]:
-            log.debug("PERMISSION OK, SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
+            log.debug("PERMISSION OK, SESSION: "+str(session.uid)) #+" ARGS: "+str(request.args)+" REQ "+str(request))
             self.core.updateSession(session.uid, session, self)
             return rend.Page.locateChild(self, ctx, name)
       else:

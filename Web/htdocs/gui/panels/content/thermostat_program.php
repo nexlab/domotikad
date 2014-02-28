@@ -68,6 +68,8 @@ if($panel && is_array($panel)) {
                      <div style="width:100%;margin:0 auto;text-align:center;margin-bottom:10px;">
                         <button type="button" data-domotika-type="btn-statuses" 
                            id="thermo-btnstatus-<?=$button['id']."-".$panel['id']?>"
+                           data-domotika-actualstatus="<?=$climastatus?>"
+                           data-domotika-btnthermoname="<?=$button['name']?>"
                            class="btn btn-primary" style="width:150px;height:40px;"><b><?=$climastatus?></b>
                            <i class="glyphicon glyphicon-chevron-down"></i>
                         </button>
@@ -76,13 +78,13 @@ if($panel && is_array($panel)) {
                         class="panel panel-theme-<?=$_DOMOTIKA['gui_theme']?> thermo-statuspanel text-on-white-theme-<?=$_DOMOTIKA['gui_theme']?>">
                         <div class="notifylist">
                            <div class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>" data-snap-ignore="true">
-                              <? foreach($climastatuses as $cs) { if($cs['clima_status']!=$climastatus) { ?>
-                                 <button type="button" style="width:100%;margin-top:5px;"
+                              <? foreach($climastatuses as $cs) {?>
+                                 <button type="button" style="width:100%;margin-top:5px;<?if($cs['clima_status']==$climastatus)echo'display:none';?>"
                                          data-domotika-statuschoose="<?=$cs['clima_status']?>"
                                          data-domotika-type="statuschoose"
                                          data-domotika-panel="thermo-statuslist-<?=$button['id']."-".$panel['id']?>"
                                          class="btn btn-success"><?=$cs['clima_status']?></button>
-                              <? }} ?>
+                              <? }?>
                            </div>
                         </div>
                      </div>
@@ -118,6 +120,10 @@ if($panel && is_array($panel)) {
                                        <div class="noUI-thermo-program" data-domotika-thermo-startvalue="<?=$the['h'.zfill($i,2)]?>"
                                           data-domotika-thermo-minslide="<?=$button['minslide']?>"
                                           data-domotika-thermo-maxslide="<?=$button['maxslide']?>"
+                                          data-domotika-level-thermoname="<?=$button['name']?>"
+                                          data-domotika-level-statusname="<?=$climastatus?>"
+                                          data-domotika-level-day="<?=$d?>"
+                                          data-domotika-level-hour="<?='h'.zfill($i,2)?>"
                                           id="thermo-levels-<?=$button['id']."-".$panel['id']."-".$d."-".$i?>" data-domotika-type="thermoprogram">
                                        </div>
                                        <button type="button" 
@@ -145,6 +151,10 @@ if($panel && is_array($panel)) {
                                        <div class="noUI-thermo-program" data-domotika-thermo-startvalue="<?=$the['h'.zfill($i,2)]?>"
                                           data-domotika-thermo-minslide="<?=$button['minslide']?>"
                                           data-domotika-thermo-maxslide="<?=$button['maxslide']?>"
+                                          data-domotika-level-thermoname="<?=$button['name']?>"
+                                          data-domotika-level-statusname="<?=$climastatus?>"
+                                          data-domotika-level-day="<?=$d?>"
+                                          data-domotika-level-hour="<?='h'.zfill($i,2)?>"
                                           id="thermo-levels-<?=$button['id']."-".$panel['id']."-".$d."-".$i?>" data-domotika-type="thermoprogram">
                                        </div>
                                        <button type="button" 
@@ -165,9 +175,11 @@ if($panel && is_array($panel)) {
                      <div style="width:100%;margin:0 auto;text-align:center;">
                          <button type="button" id=thermo-reset-<?=$button['id']."-".$panel['id']?> 
                               data-domotika-type=thermo-reset
+                              data-domotika-thermostat="<?=$button['name']?>"
                               class="btn btn-success" disabled style="width:150px;height:40px;"><b>RESET CHANGES</b></button>
                          <button type="button" id=thermo-save-<?=$button['id']."-".$panel['id']?>
                               data-domotika-type=thermo-save
+                              data-domotika-thermostat="<?=$button['name']?>"
                               class="btn btn-danger" disabled style="width:150px;height:40px;"><b>SAVE & APPLY</b></button>
                      </div>
 

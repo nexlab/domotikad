@@ -251,29 +251,42 @@ class RestCore(object):
                pass
       if request.method in (Http.POST,Http.PUT) and HttpHeader.CONTENT_TYPE in request.received_headers.keys():
          contentType = request.received_headers["content-type"]
-         if contentType == MediaType.APPLICATION_JSON:
+         if contentType.split(";")[0] == MediaType.APPLICATION_JSON:
             try:
-               r = dict(rargs.items() + request.json.items())
-            except:
-               r = request.json
-         elif contentType in (MediaType.APPLICATION_XML,MediaType.TEXT_XML):
+               request.json = json.loads(request.data) if request.data else {}
+               try:
+                  r = dict(rargs.items() + request.json.items())
+               except:
+                  r = request.json
+            except Exception as ex:
+               raise TypeError("Unable to parse JSON body: %s" % ex)
+
+         elif contentType.split(";")[0] in (MediaType.APPLICATION_XML,MediaType.TEXT_XML):
             try:
-               r = dict(rargs.items() + request.xml.items())
-            except:
-               r = request.xml
-         elif contentType == MediaType.TEXT_YAML:
+               request.xml = ElementTree.XML(request.data)
+               try:
+                  r = dict(rargs.items() + request.xml.items())
+               except:
+                  r = request.xml
+            except Exception as ex:
+               raise TypeError("Unable to parse XML body: %s" % ex)
+
+         elif contentType.split(";")[0] == MediaType.TEXT_YAML:
             try:
-               r = dict(rargs.items() + request.xml.yaml())
-            except:
-               r = request.xml.yaml
+               request.yaml = yaml.safe_load(request.data)
+               try:
+                  r = dict(rargs.items() + request.xml.yaml())
+               except:
+                  r = request.xml.yaml
+            except Exception as ex:
+               raise TypeError("Unable to parse YAML body: %s" % ex)
+
          else:
             r = rargs
       else:
          r = rargs
       return r
    
-
-
 
 class BaseRest(RestCore):
 
@@ -548,6 +561,28 @@ class ClimaRest(RestCore):
       return self.callbackResponse(self.core.getThermostat(thermostat), request)
 
    
+   @route("/thermostat/<thermostat>",(Http.PUT,Http.POST))
+   @wrapResponse
+   def setThermostat(self, request, thermostat, *a, **kw):
+      r = self._getRequestArgs(request)
+      func=False
+      if 'function' in r.keys() and r['function'] in ['manual','program']:
+         func=r['function']
+      setval=False
+      if 'set' in r.keys() and genutils.is_number(r['set']):
+         setval=r['set']
+      return self.callbackResponse(self.core.setThermostat(thermostat, func, setval), request)
+
+   @route("/program/<thermostat>/<climastatus>",(Http.GET))
+   @wrapResponse
+   def getProgram(self, request, thermostat, climastatus, *a, **kw):
+      return self.callbackResponse(self.core.getThermostatProgram(thermostat, climastatus), request)
+
+   @route("/program/<thermostat>/<climastatus>",(Http.PUT,Http.POST))
+   @wrapResponse
+   def setProgram(self, request, thermostat, climastatus, *a, **kw):
+      r = self._getRequestArgs(request)
+      return self.callbackResponse(self.core.setThermostatProgram(thermostat, climastatus, r), request)
 
 
 RESTv12LIST=(

@@ -68,6 +68,10 @@
    }
    */
 
+   function jQueryEscapesel(expression) {
+      return expression.replace(/[!"#$%&'()*+,.\/:;<=>?@\[\\\]^`{|}~]/g, '\\$&');
+  }
+
    (function () {
       var previousScroll = 0;
 

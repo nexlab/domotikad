@@ -34,16 +34,23 @@ function changeClimaStatus(newstatus, request){
    }
 }
 
-function changeThermostatStatus(newstatus, parts2, parts3)
+function changeThermostatStatus(newstatus, parts2, parts3, nopost)
 {
    var program=$("#thermo-btnprogram-"+parts2+'-'+parts3);
    var manual=$("#thermo-btnmanual-"+parts2+'-'+parts3);
+   var slide=$("#thermo-level-"+parts2+'-'+parts3);
+   if(typeof(nopost)=='undefined')
+      nopost=false;
    if(newstatus=='manual'){
       program.alterClass(program.attr('data-dmcolor-on'), program.attr('data-dmcolor-off'));
       manual.alterClass(manual.attr('data-dmcolor-off'), manual.attr('data-dmcolor-on'));
+      if(!nopost)
+         $.post("/rest/v1.2/clima/thermostat/"+manual.attr('data-domotika-thermostat')+"/json", 'function=manual&set='+slide.val().toString());
    } else {
       program.alterClass(program.attr('data-dmcolor-off'), program.attr('data-dmcolor-on'));
       manual.alterClass(manual.attr('data-dmcolor-on'), manual.attr('data-dmcolor-off'));
+      if(!nopost)
+         $.post("/rest/v1.2/clima/thermostat/"+manual.attr('data-domotika-thermostat')+"/json", 'function=program');
    }
 }
 
@@ -52,10 +59,10 @@ function checkSliderSet(slider){
    {
       if(Date.now()-slider.data('lastchanged')>1000)
       {
-         console.debug(slider.data('lastchanged'));
-         console.debug(Date.now());  
-         console.debug('------------------------');
          slider.data('lastchanged', false);
+         var parts=slider.attr('id').split('-');  
+         changeThermostatStatus('manual', parts[2], parts[3]);
+
       }
    }
    if(slider.val()!=slider.data('oldval'))
@@ -80,8 +87,7 @@ $("[data-domotika-type=thermo-level]").each(
                   var parts=$(this).attr('id').split("-");
                   $("#thermo-showset-"+parts[2]+'-'+parts[3]).text(parseFloat($(this).val()).toFixed(1));
                   thermoResetGaugeLevel('gauge-'+parts[2]+'-'+parts[3], parseFloat($(this).val()));
-                  changeThermostatStatus('manual', parts[2], parts[3]);
-               },
+               }
       });
       $(this).data('oldval', $(this).val());
       $(this).data('lastchanged', false);
@@ -101,7 +107,6 @@ $("[data-domotika-type=thermo-level]").each(
          {
             $('#'+$(this).attr('id').replace('thermo-level-','thermo-showset-')).text(parseFloat($(this).val()).toFixed(1));
             thermoResetGaugeLevel('gauge-'+parts[2]+'-'+parts[3], parseFloat($(this).val()));
-            changeThermostatStatus('manual', parts[2], parts[3]);
          }
       });
 
@@ -112,16 +117,12 @@ $("[data-domotika-type=thermo-level]").each(
          var slide=$('#'+$(this).attr('id').replace('thermo-minus-','thermo-level-'));
          slide.val(parseFloat(slide.val())-0.5);
          $('#'+$(this).attr('id').replace('thermo-minus-','thermo-showset-')).text(parseFloat(slide.val()).toFixed(1));
-         var parts=$(this).attr('id').split("-");
-         changeThermostatStatus('manual', parts[2], parts[3]);
       }, 200, 700, true);
 
       plus.continouoshold(function(){
          var slide=$('#'+$(this).attr('id').replace('thermo-plus-','thermo-level-'));
          slide.val(parseFloat(slide.val())+0.5);
          $('#'+$(this).attr('id').replace('thermo-plus-','thermo-showset-')).text(parseFloat(slide.val()).toFixed(1));
-         var parts=$(this).attr('id').split("-");
-         changeThermostatStatus('manual', parts[2], parts[3]);
       }, 200, 700, true);
 
    }
@@ -171,6 +172,35 @@ $("[data-domotika-type=btnmanual]").each(
       });
    }
 );
+
+var thermostatEvent = function(event) {
+   var data=$.parseJSON(event.data);
+   console.debug(data);
+   if(typeof(data.data.action) != 'undefined'){
+      var action=data.data.action;
+      if(action=='climastatus'){
+         changeClimaStatus(data.data.status);        
+      }else if(action=='function'){
+         $("[data-domotika-thermostat="+jQueryEscapesel(data.data.thermostat)+"][data-domotika-type=btnprogram]").each(
+            function(){
+               var parts=$(this).attr('id').split("-");
+               changeThermostatStatus(data.data.func, parts[2], parts[3], true);
+            }
+         );
+      }else if(action=='setval'){
+         $("[data-domotika-thermostat="+jQueryEscapesel(data.data.thermostat)+"][data-domotika-type=btnprogram]").each(
+            function(){
+               var parts=$(this).attr('id').split("-");
+               var slide=$("#thermo-level-"+parts[2]+'-'+parts[3]);              
+               slide.val(parseFloat(data.data.val));
+               $('#thermo-showset-'+parts[2]+'-'+parts[3]).text(parseFloat(data.data.val).toFixed(1));
+            }
+         );
+      }
+   }
+}
+
+es.addEventListener("thermostat", thermostatEvent);
 
 </script>
 

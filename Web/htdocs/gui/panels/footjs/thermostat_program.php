@@ -1,5 +1,53 @@
 <? @include_once("../../includes/common.php"); ?>
 <script>
+
+function loadThermoProgs(parts2, parts3){
+   $('#thermo-reset-'+parts2+'-'+parts3).prop('disabled', true);
+   $('#thermo-save-'+parts2+'-'+parts3).prop('disabled', true);
+   var climastatus=$("#thermo-btnstatus-"+parts2+'-'+parts3).attr("data-domotika-actualstatus");
+   var thermoname=$('#thermo-reset-'+parts2+'-'+parts3).attr('data-domotika-thermostat');
+   console.debug('loadThermoProgs '+thermoname+' '+climastatus);
+   $.get("/rest/v1.2/clima/program/"+thermoname+"/"+climastatus+"/json", function(r){
+         for(i=0;i<r.data.length;i++){
+            d=r.data[i];
+            var slidesel="[data-domotika-level-statusname="+jQueryEscapesel(climastatus)+"]";
+            slidesel+="[data-domotika-level-thermoname="+jQueryEscapesel(thermoname)+"]";
+            slidesel+="[data-domotika-level-day="+d.day+"]";
+            $(slidesel).each(
+               function(){
+                  $(this).val(d[$(this).attr('data-domotika-level-hour')]);
+               }  
+            );
+         }
+      }
+   );
+
+}
+
+function changeProgClimaStatus(newstatus, parts2, parts3){
+   $("#thermo-btnstatus-"+parts2+"-"+parts3).each(
+      function(){
+         $(this).html("<b>"+newstatus+'<b> <i class="glyphicon glyphicon-chevron-down"></i>')
+         $(this).attr("data-domotika-actualstatus", newstatus);
+      }
+   );
+   var thermoname=$("#thermo-btnstatus-"+parts2+"-"+parts3).attr('data-domotika-btnthermoname');
+   $("[data-domotika-level-thermoname="+jQueryEscapesel(thermoname)+"]").each(
+      function(){
+         $(this).attr('data-domotika-level-statusname', newstatus);
+      }
+   );
+   $("[data-domotika-type=statuschoose]").each(
+      function(){
+         if($(this).attr('data-domotika-statuschoose')==newstatus)
+            $(this).hide();
+         else
+            $(this).show();
+      }
+   );
+   loadThermoProgs(parts2, parts3);
+}
+
 $("[data-domotika-type=thermoprogram]").each(
    function(){
       $(this).noUiSlider({
@@ -74,6 +122,9 @@ $("[data-domotika-type=statuschoose]").each(
       $(this).fastClick(function(){
          var panel="#"+$(this).attr('data-domotika-panel');
          $(panel).hide(150);
+         var newstatus=$(this).attr('data-domotika-statuschoose');
+         var parts=$(this).attr('data-domotika-panel').split("-");
+         changeProgClimaStatus(newstatus, parts[2], parts[3]);
       });
    }
 );
@@ -84,6 +135,30 @@ $("[data-domotika-type=thermo-save]").each(
          var parts=$(this).attr('id').split("-");
          $(this).prop('disabled', true);
          $('#thermo-reset-'+parts[2]+'-'+parts[3]).prop('disabled', true);
+         var climastatus=$("#thermo-btnstatus-"+parts[2]+'-'+parts[3]).attr("data-domotika-actualstatus");
+         var thermoname=$('#thermo-reset-'+parts[2]+'-'+parts[3]).attr('data-domotika-thermostat');
+         var slidesel="[data-domotika-level-statusname="+jQueryEscapesel(climastatus)+"]";
+         slidesel+="[data-domotika-level-thermoname="+jQueryEscapesel(thermoname)+"]";
+         var postdata={'thermoname': thermoname, 'climastatus': climastatus, 
+                        'mon':{},'tue':{},'wed':{},'thu':{},'fri':{},'sat':{},'sun':{}
+                      };
+         $(slidesel).each(
+            function(){
+               var day=$(this).attr('data-domotika-level-day');
+               var hour=$(this).attr('data-domotika-level-hour');
+               postdata[day][hour]=parseFloat($(this).val());
+            }
+         );
+         $.ajax({
+            type:'POST',
+            url:"/rest/v1.2/clima/program/"+thermoname+"/"+climastatus+"/json",
+            contentType:"application/json; charset=utf-8",
+            data: JSON.stringify(postdata),
+            dataType:"json",
+            success: function(r){
+               console.debug('thermostat program saved');
+            }
+         });
       });
    }
 );
@@ -92,8 +167,7 @@ $("[data-domotika-type=thermo-reset]").each(
    function(){
       $(this).on('click', function(){
          var parts=$(this).attr('id').split("-");
-         $(this).prop('disabled', true);
-         $('#thermo-save-'+parts[2]+'-'+parts[3]).prop('disabled', true);
+         loadThermoProgs(parts[2], parts[3]);
       });
    }
 );
@@ -106,5 +180,27 @@ $('a[data-toggle="tab"]').on('shown.bs.tab',function(){
 $(function () {
     $('.thermotab a:first').tab('show');
 });
+
+var thermoProgramEvent = function(event) {
+   var data=$.parseJSON(event.data);
+   console.debug(data);
+   if(typeof(data.data.action) != 'undefined'){
+      var action=data.data.action;
+      if(action=='updated'){
+         var thermostat=data.data.thermostat;
+         var climastatus=data.data.climastatus;
+         jsel="[data-domotika-actualstatus="+jQueryEscapesel(climastatus)+"]";
+         jsel+="[data-domotika-btnthermoname="+jQueryEscapesel(thermostat)+"]";
+         $(jsel).each(
+            function(){
+               var parts=$(this).attr('id').split('-')
+                  loadThermoProgs(parts[2], parts[3]);
+            }
+         );
+      }
+   }
+}
+
+es.addEventListener("thermoprogram", thermoProgramEvent);
 
 </script>

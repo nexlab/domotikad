@@ -2326,10 +2326,29 @@ class domotikaService(service.Service):
       return dmdb.getClimaStatus()
 
    def web_on_setClimaStatus(self, newstatus):
+      self.clientSend('thermostat', {'action':'climastatus', 'status':newstatus})
       return dmdb.setUnique('climastatus', newstatus);
 
    def web_on_getThermostat(self, thermostat):
-      return dmdb.Thermostats.find(where=["name='%s'" % thermostat],limit=1)
+      return dmdb.Thermostats.find(where=["name=?",thermostat],limit=1)
+
+   def web_on_setThermostat(self, thermostat, func=False, setval=False):
+      if setval!=False and genutils.is_number(setval):
+         self.clientSend('thermostat', {'action':'setval', 'val': setval, 'thermostat': thermostat})
+      if func and func in ['manual','program']:
+         self.clientSend('thermostat', {'action':'function', 'func':func, 'thermostat': thermostat})
+      return dmdb.setThermostat(thermostat, func, setval)
+
+   def web_on_getThermostatProgram(self, thermostat, climastatus):
+      return dmdb.ThermostatsProgs.find(where=["thermostat_name=? and clima_status=?",thermostat, climastatus])
+
+   def web_on_setThermostatProgram(self, thermostat, climastatus, r):
+      def broad(res):
+         data={'thermostat': thermostat, 'climastatus': climastatus, 'action':'updated'}
+         self.clientSend('thermoprogram', data)
+         return res
+      return dmdb.setThermostatProgsDict(thermostat,climastatus,r).addCallback(broad)            
+
 
    def web_on_voiceReceived(self, txt, confidence=0.0, lang="it"):
       return self.voiceRecognized(txt, confidence, lang, voicesrc='RestAPI')
@@ -2505,3 +2524,4 @@ class domotikaService(service.Service):
 
    def board_on_boardOK(self, bid):
       self.clientSend('boardOK', bid)
+

@@ -66,7 +66,7 @@ if($panel && is_array($panel)) {
                       <div class="notifylist">
                          <div class="list-group theme-<?=$_DOMOTIKA['gui_theme']?>" data-snap-ignore="true">
                             <? foreach($climastatuses as $cs) { ?>
-                               <button type="button" style="width:100%;margin-top:5px;"
+                               <button type="button" style="width:100%;margin-top:5px;<?if($climastatus==$cs['clima_status'])echo'display:none';?>"
                                        data-domotika-statusselect="<?=$cs['clima_status']?>"
                                        data-domotika-type="statusselect"
                                        data-domotika-panel="thermo-statuschooselist-<?=$button['id']."-".$panel['id']?>"
@@ -110,14 +110,16 @@ if($panel && is_array($panel)) {
                      </div>
                    </div>
                   <div style="margin-top:45px;">
-                     <button type="button" class="btn btn-gray " 
+                     <button type="button" class="btn btn-<?if($thermo['function']=='manual'){echo 'primary';}else{echo 'gray';}?>" 
                         id="thermo-btnmanual-<?=$button['id']."-".$panel['id']?>"
+                        data-domotika-thermostat="<?=$panel['panel_content']?>"
                         data-dmcolor-on="btn-primary"
                         data-dmcolor-off="btn-gray"
                         data-domotika-type="btnmanual"
                         style="width:150px;height:40px;"><b>Manual</b></button>
-                     <button type="button" class="btn btn-primary " 
+                     <button type="button" class="btn btn-<?if($thermo['function']=='program'){echo 'primary';}else{echo 'gray';}?>"
                         id="thermo-btnprogram-<?=$button['id']."-".$panel['id']?>"
+                        data-domotika-thermostat="<?=$panel['panel_content']?>"
                         data-dmcolor-on="btn-primary"
                         data-dmcolor-off="btn-gray"
                         data-domotika-type="btnprogram"
