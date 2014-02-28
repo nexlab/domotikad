@@ -47,9 +47,6 @@ CREATE TABLE IF NOT EXISTS `thermostats_progs` (
   KEY `active` (`day`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-ALTER TABLE `thermostats_progs`
-  ADD CONSTRAINT `thermostats_progs_ibfk_1` FOREIGN KEY (`thermostat_name`) REFERENCES `thermostats` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
-
 
 CREATE TABLE IF NOT EXISTS `thermostats` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -69,4 +66,8 @@ CREATE TABLE IF NOT EXISTS `thermostats` (
   KEY `button_name` (`button_name`,`position`),
   KEY `function` (`function`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+
+ALTER TABLE `thermostats_progs`
+  ADD CONSTRAINT `thermostats_progs_ibfk_1` FOREIGN KEY (`thermostat_name`) REFERENCES `thermostats` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
 
