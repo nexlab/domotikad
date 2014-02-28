@@ -405,6 +405,8 @@
             $.get("/rest/v1.2/notifications/json", function(r){
             for(i=0;i<r.data.length;i++)
             {
+               console.debug(r.data[i]);
+               console.debug($("#notifications"));
                $("#notifications").prepend(notifylistitem(r.data[i].message, r.data[i].source, r.data[i].id, r.data[i].added));     
             }
          });
