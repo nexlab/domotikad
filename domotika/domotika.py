@@ -76,7 +76,6 @@ ACTION_STATUS={}
 
 log = logging.getLogger( 'Core' )
 
-
 def converWday(wday):
    wday=wday+1
    if wday==7:
@@ -136,6 +135,12 @@ class domotikaService(service.Service):
       self.notifytimer.start(60)
       self.clienttimer = task.LoopingCall(self.expireClients)
       self.clienttimer.start(60)
+      self.thermostattimer = task.LoopingCall(self.thermostatsLoop)
+      self.thermostattimer.start(10)
+      self.thermoProgramLoop()
+      self.thermoprgloop=txcron.ScheduledCall(self.thermoProgramLoop)
+      self.thermoprgloop.start(CronSchedule('00 * * * *'))
+
 
       self.actiontimer.start(int(self.config.get("general", "action_status_timer")))
       self.timer.start(int(self.config.get("ikapserver", "timeupdates"))) 
@@ -222,6 +227,80 @@ class domotikaService(service.Service):
    def startActionLoops(self):
       t=task.LoopingCall(self.refreshActionLoops)
       t.start(60)
+
+   def thermoProgramLoop(self):
+      wd=['sun','mon','tue','wed','thu','fri','sat']
+      def _setTemp(res, thermostat):
+         if res:
+            try:
+               t=res[0][0]
+               dmdb.setThermostat(thermostat, func='program', setval=t)
+               self.clientSend('thermostat', {'action':'setval', 'val': t, 'thermostat': thermostat})
+            except:
+               pass
+      def _setThermoPrg(res, cs):
+         d=wd[int(time.strftime('%w', time.localtime()))]
+         for thermo in res:
+            sqlquery="SELECT h"+time.strftime('%H', time.localtime())+" FROM thermostats_progs WHERE"
+            sqlquery+=" thermostat_name='"+thermo.name+"' AND clima_status='"+cs+"' AND day='"+d+"' LIMIT 1"
+            dmdb.runQuery(sqlquery).addCallback(_setTemp, thermo.name)
+
+      def getThermo(cs):
+         dmdb.Thermostats.find(where=["active=1 AND function='program'"]).addCallback(_setThermoPrg, cs)
+      dmdb.getClimaStatus().addCallback(getThermo)
+
+
+   def thermostatsLoop(self):
+      def manageClimaActions(thermoacts):
+         for res in thermoacts:
+            if genutils.isTrue(res.active):
+               try:
+                  timedict=parseCronLine(
+                     " ".join(
+                        [res.min, res.hour, res.day, res.month, res.dayofweek]))
+               except:
+                  continue
+               loctime=time.localtime()
+               if(loctime.tm_mon in timedict["months"]
+                  and loctime.tm_mday in timedict["doms"]
+                  and converWday(loctime.tm_wday)  in timedict["dows"]
+                  and loctime.tm_hour in timedict["hours"]
+                  and loctime.tm_min in timedict["minutes"]):
+
+                  if time.time()-float(res.lastrun) < float(res.min_time):
+                     continue
+                  res.lastrun=time.time()
+                  log.info('Execute Thermostat Action ID '+str(res.id)+' for thermostat '+str(res.thermostat_name)+' trigger '+str(res.change_trigger))
+                  res.save()
+                  if genutils.isTrue(res.ikapacket):
+                     self.sendCommand(res.ikap_dst, act=res.ikap_act, ctx=res.ikap_ctx, msgtype=res.ikap_msgtype,
+                        arg=res.ikap_arg, src=res.ikap_src, ipdst=str(res.ipdest))
+
+                  if genutils.isTrue(res.use_command):
+                     self.executeAction(res.command)
+                  if genutils.isTrue(res.launch_sequence) and res.launch_sequence_name != None:
+                     dmdb.getSequence(res.launch_sequence_name).addCallback(self.manageSequence, 'thermostat')
+
+
+      def checkThermo(res, cs):
+         for thermo in res:
+            wh="thermostat_name='%s' AND (thermostat_function='%s' OR thermostat_function='any')" % (thermo.name, thermo.function)
+            wh+=" AND active=1 AND DMDOMAIN('%s', clima_status)=1" %(str(cs))
+            if genutils.isTrue(thermo.status_changed):
+               dmdb.ThermostatsActions.find(where=[wh+" AND change_trigger='status_change'"]).addCallback(manageClimaActions)
+            if genutils.isTrue(thermo.function_changed):
+               dmdb.ThermostatsActions.find(where=[wh+" AND change_trigger='function_change'"]).addCallback(manageClimaActions)
+            if genutils.isTrue(thermo.temp_changed):
+               dmdb.ThermostatsActions.find(where=[wh+" AND change_trigger='temp_change'"]).addCallback(manageClimaActions)
+            dmdb.ThermostatsActions.find(where=[wh+" AND change_trigger='any'"]).addCallback(manageClimaActions)
+            thermo.status_changed=0
+            thermo.function_changed=0
+            thermo.temp_changed=0
+            thermo.lastcheck=time.time()
+            thermo.save()
+      def getThermo(cs):
+         dmdb.getThermostatsChanged().addCallback(checkThermo, cs)
+      dmdb.getClimaStatus().addCallback(getThermo)
 
    def actionLoopTasks(self, res):
       log.debug("ACTION LOOP TASKS")
@@ -482,7 +561,12 @@ class domotikaService(service.Service):
    def syncBoards(self, bid=False, *a, **kw):
       if not bid:
          return dmdb.DMBoards.find(where=['online=1']).addCallback(self._syncBoards)
-      return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._syncBoards)
+      if genutils.is_number(bid):
+         return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._syncBoards)
+      elif genutils.isIp(bid):
+         return dmdb.DMBoards.find(where=['online=1 and ip="%s"' % str(bid)]).addCallback(self._syncBoards)
+      elif type(bid).__name__=='str':
+         return dmdb.DMBoards.find(where=['online=1 and name="%s"' % str(bid)]).addCallback(self._syncBoards)
       
    def _pushBoards(self, res, analogs=False, inputs=False, outputs=False, pwms=False): # XXX Make which i/o/a is pushed selectively
       if res:
@@ -490,7 +574,7 @@ class domotikaService(service.Service):
             p=pluggableBoards.getBoardPlugin(b.type, ConvenienceCaller(lambda c: self._callback('board', c)))
             if b:
                pboard = p.getBoard(b.ip, b.webport, self.boardsyspwd, str(self.config.get('general', 'language')))
-
+               log.info('_PushBoards '+str(pboard))
                if analogs and analogs=='*':
                   pboard.pushAnalogs()
                elif type(analogs).__name__ in ['list','tuple']:
@@ -533,7 +617,12 @@ class domotikaService(service.Service):
    def pushBoards(self, bid=False, analogs=False, inputs=False, outputs=False, pwms=False, *a, **kw):
       if not bid:
          return dmdb.DMBoards.find(where=['online=1']).addCallback(self._pushBoards, analogs, inputs, outputs, pwms)
-      return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._pushBoards, analogs, inputs, outputs, pwms)
+      if genutils.is_number(bid):
+         return dmdb.DMBoards.find(where=['online=1 and id="%s"' % str(bid)]).addCallback(self._pushBoards, analogs, inputs, outputs, pwms)
+      elif genutils.isIp(bid):
+         return dmdb.DMBoards.find(where=['online=1 and ip="%s"' % str(bid)]).addCallback(self._pushBoards, analogs, inputs, outputs, pwms)
+      elif type(bid).__name__=='str':
+         return dmdb.DMBoards.find(where=['online=1 and name="%s"' % str(bid)]).addCallback(self._pushBoards, analogs, inputs, outputs, pwms)
 
    def autoDetectBoards(self, *a, **kw):
       log.info("Start building boardlist")
@@ -982,7 +1071,98 @@ class domotikaService(service.Service):
             session.sse.sendJSON(event=event, data=data)
          except:
             pass
-     
+
+   def thermoSet(self, thermo, *a, **kw):
+
+      def _push(res, ret ):
+         status='*'
+         if 'status' in kw.keys() and kw['status'] is not False:
+            status=kw['status']
+         for r in ret:
+            self.pushBoards(bid=r.board_name, analogs=[{'num': r.ananum, 'status': status}])
+            log.info('THERMOSET PUSHBOARD '+str(r.board_name)+str({'num': r.ananum, 'status': status}))
+
+      def _analogs(res, sqld):
+         ors=[]
+         for r in res:
+            sql="boardname='%s' AND boardip='%s' AND ananum='%s' AND ananame='%s'" % (r.board_name, r.board_ip, r.ananum, r.ananame)
+            if 'status' in kw.keys() and kw['status'] is not False:
+               if genutils.is_number(kw['status']) and int(kw['status']) in [1,2]:
+                  sql+=" AND status_num='%s'" % str(kw['status'])
+               else:
+                  sql+=" AND DMDOMAIN(status_name, '%s')=1" % str(kw['status'])
+            ors+=[sql]
+         sql="UPDATE ioconf_analogs SET "
+         started=False
+         for s in sqld.keys():
+            if started:
+               sql+=','
+            else:
+               started=True
+            if s == 'min_level' and sqld['min_level'] is None:
+               sql+="min_level=minval"
+            elif s == 'min_level':
+               sql+="min_level=%s" % str(float(sqld['min_level'])*float(r.divider))
+            elif s == 'max_level' and sqld['max_level'] is None:
+               sql+="max_level=maxval"
+            elif s == 'max_level':
+               sql+="max_level=%s" % str(float(sqld['max_level'])*float(r.divider))
+            else:
+               sql+=s+"='"+sqld[s]+"'"
+         sql+=" WHERE "
+         started=False
+         for s in ors:
+            if started:
+               sql+=" OR "
+            else:
+               started=True
+            sql+="("+s+")"
+         dmdb.runOperation(sql).addCallback(_push, res )
+
+      def _thermoSet(res):
+         for r in res:
+            sqld={}
+            if 'mindomain' in kw.keys() and kw['mindomain'] is not False:
+               sqld['min_domain'] = str(kw['mindomain'])
+            if 'minmsgtype' in kw.keys() and kw['minmsgtype'] is not False and genutils.is_number(kw['minmsgtype']):
+               sqld['min_msg'] = str(kw['minmsgtype'])
+            if 'minval' in kw.keys() and kw['minval'] is not False:
+               if genutils.is_number(kw['minval']):
+                  sqld['min_level']=str(kw['minval'])
+               elif kw['minval']=='fromthermo':
+                  sqld['min_level']=str(r.setval)
+               elif kw['minval']=='unset':
+                  sqld['min_level']=None
+            if 'minact' in kw.keys() and kw['minact'] is not False and genutils.is_number(kw['minact']):
+               sqld['min_act']=str(kw['minact'])
+            if 'minctx' in kw.keys() and kw['minctx'] is not False and genutils.is_number(kw['minctx']):   
+               sqld['min_ctx']=str(kw['min_ctx'])
+            if 'maxdomain' in kw.keys() and kw['maxdomain'] is not False:
+               sqld['max_domain'] = str(kw['maxdomain'])
+            if 'maxmsgtype' in kw.keys() and kw['maxmsgtype'] is not False and genutils.is_number(kw['maxmsgtype']):
+               sqld['max_msg'] = str(kw['maxmsgtype'])
+            if 'maxval' in kw.keys() and kw['maxval'] is not False:
+               if genutils.is_number(kw['maxval']):
+                  sqld['max_level']=str(kw['maxval'])
+               elif kw['maxval']=='fromthermo':
+                  sqld['max_level']=str(r.setval)
+               elif kw['maxval']=='unset':
+                  sqld['max_level']=None
+            if 'maxact' in kw.keys() and kw['maxact'] is not False and genutils.is_number(kw['maxact']):
+               sqld['max_act']=str(kw['maxact'])
+            if 'maxctx' in kw.keys() and kw['maxctx'] is not False and genutils.is_number(kw['maxctx']):
+               sqld['max_ctx']=str(kw['max_ctx'])
+            if 'enabled' in kw.keys() and kw['enabled'] is not False and kw['enabled'] in ['yes','no']:
+               sqld['enabled'] = kw['enabled']
+            if r.sensor_type=='analog':
+               whe="websection='clima' AND DMDOMAIN(ananame, '%s')=1" % str(r.sensor_domain)
+               dmdb.Analog.find(where=[whe]).addCallback(_analogs, sqld)
+         return defer.succeed(True)
+               
+      log.info("SET THERMOSTAT "+thermo)
+      return dmdb.Thermostats.find(where=["DMDOMAIN(name, '"+thermo+"')=1"]).addCallback(_thermoSet)
+
+
    def ioConfig(what, act, who, **args):
       what = what.lower()
       act = act.lower()
@@ -1135,6 +1315,39 @@ class domotikaService(service.Service):
          if len(pc) > 1:
             preq=sp.join(pc[1:])
          self.plugins.push_request(pname, preq)
+
+      elif command.startswith("THERMOSET ") or command.startswith("THERMOSET:"):
+         if ':' in command:
+            command=command[10:].split(':')
+         else:
+            command=command[10:].split()
+         if len(command)>0:
+            thermo=command[0]
+            topt={
+               'enabled': 'yes',
+               'minval': 'fromthermo',
+               'maxval': 'unset',
+               'mindomain': False,
+               'maxdomain': False,
+               'minctx': False,
+               'maxctx': False,
+               'minact': False,
+               'maxact': False,
+               'minmsgtype': False,
+               'maxmsgtype': False,
+               'status': '*'
+            }
+
+            if(len(command)>1):
+               opts=command[1]
+               for opt in opts.split(','):
+                  optp=opt.split('=')[0]
+                  if len(optp)>1 and optp[0] in topt.keys():
+                     optk=optp[0]
+                     optv=optp[1]
+                     topt[optk]=optv
+            self.thermoSet(thermo, **topt)
+         
 
       elif command.startswith("PHONECALL ") or command.startswith("PHONECALL:"):
          if ':' in command:
@@ -1416,7 +1629,7 @@ class domotikaService(service.Service):
       events.postEvent(events.SequenceEvent("REQUESTED", res.name, res.type, cmdsrc))
       if res.type==C.SEQUENCE_TYPE_CONTINUE:
          if res.running:
-            if cmdsrc not in ['cron', 'motion', 'restart', 'sequence','statuses']: #, 'voip']:
+            if cmdsrc not in ['cron', 'motion', 'restart', 'sequence','statuses','thermostat']: #, 'voip']:
                self.stopSequence(res)
             return
          else:
@@ -2196,6 +2409,11 @@ class domotikaService(service.Service):
       return d
 
 
+   def setClimaStatus(self, newstatus):
+      self.clientSend('thermostat', {'action':'climastatus', 'status':newstatus})
+      return dmdb.setClimaStatus(newstatus);
+
+
    def getChartData(self, resdata, chartname):
       if resdata and len(resdata)>0:
          return dmdb.getChartSeries(chartname).addCallback(self.parseChartSeries, resdata, chartname)
@@ -2359,8 +2577,7 @@ class domotikaService(service.Service):
       return dmdb.getClimaStatus()
 
    def web_on_setClimaStatus(self, newstatus):
-      self.clientSend('thermostat', {'action':'climastatus', 'status':newstatus})
-      return dmdb.setUnique('climastatus', newstatus);
+      return self.setClimaStatus(newstatus)
 
    def web_on_getThermostat(self, thermostat):
       return dmdb.Thermostats.find(where=["name=?",thermostat],limit=1)

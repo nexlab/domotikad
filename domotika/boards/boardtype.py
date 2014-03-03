@@ -52,6 +52,7 @@ except:
 
 # i_[idx]_[ananum+totinp]_[statusnum]_[act]
 ANAINDEX={
+   'ananame': ['08', '00'],
    'status_name': ['09', '00'],
    'enabled': ['05', '00'],
    'anatype': ['11', '00'],
@@ -83,6 +84,7 @@ ANAINDEX={
    'max_optstring': ['15','03'],
    'max_dst': ['04','03'],
 }
+
 
 
 def context2section(ctx):
@@ -269,6 +271,7 @@ class ANABoard(object):
             d.boardname=boardname
             d.boardip=boardip
             d.ananum=i-self.firstAna+1
+            d.ananame=aname
             d.status_num=n
             d.status_name=sconf[0]
             d.enabled='yes' if sconf[2]=='1' else 'no'

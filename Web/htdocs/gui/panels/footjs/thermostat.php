@@ -193,6 +193,7 @@ var thermostatEvent = function(event) {
                var parts=$(this).attr('id').split("-");
                var slide=$("#thermo-level-"+parts[2]+'-'+parts[3]);              
                slide.val(parseFloat(data.data.val));
+               slider.data('oldval', slider.val());
                $('#thermo-showset-'+parts[2]+'-'+parts[3]).text(parseFloat(data.data.val).toFixed(1));
             }
          );

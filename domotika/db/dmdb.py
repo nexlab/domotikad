@@ -242,6 +242,9 @@ class Thermostats(DBObject):
 class ThermostatsProgs(DBObject):
    TABLENAME="thermostats_progs"
 
+class ThermostatsActions(DBObject):
+   TABLENAME="thermostats_actions"
+
 
 def updateStatusRealtime(stname, status, changed=False):
    querystr="INSERT INTO statusrealtime (status_name,value,lastupdate"
@@ -643,6 +646,13 @@ def getNetStatus():
 def getClimaStatus():
    return Uniques.find(where=["name='climastatus'"],limit=1).addCallback(_retValueQuery, 'OFF')
    
+
+def setClimaStatus(newstatus):
+   def _updateThermoInSetClima(res):
+      runQuery("UPDATE thermostats SET lastchange='%s',status_changed=1" % str(time.time()))
+      return res
+   return setUnique('climastatus', newstatus).addCallback(_updateThermoInSetClima)
+
 def getStatusRealtime(stname):
    return StatusRealtime.find(where=["status_name=?", stname],limit=1).addCallback(_retValueQuery, False)
 
@@ -698,6 +708,9 @@ def setThermostatProgsDict(thermostat, climastatus, r):
    return Thermostats.find(where=['name=?', thermostat], limit=1).addCallback(
       _setThermostatProgsDict, thermostat, climastatus, r)
       
+
+def getThermostatsChanged():
+   return Thermostats.find(where=["active='yes' AND lastchange=0.00 or lastchange>lastcheck"])
 
 
 def checkMotionDetectionEvent(camera, zone, estatus, etype):
