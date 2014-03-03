@@ -1,6 +1,6 @@
-DROP table thermostats;
-DROP table thermostats_progs;
 DROP table thermostats_actions;
+DROP table thermostats_progs;
+DROP table thermostats;
 CREATE TABLE IF NOT EXISTS `thermostats` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
