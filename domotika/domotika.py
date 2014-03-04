@@ -123,7 +123,7 @@ class domotikaService(service.Service):
       self.isConfigured()
 
    def isConfigured(self):
-      self.timer = task.LoopingCall(self.getRelayStatus)
+      self.timer = task.LoopingCall(self.getIOBoardStatus)
       self.actiontimer = task.LoopingCall(self.actionStatus)
       self.cleanStatusTimer = task.LoopingCall(self.cleanOldStatus)
       self.boardsyspwd = genutils.board_syspwd(self.config.get("general", "boards_syspwd"))
@@ -985,7 +985,7 @@ class domotikaService(service.Service):
       dmdb.getBoardById(bid).addCallback(_checkBoard)
 
 
-   def getRelayStatus(self):
+   def getIOBoardStatus(self):
       now=time.time()
       if(int(self.config.get('ikapserver', 'timeupdates'))<=now-self.lastupdatestatus):
          log.debug("Sending IOSTATUS.NOW Request")
@@ -1159,7 +1159,7 @@ class domotikaService(service.Service):
                dmdb.Analog.find(where=[whe]).addCallback(_analogs, sqld)
          return defer.succeed(True)
                
-      log.info("SET THERMOSTAT "+thermo)
+      log.info("SET THERMOSTAT "+thermo+" "+str(kw)+" "+str(r.setval))
       return dmdb.Thermostats.find(where=["DMDOMAIN(name, '"+thermo+"')=1"]).addCallback(_thermoSet)
 
 
