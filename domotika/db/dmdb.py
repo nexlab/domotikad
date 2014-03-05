@@ -685,7 +685,7 @@ def _setThermostatProgsDict(res, thermostat, climastatus, r):
          if d in r.keys() and type(r[d]).__name__=='dict':
             sql="UPDATE thermostats_progs SET "
             doit=False
-            for h in range(1, 25):
+            for h in range(0, 24):
                hour='h'+str(h).zfill(2)
                if hour in r[d].keys() and genutils.is_number(r[d][hour]):
                   if float(r[d][hour]) >= float(res.minslide) and float(r[d][hour]) <= float(res.maxslide):
