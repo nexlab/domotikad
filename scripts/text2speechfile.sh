@@ -4,7 +4,7 @@
 if [[ $# < "3" ]] ; then
    echo "Usage:   $0 <destination file> <language> '<text>'"
    echo ""
-   echo "Example: $0 foo.wav it prova di trasmissione"
+   echo "Example: $0 foo.wav it 'prova di trasmissione'"
    echo ""
    exit 0
 fi
