@@ -2,7 +2,7 @@
 #cd `dirname $0`/../domotika/clouds/google
 
 if [[ $# < "3" ]] ; then
-   echo "Usage:   $0 <destination file> <language> \'<text>\'"
+   echo "Usage:   $0 <destination file> <language> '<text>'"
    echo ""
    echo "Example: $0 foo.wav it prova di trasmissione"
    echo ""
