@@ -26,6 +26,9 @@ from dmlib.utils import genutils
 from twisted.internet import defer
 from db import dmdb
 from dmlib import dmdomain
+import logging, sys, os
+
+log = logging.getLogger( 'Core' )
 
 
 

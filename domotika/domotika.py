@@ -1388,6 +1388,7 @@ class domotikaService(service.Service):
                                    interval=int(pinterval), replay=int(preplay), engine=str(engine))
 
       elif command.startswith("PHONEPLAY ") or command.startswith("PHONEPLAY:"):
+         # XXX BUG! if you use : conflict with options and doesn't work!
          command=command[10:]
          pfile=command.split()[0]
          popts=command.split()[1]
