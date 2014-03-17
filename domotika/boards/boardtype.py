@@ -350,6 +350,7 @@ class ANABoard(object):
                postdata+=normalize(a[k])
       uri="http://"+self.host+":"+str(self.port)+"/ioconf.xml"
       log.info("Posting Analog config to "+str(uri))
+      log.info(postdata)
       return self.requestPage(uri, method='POST', postdata=postdata, nolocation=True).addCallbacks(endPush, endPush)
 
 
@@ -359,7 +360,7 @@ class ANABoard(object):
       if not bname:
          boardname=str(xml.getElementsByTagName(self.boardXML, 'cfg_hostname')[0].firstChild().toxml())
       #sqlstring="SELECT * FROM ioconf_analogs WHERE boardname='%s' AND boardip='%s'" % (boardname, boardip)
-      sqlstring="boardname='%s' AND boardip='%s'" % (boardname, boardip)
+      sqlstring="boardname='%s' AND boardip='%s' and ananum='%s'" % (boardname, boardip, str(num))
       if genutils.is_number(status) and status != '*':
          sqlstring+=" AND status_num='%s'" % str(status)
       elif status!='*':
@@ -368,6 +369,7 @@ class ANABoard(object):
       return dmdb.IOConfAnalogs.find(where=[sqlstring]).addCallback(self._sendAnalogIOConf, dataonly)
 
    def _pushAnalog(self, num, status, dataonly=False, bname=False):
+      log.info('PUSH ANALOG NUMBER '+str(num))
       self.analogLock=True
       if not bname and not self.initialized:
          return self.initialize().addCallback(self._getAnalogIOConf, num, status, dataonly, bname)
