@@ -313,35 +313,35 @@ class BoardRest(RestCore):
    def boardlist(self, request, *a, **kw):
       return 'boardlist'
 
-   @route("/autodetect")
-   @wrapResponse
-   def boardAutodetect(self, request, *a, **kw):
-      self.core.startAutoDetection()
-      ResponseConversion(request, entity='OK')
-
    @route("/forceautodetect")
    @wrapResponse
    def boardForceAutodetect(self, request, *a, **kw):
       self.core.startAutoDetection(True)
-      ResponseConversion(request, entity='OK')
+      return ResponseConversion(request, entity='OK')
+
+   @route("/autodetect")
+   @wrapResponse
+   def boardAutodetect(self, request, *a, **kw):
+      self.core.startAutoDetection()
+      return ResponseConversion(request, entity='OK')
 
    @route("/syncall")
    @wrapResponse
-   def boardForceAutodetect(self, request, *a, **kw):
+   def boardSyncAll(self, request, *a, **kw):
       self.core.startSync()
-      ResponseConversion(request, entity='OK')
+      return ResponseConversion(request, entity='OK')
 
    @route("/syncboardbyid/<int:boardid>")
    @wrapResponse
    def syncBoardById(self, request, boardid):
       self.core.startSync(boardid)
-      ResponseConversion(request, entity='OK')
+      return ResponseConversion(request, entity='OK')
 
    @route("/pushboardbyid/<int:boardid>")
    @wrapResponse
    def pushBoardById(self, request, boardid):
       self.core.startPush(boardid)
-      ResponseConversion(request, entity='OK')
+      return ResponseConversion(request, entity='OK')
 
 
 class CronRest(RestCore):

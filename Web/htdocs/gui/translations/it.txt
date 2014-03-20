@@ -15,4 +15,5 @@ user = user
 none = Nessuna Sezione
 phone = telefono
 index = Home
+gate = cancelli
 
