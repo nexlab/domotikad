@@ -1297,7 +1297,8 @@ class domotikaService(service.Service):
                   sqlstring+="0"
                elif cact=='enable':
                   sqlstring+="1"
-            sqlstring+=" where DMDOMAIN('"+tid+"', timer_name)=1"
+            sqlstring+=" where DMDOMAIN(timer_name, '"+tid+"')=1"
+            log.error(sqlstring)
             dmdb.runOperation(sqlstring)
          except:
             pass
