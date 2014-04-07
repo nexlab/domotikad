@@ -40,6 +40,7 @@ import logging
 log = logging.getLogger( 'Proxy' )
 
 class WebProxyClient(ProxyClient):
+
    def handleHeader(self, key, value):
       if key.lower() == 'location':
          log.debug("Manage location header")

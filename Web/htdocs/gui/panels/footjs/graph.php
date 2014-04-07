@@ -52,7 +52,7 @@ function chartsPlot()
    }
 }
 
-$(document).ready(function(){
+$(window).load(function(){
    chartsPlot();
    setInterval(chartsPlot, 10000);
 });

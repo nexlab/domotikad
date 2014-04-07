@@ -709,42 +709,43 @@
      if(es.readystate=='CLOSED')
         es = new EventSource("/sse");
    }
+   $(window).load(function(){
 
-   $.get("/rest/v1.2/daemonstatus/json",
-      function(r){
-         if(r.data=='boardsdetection')
-         {
-            $("#modal_fixed").load('/resources/modals/autodetection_run.html');
-            $("#modal_fixed").modal('show');
-         }
-      }
-   );
-
-
-   setInterval(function(i){
-      //console.debug("setinterval");
-      $.get("/rest/v1.2/keepalive/json", 
+      $.get("/rest/v1.2/daemonstatus/json",
          function(r){
-            //console.debug(r);
-            //console.debug("getok");
-            //if('vibrate' in navigator) {
-            //   // ... vibrate for a second
-            //   navigator.vibrate(1000);
-            //}
-            if(r.data=='SLOGGEDOUT')
+            if(r.data=='boardsdetection')
             {
-               location.reload();
+               $("#modal_fixed").load('/resources/modals/autodetection_run.html');
+               $("#modal_fixed").modal('show');
             }
-            if($("#modal_offline").attr('aria-hidden')=='false')
-               $("#modal_offline").modal('hide');
-
-         }).fail(function(r){
-            console.debug("getfail");
-            console.debug(r);
-            $("#modal_offline").modal('show');
          }
       );
-    },5000);
 
-   $.get("/rest/v1.2/notifications/count/json", function(r){ $("#notifybadge").text(r.data);});
 
+      setInterval(function(i){
+         //console.debug("setinterval");
+         $.get("/rest/v1.2/keepalive/json", 
+            function(r){
+               //console.debug(r);
+               //console.debug("getok");
+               //if('vibrate' in navigator) {
+               //   // ... vibrate for a second
+               //   navigator.vibrate(1000);
+               //}
+               if(r.data=='SLOGGEDOUT')
+               {
+                  location.reload();
+               }
+               if($("#modal_offline").attr('aria-hidden')=='false')
+                  $("#modal_offline").modal('hide');
+
+            }).fail(function(r){
+               console.debug("getfail");
+               console.debug(r);
+               $("#modal_offline").modal('show');
+            }
+         );
+      },5000);
+
+      $.get("/rest/v1.2/notifications/count/json", function(r){ $("#notifybadge").text(r.data);});
+   });

@@ -10,7 +10,6 @@ CSS="../../resources/bootstrap/css/bootstrap.min.css
 ../../resources/bootstrap-switch/static/stylesheets/bootstrap-switch.css
 ../../resources/js/jqplot/jquery.jqplot.min.css
 ../../resources/noUiSlider/jquery.nouislider.css
-css/style.css
 "
 
 JS="
@@ -21,7 +20,6 @@ JS="
 js/starthammer.js
 ../../resources/hammer.js/plugins/jquery.hammer.js/jquery.hammer.js
 ../../resources/bootstrap/js/bootstrap.min.js
-../../resources/js/respond.min.js
 ../../resources/bootstrap-switch/static/js/bootstrap-switch.min.js
 ../../resources/Snap.js/snap.min.js
 ../../resources/AppScroll.js/AppScroll.min.js
@@ -44,10 +42,9 @@ js/starthammer.js
 ../../resources/css-element-queries/src/ElementQueries.js
 js/fastclick.js
 js/speech.js
-js/domotika.js
 "
-echo -n > css/combined.min.css
-echo -n > js/combined.min.js
+echo -n > ../../resources/gui/css/combined.min.css
+echo -n > ../../resources/gui/js/combined.min.js
 export IFS="
 "
 for c in $CSS
@@ -61,7 +58,7 @@ for c in $CSS
          echo "already minified..."
          cp $c /tmp/$o.compressed
       fi
-      cat /tmp/$o.compressed >> css/combined.min.css
+      cat /tmp/$o.compressed >> ../../resources/gui/css/combined.min.css
    done
 
 for j in $JS
@@ -73,20 +70,20 @@ for j in $JS
          #java -jar ../../../tools/compiler.jar --js $mydir/$j --js_output_file /tmp/$o.compressed >/dev/null 2>&1
          $YUI --type js --nomunge -o /tmp/$o.compressed $j >/dev/null 2>&1
          if [ -f /tmp/$o.compressed ] ; then
-            cat /tmp/$o.compressed >> js/combined.min.js
+            cat /tmp/$o.compressed >> ../../resources/gui/js/combined.min.js
          else
             echo "cannot use closure, use htmlcompressor..."
             #sed -e 's/ \/\/.*$//' $mydir/$j  > /tmp/$o.pass1
             #java -jar ../../../tools/htmlcompressor-1.5.3.jar --nomunge -o /tmp/$o.compressed /tmp/$o.pass1
             cp $mydir/$j /tmp/$o.compressed
-            cat /tmp/$o.compressed >> js/combined.min.js
+            cat /tmp/$o.compressed >> ../../resources/gui/js/combined.min.js
          fi
       else
          echo "already minified..."
-         cat $j >> js/combined.min.js
+         cat $j >> ../../resources/gui/js/combined.min.js
       fi
       echo -n 'SIZE: ' 
-      du -chs js/combined.min.js
+      du -chs ../../resources/gui/js/combined.min.js
    done
    
 

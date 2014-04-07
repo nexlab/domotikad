@@ -12,7 +12,9 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/resources/bootstrap/js/bootstrap.min.js"></script>
     <!-- Optionally enable responsive features in IE8 -->
+    <!--[if IE 8]>
     <script src="/resources/js/respond.min.js"></script>
+    <![endif]-->
     <!-- bootstrap switch -->
     <script src="/resources/bootstrap-switch/static/js/bootstrap-switch.min.yui.js"></script>
     <!-- Snap.js -->
@@ -45,5 +47,6 @@
     <script src="<?=$BASEGUIPATH;?>/js/speech.js"></script>
     <script src="<?=$BASEGUIPATH;?>/js/domotika.js"></script>
    <? } else { ?>
-   <script src="<?=$BASEGUIPATH;?>/js/combined.min.js"></script>
+   <script src="/resources/gui/js/combined.min.js"></script>
+   <script src="<?=$BASEGUIPATH;?>/js/domotika.js"></script>
    <? } ?>

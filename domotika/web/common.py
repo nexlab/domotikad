@@ -57,6 +57,16 @@ from twisted.web.twcgi import CGIScript, FilteredScript
 log = logging.getLogger( 'Webgui' )
 curdir=os.path.abspath(os.path.dirname(sys.argv[0]))
 
+EXCLUDELIST=(
+   '.swf',
+   '.png',
+   '.jpg',
+   '.gif',
+   '.gz',
+   '.tgz'
+   '.zip'
+)
+
 
 class GzipRequest(object):
     """Wrapper for a request that applies a gzip content encoding"""
@@ -88,6 +98,7 @@ class GzipRequest(object):
             if 'content-length' in self.request.headers:
                 del self.request.headers['content-length']
             # Borrow header information from twisted.web2 gzip filter
+            self.request.headers['pippo']='sarca'
             self.request.write('\037\213\010\000' '\0\0\0\0' '\002\377')
         self.crc = zlib.crc32(data, self.crc)
         self.size += len(data)
@@ -117,7 +128,7 @@ class StaticFile(static.File):
       # Some flash file ( flowplayer.. ) needs
       # to be server without gzip compression or
       # they will not work sometime...
-      if self.basename().endswith('.swf'):
+      if self.basename().endswith(EXCLUDELIST):
          return static.File.render(self, request)
       accept_encoding = request.getHeader('accept-encoding')
       if accept_encoding:
