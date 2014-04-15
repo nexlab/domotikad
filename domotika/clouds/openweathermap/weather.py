@@ -56,9 +56,9 @@ class OWMWeather(object):
    def _getReport(self):
       log.debug("Weather get report")
       if self.usecity:
-         page="http://api.openweathermap.org/data/2.5/weather?q="+str(self.city)
+         page="http://api.openweathermap.org/data/2.5/weather?q="+str(self.city)+"&units=metric"
       else:
-         page="http://api.openweathermap.org/data/2.5/weather?lat="+str(self.lat)+"&lon="+str(self.lon)+"&mode=json"
+         page="http://api.openweathermap.org/data/2.5/weather?lat="+str(self.lat)+"&lon="+str(self.lon)+"&mode=json&units=metric"
       cb=wu.getPage(page, headers={'x-api-key': str(self.owmid)}).addCallbacks(self.onData, self.onError)
 
    def updateDatabase(self):
