@@ -180,7 +180,7 @@ class DomIkaBaseProtocol(object):
             dstend=offset+self.ikahdr.dstlen
             src=""
             if(self.ikahdr.srclen>0):
-               src=self.aesdata.cleandata[:self.ikahdr.srclen]
+               src=self.aesdata.cleandata[:self.ikahdr.srclen].rstrip()
             dst=""
             if(self.ikahdr.dstlen>0):
                dst=self.aesdata.cleandata[offset:dstend]
