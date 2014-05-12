@@ -503,6 +503,7 @@ def resetDynAnalogs():
    return Registry.getConfig().delete("analog", where=["dynamic=1"])
 
 def resetDynRelays():
+   log.debug('RESET DYN RELAYS')
    return Registry.getConfig().delete("relay", where=["dynamic=1"])
 
 def resetDynInputs():

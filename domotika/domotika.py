@@ -642,27 +642,6 @@ class domotikaService(service.Service):
       self.sendCommand("BOARDTYPE", arg=ALLIP, act=C.IKAP_ACT_BOARD, ctx=C.IKAP_CTX_SYSTEM, msgtype=C.IKAP_MSG_REQUESTCONF)
       self.timeconfstatus=reactor.callLater(15, self.endConfStatus)
 
-
-   def checkDoubleRelDevice(self, dres, domain):
-      dmdb.Relay.find(where=["domain=? AND active=1 AND outnum!=0", domain], orderby="board_ip,outnum").addCallback(self.createDevice, domain, dres, 'relay')
-
-   def checkDoubleInpDevice(self, dres, domain):
-      dmdb.Input.find(where=["inpname=? AND active=1 AND inpnum!=0", domain], orderby="board_ip,inpnum").addCallback(self.createDevice, domain, dres, 'input')
-
-   def checkDoubleAnaDevice(self, dres, domain):
-      dmdb.Analog.find(where=["ananame=? AND active=1 AND ananum!=0", domain], orderby="board_ip,ananum").addCallback(self.createDevice, domain, dres, 'analog')
-
-   def retriveDeviceInputs(self):
-      log.debug("retriveDeviceInputs")
-      dmdb.runQuery("SELECT DISTINCT(inpname) FROM input WHERE active=1 AND inpnum!=0").addCallback(self.idomainRetrivied)
-
-   def retriveDeviceAnalogs(self):
-      log.debug("retriveDeviceAnalogs")
-      dmdb.runQuery("SELECT DISTINCT(ananame) FROM analog WHERE active=1 AND ananum!=0").addCallback(self.adomainRetrivied)
-
-   def startDevicePopulation(self, r):
-      dmdb.runQuery("SELECT DISTINCT(domain) FROM relay WHERE active=1 AND outnum!=0").addCallback(self.odomainRetrivied)
-
    def endConfStatus(self):
       log.info("finished building boardlist")
       self.updateDaemonStatus('normal')
@@ -761,10 +740,10 @@ class domotikaService(service.Service):
       if bplugin.hasOutputs:
          for o in bplugin.getOutputsConfs().values():
             # OUTPUT NOTE: is based on output not on relay! an output can have more than 1 relay...
-            dmdb.Relay.find(where=["""outnum=? AND board_name=? """, i, name]).addCallback(self.insertRelay,
+            dmdb.Relay.find(where=["""outnum=? AND board_name=? """, o.num, name]).addCallback(self.insertRelay,
                o, name, fwver
             )
-            dmdb.Output.find(where=["""outnum=? AND board_name=? """, i, name]).addCallback(self.insertOutput,
+            dmdb.Output.find(where=["""outnum=? AND board_name=? """, o.num, name]).addCallback(self.insertOutput,
                o, name, fwver
             )
          bplugin.syncOutputs()
@@ -777,7 +756,10 @@ class domotikaService(service.Service):
       if res:
          log.debug("OUTPUT %s exists (%s, %s)" % (out.dname, name, out.host))
          for c in res:
-            if c.outtype!=int(out.otype):
+            if i>0:
+               log.debug("CANNOT EXIST MORE THAN ONE OUTPUT NUM PER BOARD")
+               c.delete()
+            elif c.outtype!=int(out.otype) and i==0:
                log.debug("OUTPUT type changed. Delete old entries")
                c.delete()
                del res[i]
