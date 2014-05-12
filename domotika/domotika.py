@@ -2539,7 +2539,7 @@ class domotikaService(service.Service):
       ret='KO'
       if command[0]=='reset':
          self.resetBoards()
-         self.resetRelayist()
+         self.resetRelayList()
          self.resetAnalogList()
          #self.resetMediaSourcesList()
          self.resetActionList()
