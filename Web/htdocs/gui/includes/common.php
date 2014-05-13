@@ -30,7 +30,7 @@ function getSection($path=false)
    $GUISECTION="index"; 
    if(count($sectar)>1 and $sectar[1]!="")
       $GUISECTION=$sectar[1];
-   return $GUISECTION;
+   return mysql_real_escape_string(htmlentities($GUISECTION));
 }
 
 function getSubsection($path=false)
@@ -42,7 +42,7 @@ function getSubsection($path=false)
    $GUISUBSECTION="";
    if(count($sectar)>2)
       $GUISUBSECTION=$sectar[2];
-   return $GUISUBSECTION;
+   return mysql_real_escape_string(htmlentities($GUISUBSECTION));
 }
 
 function getSubsectionOpt($path=false)
@@ -54,7 +54,7 @@ function getSubsectionOpt($path=false)
    $GUISUBSECTIONOPT="";
    if(count($sectar)>3)
       $GUISUBSECTIONOPT=$sectar[3];
-   return $GUISUBSECTIONOPT;
+   return mysql_real_escape_string(htmlentities($GUISUBSECTIONOPT));
 }
 $BASEGUIPATH=getBaseGuiPath();
 $FSPATH=getFSPath();
@@ -62,15 +62,6 @@ $GUIPATH=getGuiPath();
 $GUISECTION=getSection();
 $GUISUBSECTION=getSubsection();
 $GUISUBSECTIONOPT=getSubsectionOpt();
-
-$left=FALSE;
-$right=FALSE;
-if(file_exists("$FSPATH/left/$GUISECTION.php"))
-{
-   $left=TRUE;
-}
-if(file_exists("$FSPATH/right/$GUISECTION.php"))
-   $right=TRUE;
 
 $dmcolors=array(
    'green' => 'success',
@@ -111,6 +102,15 @@ switch($_DOMOTIKA['right_bar'])
    case 'none': $RBAR=array(); break;
    default: $RBAR=array('medium','big'); 
 }  
+
+$left=FALSE;
+$right=FALSE;
+if(file_exists("$FSPATH/left/$GUISECTION.php") && $_DOMOTIKA['left_bar']!='none')
+{
+   $left=TRUE;
+}
+if(file_exists("$FSPATH/right/$GUISECTION.php") && $_DOMOTIKA['right_bar']!='none')
+   $right=TRUE;
 
 
 

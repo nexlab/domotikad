@@ -1,12 +1,17 @@
 <? 
 @include_once("../includes/common.php"); 
+$conflock=DB::queryFirstField("SELECT configlock  FROM users WHERE username=%s", $_DOMOTIKA['username'] );
+
 ?>
     <h1>Settings</h1>
 <ul class="nav nav-tabs">
   <li <? if($GUISUBSECTION=="") {?>class="active"<?}?>><a href="<?=$BASEGUIPATH.'/'.$GUISECTION?>">User options</a></li>
  <!-- <li <? if($GUISUBSECTION=="gui") {?>class="active"<?}?>><a href="<?=$BASEGUIPATH.'/'.$GUISECTION?>/gui">GUI options</a></li> -->
 </ul>
-<? if($GUISUBSECTION=="") {?>
+<? if($conflock=='yes') { ?>
+   <div>Configuration locked. Cannot change it, sorry</div>
+
+<? } else if($GUISUBSECTION=="") {?>
 <div class="formcontainer" >
 <form id="userform" name="userform" class="form-horizontal" style="display:none;margin-bottom:60px;">
    <div class="form-group">

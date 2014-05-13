@@ -14,7 +14,7 @@ $DEFPANELS[]=array('panel_title'=>$tr->Get($GUISUBSECTION)." - ".$tr->Get("Outpu
 $DEFPANELS[]=array('panel_title'=>$tr->Get($GUISUBSECTION)." - ".$tr->Get("Inputs"),'panel_sections'=>'input','panel_websections'=>$GUISUBSECTION,'panel_cols'=>4, 'panel_height'=>'100%')+$PANELDEFAULTS+$paneldimensions;
 $DEFPANELS[]=array('panel_title'=>$tr->Get($GUISUBSECTION)." - ".$tr->Get("Analogs"),'panel_sections'=>'analog','panel_websections'=>$GUISUBSECTION,'panel_cols'=>4, 'panel_height'=>'100%')+$PANELDEFAULTS+$paneldimensions;
 
-$panels=DB::query("SELECT * FROM user_gui_panels WHERE user='$_DOMOTIKA[username]' AND page='actuations/$GUISUBSECTION' ORDER by panel_position,id");
+$panels=DB::query("SELECT * FROM user_gui_panels WHERE user='$_DOMOTIKA[username]' AND page='actuations' and subpage='$GUISUBSECTION' ORDER by panel_position,id");
 if(!$panels or count($panels)<1) {
       $panels=$DEFPANELS;
 }
