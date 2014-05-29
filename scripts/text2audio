@@ -15,4 +15,4 @@ if [ "$2" != "en" ] && [ "$2" != "it" ] ; then
    phelp
 fi
 
-python `dirname $0`/../domotika/clouds/google/tts.py $@
+python `dirname $0`/../domotika/clouds/google/tts.py $1 $2 "${3}"

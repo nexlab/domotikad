@@ -30,7 +30,7 @@ function getSection($path=false)
    $GUISECTION="index"; 
    if(count($sectar)>1 and $sectar[1]!="")
       $GUISECTION=$sectar[1];
-   return mysql_real_escape_string(htmlentities($GUISECTION));
+   return htmlentities($GUISECTION);
 }
 
 function getSubsection($path=false)
@@ -42,7 +42,7 @@ function getSubsection($path=false)
    $GUISUBSECTION="";
    if(count($sectar)>2)
       $GUISUBSECTION=$sectar[2];
-   return mysql_real_escape_string(htmlentities($GUISUBSECTION));
+   return htmlentities($GUISUBSECTION);
 }
 
 function getSubsectionOpt($path=false)
@@ -54,7 +54,7 @@ function getSubsectionOpt($path=false)
    $GUISUBSECTIONOPT="";
    if(count($sectar)>3)
       $GUISUBSECTIONOPT=$sectar[3];
-   return mysql_real_escape_string(htmlentities($GUISUBSECTIONOPT));
+   return htmlentities($GUISUBSECTIONOPT);
 }
 $BASEGUIPATH=getBaseGuiPath();
 $FSPATH=getFSPath();
