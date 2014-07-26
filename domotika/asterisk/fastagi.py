@@ -31,7 +31,7 @@ import os, logging, time, sys
 from domotika.clouds.google import tts, speech
 import tempfile
 from txscheduling.cron import CronSchedule, parseCronLine
-
+from dmlib.utils import genutils
 
 log = logging.getLogger( 'FastAGI' )
 
@@ -329,6 +329,8 @@ class CheckIn(BaseCheck):
    def checkAlias(self, res):
       if res:
          alias=res
+         if genutils.isTrue(res.launch_voipaction):
+            self.core.manageAction(alias.voip_action_name)
          return self.fagi.goTo(alias.contextto, alias.aliasto)
       return self.close()
 
@@ -347,6 +349,8 @@ class CheckInternals(BaseCheck):
    def checkAlias(self, res):
       if res:
          alias=res
+         if genutils.isTrue(res.launch_voipaction):
+            self.core.manageAction(alias.voip_action_name)
          return self.fagi.goTo(alias.contextto, alias.aliasto)  
       self.getAction()              
 

@@ -2734,6 +2734,9 @@ class domotikaService(service.Service):
    def fagi_on_getTriggerWord(self):
       return str(self.config.get("voiceui", "triggerword")).lower()
 
+   def fagi_on_manageAction(self, action):
+      return dmdb.checkAsteriskActionByName(action).addCallback(self.manageAsteriskAction)
+
    def fagi_on_getStopWord(self):
       return str(self.config.get("voiceui", "stopword")).lower()
 
