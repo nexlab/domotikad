@@ -52,6 +52,25 @@ def statusParser(trigger, sun, restype='string'):
 
    def parseReturn(qres, reverse=False):
       qr=False
+      if type(qres).__name__=='str' and restype=='bool':
+         if qres in ['0','','false','False']:
+            if reverse:
+               return True
+            return False
+         else:
+            if reverse:
+               return False
+            return True
+
+      if type(qres).__name__ in ['int', 'bool'] and restype=='bool':
+         if qres:
+            if reverse:
+               return False
+            return True
+         if reverse:
+            return True
+         return False
+         
       if type(qres).__name__=='int' and restype=='int':
          qr=qres
       else:
