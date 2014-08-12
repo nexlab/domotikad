@@ -81,15 +81,15 @@ class OWMWeather(object):
       except:
          self.data['pressure'] = 'unknown'
       try:
-         self.data['temp.min'] = data[u'main'][u'temp_min']-273.15
+         self.data['temp.min'] = data[u'main'][u'temp_min'] #-273.15
       except:
          self.data['temp.min'] = 'unknown'
       try:
-         self.data['temp.max'] = data[u'main'][u'temp_max']-273.15
+         self.data['temp.max'] = data[u'main'][u'temp_max'] #-273.15
       except:
          self.data['temp.max'] = 'unknown'
       try:
-         self.data['temp'] = data[u'main'][u'temp']-273.15
+         self.data['temp'] = data[u'main'][u'temp'] #-273.15
       except:
          self.data['temp'] = 'unknown'
       try:
