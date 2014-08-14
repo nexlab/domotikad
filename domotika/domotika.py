@@ -2120,6 +2120,12 @@ class domotikaService(service.Service):
                            sel=sel.replace("DIMMER:","3,")
                         else:
                            sel=sel.replace("DIMMER:","03")
+                     elif sel.startswith("RGBCHAN:"):
+                        if ',' in sel:
+                           sel=sel.replace("RGBCHAN:","4,")
+                        else:
+                           sel=sel.replace("RGBCHAN:","04")
+
                      if ',' in sel:
                         # '255,255,255'
                         sel=map(int, sel.split(','))
