@@ -1171,7 +1171,7 @@ class domotikaService(service.Service):
          log.debug(command)
          command=command[7:]
          subprocess.Popen(
-            command.replace("\r\n", " ").replace('[[SRC]]', src), 
+            command.replace("\r\n", " ").replace('[[SRCVAL]]', src), 
             shell=True, preexec_fn = os.setsid)
       elif command.startswith("IOCONF ") or command.startswith("IOCONF:"):
          command=command[7:]
@@ -1203,7 +1203,8 @@ class domotikaService(service.Service):
          csrc=com.split()[0]
          cdst=com.split()[1]
          msg=" ".join(com.split()[2:])
-         
+         msg=msg.replace('[[SRCVAL]]', src)
+
          if cdst=='all' and not ':' in cdst:
             dmdb.getAllUsers().addCallback(multipleInsertNotify, csrc, expire, msg)
          elif ':' in cdst:
@@ -1218,7 +1219,7 @@ class domotikaService(service.Service):
       elif command.startswith("SQL ") or command.startswith("SQL:"):
          sqlstring=command[4:]
          try:
-            dmdb.runOperation(sqlstring)
+            dmdb.runOperation(sqlstring.replace('[[SRCVAL]]', src))
          except:
             pass
 
@@ -1227,6 +1228,7 @@ class domotikaService(service.Service):
             fc=command[8:].split(':')
          else:
             fc=command[8:].split()
+         fc[0]=fc[0].replace('[[SRCVAL]]', src)
          if len(fc)>1:
             if genutils.is_number(fc[1]):
                expire=time.time()+float(fc[1])
@@ -1367,6 +1369,7 @@ class domotikaService(service.Service):
             pnumbers=command.split("] ")[1].split()[1:]
          else:
             pnumbers=command.split("] ")[1].split()
+         ptext=ptext.replace('[[SRCVAL]]', src)
          self.astmanager.phoneSay(ptext, pnumbers, retry=int(pretry),
                                    interval=int(pinterval), replay=int(preplay), engine=str(engine))
 
@@ -1390,6 +1393,7 @@ class domotikaService(service.Service):
             pnumbers=command.split()[2:]
          else:
             pnumbers=command.split()[1:]
+         pfile=pfile.replace('[[SRCVAL]]', src)
          self.astmanager.phonePlay(pfile, pnumbers, retry=int(pretry), 
                                    interval=int(pinterval), replay=int(preplay))
 
