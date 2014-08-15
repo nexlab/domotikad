@@ -1160,7 +1160,7 @@ class domotikaService(service.Service):
             if 'status' in args.keys():
                status=args['status']
 
-   def executeAction(self, command):
+   def executeAction(self, command, src='internal'):
       def multipleInsertNotify(dbres, nsrc, expire, msg):
          if dbres:
             for ue in dbres:
@@ -1171,7 +1171,7 @@ class domotikaService(service.Service):
          log.debug(command)
          command=command[7:]
          subprocess.Popen(
-            command.replace("\r\n", " "), 
+            command.replace("\r\n", " ").replace('[[SRC]]', src), 
             shell=True, preexec_fn = os.setsid)
       elif command.startswith("IOCONF ") or command.startswith("IOCONF:"):
          command=command[7:]
@@ -1195,7 +1195,7 @@ class domotikaService(service.Service):
          dmdb.updateNetStatus(nst).addCallback(self.sendNetStatus, True)
       elif command.startswith("EMAIL ") or command.startswith("EMAIL:"):
          mname=command[6:]
-         email.sendEmailByName(mname)
+         email.sendEmailByName(mname, sval=src)
 
       elif command.startswith("NOTIFY ") or command.startswith("NOTIFY:"):
          expire=time.time()+float(self.config.get("general", "notify_expiretime"))
@@ -1395,7 +1395,7 @@ class domotikaService(service.Service):
 
 
 
-   def parseAction(self, res, restype="action"):
+   def parseAction(self, res, restype="action", s='internal'):
       if restype=="action":
          try:
             timedict=parseCronLine(
@@ -1423,7 +1423,7 @@ class domotikaService(service.Service):
             return
 
       if genutils.isTrue(res.execute):
-         self.executeAction(res.command)
+         self.executeAction(res.command, src=s)
       if genutils.isTrue(res.ikapacket):
          self.sendCommand(res.ikap_dst, act=res.ikap_act, ctx=res.ikap_ctx, msgtype=res.ikap_msgtype,
             arg=res.ikap_arg, src=res.ikap_src, ipdst=str(res.ipdest))
@@ -1990,16 +1990,16 @@ class domotikaService(service.Service):
          return False
       return True      
 
-   def manageRecvPkt(self, res, argdict):
+   def manageRecvPkt(self, res, argdict, src='internal'):
       # XXX Usiamo un generator o reactor.callLater?
       if res:
          log.debug("ManageRcvPkt "+str(res))
          for r in res:
             if genutils.isTrue(r.use_rcv_arg):
                if argdict and self.checkRcvArg(r.rcv_arg, argdict):
-                  self.parseAction(r)
+                  self.parseAction(r, s=src)
             else:
-               self.parseAction(r)
+               self.parseAction(r, s=src)
 
    def on_callback(self, who, cmd, *args, **kwargs):
       f=getattr(self, who+'_on_'+cmd, None)
@@ -2699,7 +2699,7 @@ class domotikaService(service.Service):
       dmdb.matchIncomingPacket(dst, src, 
             ikahdr.msgtype, ikahdr.ctx, 
             ikahdr.act, islocal=islocal).addCallback(
-               self.manageRecvPkt, argdict
+               self.manageRecvPkt, argdict, src
             )
       events.postEvent(events.NetworkEvent(dst, src, ikahdr, arg, host))
       if arg:

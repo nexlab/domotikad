@@ -135,7 +135,7 @@ class DMEmail(object):
       return d.addCallbacks(self.end)
 
 
-def _realSendMime(ser, res):
+def _realSendMime(ser, res, sval='internal'):
    if ser:
       for s in ser:
          e=DMEmail()
@@ -154,19 +154,19 @@ def _realSendMime(ser, res):
             e.setFrom(m.sender)
             e.setTo(m.to.split(','))
             e.setSubject(m.subject)
-            e.setMessage(m.message)
+            e.setMessage(m.message.replace('[[SRCVAL]]', sval))
             e.send()
 
-def _sendEmailMime(res):
+def _sendEmailMime(res, sval='internal'):
    if res:
-      dmdb.EmailConf.find().addCallback(_realSendMime, res)
+      dmdb.EmailConf.find().addCallback(_realSendMime, res, sval)
 
-def _realSendMail(ser, sender, recipient, message):
+def _realSendMail(ser, sender, recipient, message, sval='internal'):
    if ser:
       e=DMEmail()
       e.setFrom(sender)
       e.setTo(recipient.split(','))
-      e.setMessage(message)
+      e.setMessage(message.replace('[[SRCVAL]]', sval) )
       
       for s in ser:
          e.setServer(s.server, s.port)
@@ -188,12 +188,12 @@ def sendMail(sender, recipient, message):
    return dmdb.EmailConf.find().addCallback(_realSendMail, sender, recipient, message)
 
 
-def sendEmailByName(name):
-   dmdb.Email.find(where=["name=?", name]).addCallback(_sendEmailMime)
+def sendEmailByName(name, sval='internal'):
+   dmdb.Email.find(where=["name=?", name]).addCallback(_sendEmailMime, sval)
 
 
-def sendEmailById(mailid):
-   dbdb.Email.find(where=["id=?", mailid]).addCallback(_sendEmailMime)
+def sendEmailById(mailid, sval='internal'):
+   dbdb.Email.find(where=["id=?", mailid]).addCallback(_sendEmailMime, sval)
 
 
 
