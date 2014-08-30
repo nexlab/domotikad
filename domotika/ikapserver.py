@@ -286,21 +286,53 @@ class DomIkaBaseProtocol(object):
                         larg=len(arg)
                      
                         self.core.updateBoardLastStatus(host, port, ptype, src)
-                     
+
+                     if msg_fwtype==C.FWTYPE_RELAYMASTERANA:
+                        rawio=list("".join(
+                           ["".join(revlist(list(bin(x).replace("0b", "").zfill(8)))) for x in iter(astr[5:9])]))
+
+                        # For compatibility with pre-5 firmware
+                        if host in o.get_boardlist():
+                           rawio=list("".join(
+                              ["".join(revlist(list(bin(x).replace("0b", "").zfill(8)))) for x in iter(astr[0:4])]))
+
+                        rawrel=rawio[0:12]
+                        rawinp=rawio[16:28]
+                        if baseboard_type==C.BOARD_WORKER_12R12I_v3:
+                           anab=9
+                           for an in xrange(1, 9):
+                              self.core.setAnalogStatus(src, host, port, ptype, an,
+                                 struct.unpack('<h', struct.pack('<2B', *astr[anab:anab+2]))[0])
+                              anab+=2
+
+                        rawamp=dst[13:19]
+
+                        map(lambda x,y: reactor.callLater(0.01,
+                           self.core.setRelayStatus, src, host, port, ptype, x, y, rawamp[x-1]),
+                           xrange(1,7), iter(rawrel))
+
+                        map(lambda x,y: reactor.callLater(0.05,
+                           self.core.setInputStatus, src, host, port, ptype, x, str(int(y))),
+                           xrange(1, 13), iter(rawinp))
+
+                        larg=len(arg)
+
+                        self.core.updateBoardLastStatus(host, port, ptype, src)
+
                   reactor.callLater(0.1, manageIOSTATUS, self, arg)
 
                elif dst.startswith("BOARDTYPE"):
                   # XXX Remove obsolete boards schema
                   if len(arg) > 9:
-                     if str(arg[5:]) in ['DMRv3', 'DMRv1', 'DMSnt84']:
+                     if str(arg[5:]) in ['DMRv3', 'DMRv1', 'DMSnt84','DMRv4']:
                         fwver=int(struct.unpack('<B', arg[4])[0])
                         self.core.addBoard(str(arg[5:]), fwver, src, host, 80, port, ptype)
-                     elif str(arg[7:]) in ['DMRv3', 'DMRv1', 'DMSnt84']:
+                     elif str(arg[7:]) in ['DMRv3', 'DMRv1', 'DMSnt84','DMRv4']:
                         fwver=int(struct.unpack('<B', arg[4])[0])
                         webport=int(struct.unpack('<H', arg[5:7])[0])
                         self.core.addBoard(str(arg[7:]), fwver, src, host, webport, port, ptype)
                   else:
-                     if str(arg[4:]) in ['DMRv3', 'DMRv1', 'DMSnt84']:
+                     if str(arg[4:]) in ['DMRv3', 'DMRv1', 'DMSnt84','DMRv4']:
                         fwver=int(struct.unpack('<B', arg[3])[0])
                         self.core.addBoard(str(arg[4:]), fwver, src, host, 80, port, ptype)
                elif dst.startswith("RELAYSTATUS.CHANGE") and self.checkTimeLimits(self.ikahdr.epoch):
