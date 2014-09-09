@@ -296,7 +296,7 @@ class DomIkaBaseProtocol(object):
                            rawio=list("".join(
                               ["".join(revlist(list(bin(x).replace("0b", "").zfill(8)))) for x in iter(astr[0:4])]))
 
-                        rawrel=rawio[0:12]
+                        rawrel=rawio[0:6]
                         rawinp=rawio[16:28]
                         if baseboard_type==C.BOARD_WORKER_12R12I_v3:
                            anab=9
