@@ -263,7 +263,7 @@ class ANABoard(object):
       boardname=str(xml.getElementsByTagName(self.boardXML, 'cfg_hostname')[0].firstChild().toxml())
       boardip=str(xml.getElementsByTagName(self.boardXML, 'cfg_ip')[0].firstChild().toxml())
       log.info("Syncing board "+str(boardname)+" at "+str(boardip))
-      for i in [self.firstAna, self.firstAna+self.numAna-1]:
+      for i in xrange(self.firstAna, self.firstAna+self.numAna):
          aname=xml.getElementsByTagName(self.ioXML, 'i'+str(i))[0].firstChild().toxml()
          for n in xrange(1, 5):
             sconf=str(xml.getElementsByTagName(self.ioXML, 'i'+str(i)+'s'+str(n))[0].firstChild().toxml()).split(';')
@@ -316,9 +316,11 @@ class ANABoard(object):
       else:
          s=str(status)
       if not ananum or ananum=='*':
-         self._pushAnalog(1, s, dataonly, bname).addCallback(lambda x: self._pushAnalog(2, s, dataonly, bname))
+         p = self._pushAnalog(1, s, dataonly, bname)
+         for i in xrange(2, self.numAna+1):
+            p.addCallback(lambda x: self._pushAnalog(i, s, dataonly, bname))
       else:
-         if genutils.is_number(ananum) and int(ananum) in [1,2]:
+         if genutils.is_number(ananum) and int(ananum) in xrange(1, self.numAna+1):
             self._pushAnalog(int(ananum), s, dataonly, bname)
 
    def _sendAnalogIOConf(self, res, dataonly=False):
