@@ -229,7 +229,7 @@ class ANABoard(object):
    def getAnalogsNames(self):
       if not self.analist:
          ret = {}
-         for i in [self.firstAna, self.firstAna+self.numAna-1]:
+         for i in xrange(self.firstAna, self.numInp+self.numAna):
             ana=BoardAnalog()
             ana.name = xml.getElementsByTagName(self.ioXML, 'i'+str(i))[0].firstChild().toxml()
             ana.num = i-12
