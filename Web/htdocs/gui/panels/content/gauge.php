@@ -2,7 +2,6 @@
 <? 
 if($panel && is_array($panel)) { 
    $buttonar=getPanelButtons($_DOMOTIKA['username'],$panel['panel_content'],$panel['panel_sections'],$panel['panel_websections'],$panel['panel_selector'],true);
-   //print_r($buttonar);
    if(is_numeric($panel['panel_height'])) $panel['panel_height'].="px";
    $visible="";
    if($panel['panel_visible']!="all") $visible=$panel['panel_visible'];

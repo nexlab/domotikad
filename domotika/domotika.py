@@ -1967,6 +1967,15 @@ class domotikaService(service.Service):
                elif cmd=='IOSUBTYPE':
                   if argdict['io_subtype'] is None or int(sel)!=argdict['io_subtype']:
                      return False
+               elif cmd=='ASCII':
+                  log.info("ASCII MATCH: "+str(argdict['raw'])+" "+str(sel))
+                  if argdict['raw'] is None:
+                     log.info("ASCII RAW IS NONE")
+                     return False
+                  if str(argdict['raw'])!=str(sel):
+                     log.info("ASCII DESN'T MATCH! "+str(sel))
+                     return False
+                  log.info("ASCII MATCHED! "+str(sel))
                elif cmd=='ARGDATA':
                   if argdict['arg_data'] is None:
                      return False
