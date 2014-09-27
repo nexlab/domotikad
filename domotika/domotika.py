@@ -1564,6 +1564,11 @@ class domotikaService(service.Service):
                # normally and go to next step in normal timing
                exstep=True
                immediatenext=False
+         else:
+            if res.condition_act in ['GOTOSTEP','STOP','RESTART','IGNORE','NEXT']:
+               exstep=True
+               immediatenext=False
+
 
 
       if exstep:
