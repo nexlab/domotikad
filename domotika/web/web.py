@@ -203,8 +203,14 @@ class RootPage(rend.Page):
                self.core.updateSession(session.uid, session, self)
                return rend.Page.locateChild(self, ctx, name)
          except:
-            log.info("Error getting permission from DB USER: "+session.mind.perms.username+" SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
-         log.info("PERMISSION DB DENIED, USER: "+session.mind.perms.username+" SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
+            try:
+               log.info("Error getting permission from DB USER: "+session.mind.perms.username+" SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
+            except:
+               log.info("Error getting permission from DB USER: GUEST  SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
+         try:
+            log.info("PERMISSION DB DENIED, USER: "+session.mind.perms.username+" SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
+         except:
+            log.info("PERMISSION DB DENIED, USER: GUEST SESSION: "+str(session.uid)+" ARGS: "+str(request.args)+" REQ "+str(request))
          return permissionDenied(), ()
       if not 'sse' in dir(session):
          session.sse = False
@@ -212,9 +218,23 @@ class RootPage(rend.Page):
          session.dmpermissions={}
       if not request.path in session.dmpermissions.keys():
          session.dmpermissions[request.path] = 'none'
-      return self.core.getPermissionForPath(session.mind.perms.username, request.path).addCallback(
-         addPerms, ctx, name, session, request
-      )
+      try:
+         log.info("SESS: "+str(session.uid)+" MIND: "+str(session.mind.perms)+" DMPERMS "+str(session.dmpermissions))
+         return self.core.getPermissionForPath(session.mind.perms.username, request.path).addCallback(
+            addPerms, ctx, name, session, request
+         )
+      except:
+         log.info("USERS HAS NO MIND??? "+str(request.path)+" "+str(session.uid)+" "+str(request.args)+" REQ "+str(request)+" "+str(session.dmpermissions))
+         if 'username' in session.dmpermissions.keys():
+            log.debug("BUT IT HAS DMPERMISSION... "+str(session.dmpermissions))
+            return self.core.getPermissionForPath(session.dmpermissions['username'], request.path).addCallback(
+               addPerms, ctx, name, session, request
+            )
+         else:
+            log.debug("ALSO NO USERNAME IN DMPERMISSION "+str(session.uid))
+            return self.core.getPermissionForPath('guest', request.path).addCallback(
+               addPerms, ctx, name, session, request
+            )
 
    def locateChild(self, ctx, name):
       session = inevow.ISession(ctx)
@@ -496,20 +516,20 @@ class LoginPage(rend.Page):
 
       request = inevow.IRequest(ctx)
       host=request.getHeader('host')
-      log.debug("LOGIN HOST CALLED: "+str(host))
+      log.info("LOGIN HOST CALLED: "+str(host))
       cookies=request.getHeader('cookie')
       if cookies:
          cookies=cookies.replace(" ","").split(';')
          for cookie in cookies:
             cookiename = cookie.split("=")[0]
             if cookiename.startswith('Domotikad_session'):
-               log.debug("REMOVE COOKIE: "+str(request.getCookie(cookie.split("=")[0])))
+               log.info("REMOVE COOKIE: "+str(request.getCookie(cookie.split("=")[0])))
                # XXX This won't work as expected if user is logging in with path != from "/"
                # Also, is cookie secure even for http requests?
                request.addCookie(cookiename, cookie.split("=")[1],  expires=http.datetimeToString(time.time()), path="/", secure=True)
             elif cookiename.startswith('Domotikad_rme'):
                rmec=str(request.getCookie("Domotikad_rme"))
-               log.debug("RememberMe COOKIE FOUND: "+rmec)
+               log.info("RememberMe COOKIE FOUND: "+rmec)
                rmecl = rmec.split(':')
                try:
                   if len(rmecl) > 1:
@@ -529,7 +549,7 @@ class LoginPage(rend.Page):
          log.info("LOGIN FORM FOR PATH "+request.path)
          return self.getStandardHTML(request.path)
       else:
-         log.debug("LOGIN FROM COOKIE FOR PATH "+request.path)
+         log.info("LOGIN FROM COOKIE FOR PATH "+request.path)
          return rme.addCallback(self.rmelogin, request, rmec)
 
 
@@ -543,7 +563,7 @@ class LoginPage(rend.Page):
       return html
 
    def getScript(self, path):
-      return '<script> window.onload=function(){ document.loginform.submit(); };</script>'
+      return '<script> window.onload=function(){ window.setTimeout(function() {document.loginform.submit();}, 1000); };</script>'
 
    def rmelogin(self, res, req, has):
       if res and (('__len__' in dir(res) and len(res) > 0) or res!=None ) and len(has.split(":", 1)) > 1:
@@ -556,7 +576,7 @@ class LoginPage(rend.Page):
          if len(rme.split()) == 3:
             u, lp, p = rme.split()
             if user.username == u and user.passwd == p:
-               log.debug("Cookie login succeed for user "+user.username)
+               log.info("Cookie login succeed for user "+user.username)
                try:
                   expire=http.datetimeToString(time.time() + 3600*24*365*50)
                except:

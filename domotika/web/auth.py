@@ -89,7 +89,7 @@ class clientAuth(object):
       return False
 
    def requestAvatarId(self, c):
-      log.debug('AUTH: '+str(c))
+      log.debug('AUTH: '+str(c)+" "+str(c.username))
       return self.checkAuth(c.username, c.password).addCallback(
          self.getPerms, c.password).addCallback(
          self.AvatarResults, c)
