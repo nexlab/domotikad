@@ -17,19 +17,24 @@ class DMSun(object):
 
       #To get U.S. Naval Astronomical Almanac values, use these settings
       self.obs.pressure= 0
+      self.shift = 0
 
-   def setObsDate(self):
+   def _checkDate(self, shift=0):
+      if self.today != date.today() or self.shift != shift:
+         self.setObsDate(shift)
+
+   def setObsDate(self, shift=0):
       # detect utf offset
       diff = round((datetime.now()-datetime.utcnow()).total_seconds())
-   
+      
+      self.shift = shift
       self.today = date.today()
       # midnight of today
-      utcmidnight = datetime.combine(date.today(), dtime(0,0,0))+timedelta(seconds=int(diff))
+      utcmidnight = datetime.combine(date.today(), dtime(0,0,0))+timedelta(seconds=int(diff))+timedelta(seconds=int(shift))
       self.obs.date =str(utcmidnight)
 
-   def getReal(self):
-      if self.today != date.today():
-         self.setObsDate()
+   def getReal(self, shift=0):
+      self._checkDate(shift)
       now = time.time()
       self.obs.horizon = '-0:34'
       sunrise=self.obs.previous_rising(ephem.Sun()) #Sunrise
@@ -48,11 +53,12 @@ class DMSun(object):
       dayreal = 0
       if now > sunrise_ts and now < sunset_ts:
          dayreal = 1
-      return {'status':dayreal, 'start':(ephem.localtime(sunrise), sunrise_ts), 'stop':(ephem.localtime(sunset), sunset_ts)}
+      r={'status':dayreal, 'start':(ephem.localtime(sunrise), sunrise_ts), 'stop':(ephem.localtime(sunset), sunset_ts)}
+      self._checkDate(0)
+      return r
 
-   def getMax(self):
-      if self.today != date.today():
-         self.setObsDate()
+   def getMax(self,shift=0):
+      self._checkDate(shift)
       now = time.time()
       self.obs.horizon = '-0:34'
       sunrise=self.obs.previous_rising(ephem.Sun()) #Sunrise
@@ -72,12 +78,13 @@ class DMSun(object):
       daymax = 0
       if now > daymax_ts-1800 and now < daymax_ts+1800:
          daymax = 1
-      return {'status':daymax, 'start':(ephem.localtime(noon)-timedelta(seconds=1800), daymax_ts-1800), 
+      r={'status':daymax, 'start':(ephem.localtime(noon)-timedelta(seconds=1800), daymax_ts-1800), 
                'stop':(ephem.localtime(noon)+timedelta(seconds=1800), daymax_ts+1800)}
+      self._checkDate(0)
+      return r
 
-   def getCivil(self):
-      if self.today != date.today():
-         self.setObsDate()
+   def getCivil(self, shift=0):
+      self._checkDate(shift)
       now = time.time()
       self.obs.horizon = '-6'
    
@@ -97,13 +104,15 @@ class DMSun(object):
       daycivil = 0
       if now > beg_civil_twilight_ts and now < end_civil_twilight_ts:
          daycivil = 1
-      return {'status':daycivil, 'start':(ephem.localtime(beg_civil_twilight), beg_civil_twilight_ts),  
+      r={'status':daycivil, 'start':(ephem.localtime(beg_civil_twilight), beg_civil_twilight_ts),  
                'stop':(ephem.localtime(end_civil_twilight), end_civil_twilight_ts)}
+      self._checkDate(0)
+      return r
 
 
-   def getAstro(self):
-      if self.today != date.today():
-         self.setObsDate()
+
+   def getAstro(self, shift=0):
+      self._checkDate(shift)
       now = time.time()
       self.obs.horizon = '-18'
       beg_astro_twilight=self.obs.previous_rising(ephem.Sun(), use_center=True) #Begin civil twilight
@@ -122,8 +131,11 @@ class DMSun(object):
       if now > beg_astro_twilight_ts and now < end_astro_twilight_ts:
          dayastro = 1
 
-      return {'status':dayastro, 'start':(ephem.localtime(beg_astro_twilight), beg_astro_twilight_ts),  
+      r={'status':dayastro, 'start':(ephem.localtime(beg_astro_twilight), beg_astro_twilight_ts),  
                'stop':(ephem.localtime(end_astro_twilight), end_astro_twilight_ts)}
+      self._checkDate(0)
+      return r
+
 
 
 if __name__ == '__main__':

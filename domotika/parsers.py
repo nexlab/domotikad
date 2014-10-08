@@ -464,13 +464,25 @@ def statusParser(trigger, sun, restype='string'):
          except:
             pass
    elif trigger.startswith('DAYREAL'):
-      ret=defer.succeed(sun.getReal()['status']).addCallback(parseReturn, reverse)
+      shift=0
+      if '+' in trigger or '-' in trigger:
+         shift=int(trigger.replace('DAYREAL',''))  
+      ret=defer.succeed(sun.getReal(shift)['status']).addCallback(parseReturn, reverse)
    elif trigger.startswith('DAYMAX'):
-      ret=defer.succeed(sun.getMax()['status']).addCallback(parseReturn, reverse)
+      shift=0
+      if '+' in trigger or '-' in trigger:
+         shift=int(trigger.replace('DAYMAX',''))
+      ret=defer.succeed(sun.getMax(shift)['status']).addCallback(parseReturn, reverse)
    elif trigger.startswith('DAYCIVIL'):
-      ret=defer.succeed(sun.getCivil()['status']).addCallback(parseReturn, reverse)
+      shift=0
+      if '+' in trigger or '-' in trigger:
+         shift=int(trigger.replace('DAYCIVIL',''))
+      ret=defer.succeed(sun.getCivil(shift)['status']).addCallback(parseReturn, reverse)
    elif trigger.startswith('DAYASTRO'):
-      ret=defer.succeed(sun.getAstro()['status']).addCallback(parseReturn, reverse)
+      shift=0
+      if '+' in trigger or '-' in trigger:
+         shift=int(trigger.replace('DAYASTRO',''))
+      ret=defer.succeed(sun.getAstro(shift)['status']).addCallback(parseReturn, reverse)
 
    elif trigger=="TRUE" or trigger=="1":
       ret= defer.succeed(1).addCallback(parseReturn, reverse)
