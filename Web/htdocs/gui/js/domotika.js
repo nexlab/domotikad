@@ -217,6 +217,16 @@
       $.post("/rest/v1.2/actions/speech_text/json", spobj.serialize(), speechResult );
    }
 
+   function setSpeechText(terms)
+   {
+      // XXX Sistema sta cosa!
+      console.debug("SpeechRecognized: "+terms);
+      $("#speech [name=text]").val(terms);
+      $("#speechsm [name=text]").val(terms);
+      sendSpeech($("#speech"));
+   }
+
+
    // Test SpeechAPI
    var speechStartWord='*terms';
    if((speechEnabled=='touch' && document.createElement('input').webkitSpeech==undefined) || speechEnabled=='continuous')
@@ -226,6 +236,7 @@
          if(window.annyang)
          {
             $("#speechbutton").show(); // it isn't chrome with webkit-speech attribute, but it support WEB Speech API
+            annyang.setCatchAll(setSpeechText);
          }
          else
          {
@@ -234,38 +245,33 @@
          }
       } else {
          $("#speechbutton").hide();
-         speechStartWord='ok domotica *terms';
+         if(window.annyang)
+            annyang.addCommands({'ok domotica *terms': setSpeechText});
       }
    } else {
       speechEnabled='touch-chrome';
    }
 
-   function setSpeechText(terms)
-   {
-      // XXX Sistema sta cosa!
-      $("#speech [name=text]").val(terms);
-      $("#speechsm [name=text]").val(terms);
-      console.debug("SpeechRecognized: "+terms)
-      sendSpeech($("#speech"));
-   }
-
    var commands = {
-      speechStartWord: setSpeechText 
+      'hello domotica': function(){console.debug('hello domotika!');} 
    };
 
    if(speechEnabled=='touch' || speechEnabled=='continuous') 
    {
       try {
-         annyang.init(commands);
+         annyang.addCommands(commands);
       } catch(err) {
          annyang=null;
       }
       if(annyang) {
          annyang.setLanguage('<?=$_DOMOTIKA['speechlang']?>');
          if(speechEnabled=='continuous')
-            annyang.start();
+            annyang.start({ autoRestart: true });
          else if(speechEnabled=='touch')
-            annyang.setContinuous(false);
+            //annyang.setContinuous(false);
+            $("#speechbutton").click(function() { 
+                annyang.start({ autoRestart: false }); 
+            });
       } else {
          $("#speechbutton").hide();
          speechEnabled='no';
