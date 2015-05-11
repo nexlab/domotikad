@@ -97,11 +97,12 @@ class DMEmail(object):
    def needTls(self, tls=True):
       self.tls = tls
 
-   def end(r):
+   def end(self, r):
       try:
          self.reactor.disconnect()
       except:
          pass
+      log.debug("Sendmail has returned "+str(r))
       return 'OK'
 
    def send(self, usemime=True):
@@ -132,7 +133,7 @@ class DMEmail(object):
       )
 
       self.reactor = reactor.connectTCP(self.server, self.port, senderFactory)
-      return d.addCallbacks(self.end)
+      return d.addCallbacks(self.end, self.end)
 
 
 def _realSendMime(ser, res, sval='internal'):
