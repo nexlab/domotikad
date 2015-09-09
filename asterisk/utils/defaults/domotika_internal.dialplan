@@ -31,3 +31,6 @@ exten => _[a-z].,1,AGI(agi://${AGIHOST}:${AGIPORT}/internal)
 exten => _[a-z].,n,Goto(domotika_out,${EXTEN},1)
 exten => _[A-Z].,1,AGI(agi://${AGIHOST}:${AGIPORT}/internal)
 exten => _[A-Z].,n,Goto(domotika_out,${EXTEN},1)
+exten => _+.,1,AGI(agi://${AGIHOST}:${AGIPORT}/internal)
+exten => _+.,n,Goto(domotika_out,${EXTEN},1)
+

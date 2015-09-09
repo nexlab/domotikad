@@ -792,6 +792,10 @@ def initializeAutoDetection():
 def checkSpeechActions(speech):
    return SpeechActions.find(where=['speech_string=? AND active>0', speech])
 
+def getOtherSpeech(speech):
+   s=speech.replace(" ","%")+"%"
+
+
 def insertNotify(source, user, msg, expire=0):
    n=Notifications()
    n.source=source

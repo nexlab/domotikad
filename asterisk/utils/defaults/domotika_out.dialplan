@@ -27,3 +27,6 @@ exten => _[a-z].,1,Dial(SIP/pstn/${EXTEN},,r)
 exten => _[a-z].,n,Hangup()
 exten => _X.,1,Dial(SIP/pstn/${EXTEN},,r)
 exten => _X.,n,Hangup()
+exten => _+39.,1,Dial(SIP/pstn/${EXTEN:3},,r)
+exten => _+39.,n,Hangup()
+

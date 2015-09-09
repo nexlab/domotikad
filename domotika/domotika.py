@@ -1326,7 +1326,7 @@ class domotikaService(service.Service):
             if(len(command)>1):
                opts=command[1]
                for opt in opts.split(','):
-                  optp=opt.split('=')[0]
+                  optp=opt.split('=')
                   if len(optp)>1 and optp[0] in topt.keys():
                      optk=optp[0]
                      optv=optp[1]
