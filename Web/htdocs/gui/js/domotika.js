@@ -194,7 +194,8 @@
          audio.setAttribute('id' , 'playTTS_audio');
       }
       // XXX BUG: webkit based browsers seems to not work with https:// in <audio>, so, we fix this to http
-      audio.setAttribute('src', 'http://translate.google.com/translate_tts?tl='+lang+'&q=' + encodeURIComponent(text));
+      //audio.setAttribute('src', 'http://translate.google.com/translate_tts?tl='+lang+'&q=' + encodeURIComponent(text));
+      audio.setAttribute('src', 'http://code.responsivevoice.org/getvoice.php?tl='+lang+'&t=' + encodeURIComponent(text));
       audio.load();
       audio.play();
       return audio;

@@ -29,7 +29,7 @@ from twisted.internet import defer
 from twisted.internet import utils as twutils
 import os
 
-TTSURI="http://translate.google.com/translate_tts"
+TTSURI="https://translate.google.com/translate_tts"
 
 def getSampleRate(fname):
    ext=fname.split(".")[-1:]
@@ -42,13 +42,14 @@ def getSampleRate(fname):
       
 class TTS(object):
 
-   agent="Mozilla/5.0 (X11; Linux; rv:8.0) Gecko/20100101"
+   agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.6 Safari/537.36"
 
    def __init__(self, text, lang="it"):
       self.text = urllib.quote(text.encode('utf8', 'ignore'))
       self.audiourl = TTSURI+"?tl="+lang+"&q="+self.text
 
    def getAudio(self):
+      print "get", self.audiourl
       return web.getPage(self.audiourl, agent=self.agent)
  
    def saveAudioFile(self, nfile=False, raw=True):
@@ -56,6 +57,7 @@ class TTS(object):
          nfile=tempfile.mktemp(prefix="googletts-", suffix=".mp3")
 
       def saveFile(fcont):
+         print "tornato"
          f=open(nfile, "w")
          f.write(fcont)
          f.close()

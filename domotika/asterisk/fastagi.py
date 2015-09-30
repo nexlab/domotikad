@@ -28,7 +28,10 @@ from twisted.protocols import basic
 import socket, logging, time
 from starpy import error, fastagi
 import os, logging, time, sys
-from domotika.clouds.google import tts, speech
+#from domotika.clouds.google import tts, speech
+from domotika.clouds.google import tts as googletts
+from domotika.clouds.google import speech
+from domotika.clouds.responsivevoice import tts
 import tempfile
 from txscheduling.cron import CronSchedule, parseCronLine
 from dmlib.utils import genutils
@@ -290,7 +293,11 @@ class DMSayText(BaseCheck):
          return self.play(saytext, replay, 
             ".".join(playfile.split(".")[:-1]), ".".join(playfile.split(".")[-1:]))
       if engine=='google':
-         gtts=tts.TTS(saytext, tlang) 
+         gtts=googletts.TTS(saytext, tlang) 
+         playfile=tempfile.mktemp(prefix="googletts-", suffix=".sln")
+         return gtts.convertAudioFile(fdst=playfile).addCallback(_converted, playfile)
+      elif engine=="responsivevoice":
+         gtts=tts.TTS(saytext, tlang)
          playfile=tempfile.mktemp(prefix="googletts-", suffix=".sln")
          return gtts.convertAudioFile(fdst=playfile).addCallback(_converted, playfile)
       else:
